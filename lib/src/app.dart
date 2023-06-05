@@ -95,7 +95,7 @@ class PatroneDashboard extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Image.network('https://i.pinimg.com/originals/80/bc/83/80bc83c42b42baf06c3f85e162a746e4.jpg'),
+            Image.network('https://github.com/kimberlykeisha9/wazzlitt-code/blob/master/assets/images/testimage.jpg?raw=true'),
           ],
         ),
       )
