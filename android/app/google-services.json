@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1016492729672",
+    "project_id": "wazzlitt-d7c47",
+    "storage_bucket": "wazzlitt-d7c47.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1016492729672:android:45fbca4d9f1dd744e93f7d",
+        "android_client_info": {
+          "package_name": "com.example.wazzlitt"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1016492729672-moches5sfp3d48dqm5df3pcu69l2fsdu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2MbK7XyM12YhUyN2y8c3f3NmN8OuAl_o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1016492729672-moches5sfp3d48dqm5df3pcu69l2fsdu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
