@@ -1,3 +1,5 @@
+import 'dart:io';
+// import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -35,6 +37,8 @@ class MyApp extends StatelessWidget {
               appBarTheme: AppBarTheme(
                 color: Colors.transparent,
                 elevation: 0,
+                centerTitle: true,
+                titleTextStyle: TextStyle(color: Colors.black, fontSize: 16),
                 toolbarHeight: height(context) * 0.1,
                 iconTheme: IconThemeData(color: Colors.indigo[900]!),
               ),
@@ -62,9 +66,228 @@ class MyApp extends StatelessWidget {
             'signup': (context) => const SignUp(),
             'patrone_registration': (context) => PatroneRegistration(),
             'interests': (context) => const Interests(),
+            'igniter_registration': (context) => const IgniterRegistration(),
+            'igniter_profile': (context) => IgniterProfile(),
           },
         );
       },
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class IgniterProfile extends StatefulWidget {
+  IgniterProfile({super.key});
+
+  @override
+  State<IgniterProfile> createState() => _IgniterProfileState();
+}
+
+class _IgniterProfileState extends State<IgniterProfile> {
+  File? _coverPhoto;
+
+  File? _profilePicture;
+
+  // Future<void> _pickCoverPhoto() async {
+  //   final picker = ImagePicker();
+  //   final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+
+  //   if (pickedImage != null) {
+  //     setState(() {
+  //       _coverPhoto = File(pickedImage.path);
+  //     });
+  //   }
+  // }
+
+  // Future<void> _pickProfilePicture() async {
+  //   final picker = ImagePicker();
+  //   final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+
+  //   if (pickedImage != null) {
+  //     setState(() {
+  //       _profilePicture = File(pickedImage.path);
+  //     });
+  //   }
+  // }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Edit Igniter Profile'),),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Column(
+  children: [
+    GestureDetector(
+      onTap: () {
+        // _pickCoverPhoto(); // Function to handle cover photo selection
+      },
+      child: Container(
+        width: 200,
+        height: 200,
+        decoration: BoxDecoration(
+          border: Border.all(),
+        ),
+        child: _coverPhoto != null
+            ? Image.file(
+                _coverPhoto!,
+                fit: BoxFit.cover,
+              )
+            : Icon(Icons.add_photo_alternate),
+      ),
+    ),
+    const SizedBox(height: 20),
+    GestureDetector(
+      onTap: () {
+        // _pickProfilePicture(); // Function to handle profile picture selection
+      },
+      child: Container(
+        width: 100,
+        height: 100,
+        decoration: BoxDecoration(
+          border: Border.all(),
+        ),
+        child: _profilePicture != null
+            ? Image.file(
+                _profilePicture!,
+                fit: BoxFit.cover,
+              )
+            : Icon(Icons.person),
+      ),
+    ),
+  ],
+),
+
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class IgniterRegistration extends StatelessWidget {
+  const IgniterRegistration({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Text(
+              AppLocalizations.of(context)!.createIgniter,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const Spacer(),
+            Text(
+              AppLocalizations.of(context)!.profileType,
+              textAlign: TextAlign.center,
+            ),
+            const Spacer(),
+            Expanded(
+              flex: 5,
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 30),
+                  width: width(context),
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage('assets/images/igniter-1.png'),
+                        fit: BoxFit.cover),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.eventOrganizer,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.eventOrganizerDescription,
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 5,
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 30),
+                  width: width(context),
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage('assets/images/igniter-2.png'),
+                        fit: BoxFit.cover),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.businessOwner,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.businessOwnerDescription,
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 5,
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 30),
+                  width: width(context),
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage('assets/images/igniter-3.png'),
+                        fit: BoxFit.cover),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.individual,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.individualDescription,
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -133,7 +356,8 @@ class Interests extends StatelessWidget {
               SizedBox(
                   width: width(context),
                   child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () =>
+                          Navigator.pushNamed(context, 'igniter_registration'),
                       child: Text(AppLocalizations.of(context)!.proceed)))
             ],
           ),
@@ -173,77 +397,92 @@ class PatroneRegistration extends StatelessWidget {
                 AppLocalizations.of(context)!.accountDetails,
               ),
               const Spacer(),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Column(
+              Expanded(
+                flex: 12,
+                child: SizedBox(
+                  width: width(context),
+                  height: height(context) * 0.5,
+                  child: ListView(
                     children: [
-                      TextFormField(
-                        controller: firstNameController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.fname,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5, bottom: 15),
+                        child: TextFormField(
+                          controller: firstNameController,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.fname,
+                          ),
+                          autofillHints: const [AutofillHints.name],
+                          keyboardType: TextInputType.name,
+                          textCapitalization: TextCapitalization.words,
                         ),
-                        autofillHints: const [AutofillHints.name],
-                        keyboardType: TextInputType.name,
-                        textCapitalization: TextCapitalization.words,
                       ),
-                      const Spacer(),
-                      TextFormField(
-                        controller: lastNameController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.lname,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: TextFormField(
+                          controller: lastNameController,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.lname,
+                          ),
+                          autofillHints: const [AutofillHints.name],
+                          keyboardType: TextInputType.name,
+                          textCapitalization: TextCapitalization.words,
                         ),
-                        autofillHints: const [AutofillHints.name],
-                        keyboardType: TextInputType.name,
-                        textCapitalization: TextCapitalization.words,
                       ),
-                      const Spacer(),
-                      TextFormField(
-                        controller: usernameController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.username,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: TextFormField(
+                          controller: usernameController,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.username,
+                          ),
+                          autofillHints: const [AutofillHints.newUsername],
+                          keyboardType: TextInputType.name,
                         ),
-                        autofillHints: const [AutofillHints.newUsername],
-                        keyboardType: TextInputType.name,
                       ),
-                      const Spacer(),
-                      TextFormField(
-                        controller: emailController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.email,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: TextFormField(
+                          controller: emailController,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.email,
+                          ),
+                          autofillHints: const [AutofillHints.email],
+                          keyboardType: TextInputType.emailAddress,
                         ),
-                        autofillHints: const [AutofillHints.email],
-                        keyboardType: TextInputType.emailAddress,
                       ),
-                      const Spacer(),
-                      TextFormField(
-                        controller: dobController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.dob,
-                          suffixIcon: const Icon(Icons.calendar_month),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: TextFormField(
+                          controller: dobController,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.dob,
+                            suffixIcon: const Icon(Icons.calendar_month),
+                          ),
+                          readOnly: true,
+                          onTap: () async {
+                            final selectedDate = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                            );
+                            if (selectedDate != null) {
+                              dobController.text = selectedDate.toString();
+                            }
+                          },
+                          autofillHints: const [AutofillHints.birthday],
+                          keyboardType: TextInputType.datetime,
                         ),
-                        readOnly: true,
-                        onTap: () async {
-                          final selectedDate = await showDatePicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now(),
-                          );
-                          if (selectedDate != null) {
-                            dobController.text = selectedDate
-                                .toString(); // Update the text controller with selected date
-                          }
-                        },
-                        autofillHints: const [AutofillHints.birthday],
-                        keyboardType: TextInputType.datetime,
                       ),
-                      const Spacer(),
-                      TextFormField(
-                        controller: passwordController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context)!.password,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 15),
+                        child: TextFormField(
+                          controller: passwordController,
+                          decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.password,
+                          ),
+                          autofillHints: const [AutofillHints.newPassword],
                         ),
-                        autofillHints: const [AutofillHints.newPassword],
                       ),
                     ],
                   ),
@@ -276,7 +515,6 @@ class PatroneRegistration extends StatelessWidget {
                   ),
                 ),
               ),
-              const Spacer(),
             ],
           ),
         ),
