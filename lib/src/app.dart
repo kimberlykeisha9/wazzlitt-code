@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
                 toolbarHeight: height(context) * 0.1,
                 iconTheme: IconThemeData(color: Colors.indigo[900]!),
               ),
+              chipTheme: ChipThemeData(backgroundColor: Colors.greenAccent[100], selectedColor: Colors.greenAccent[400]),
               inputDecorationTheme: InputDecorationTheme(
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
@@ -75,7 +76,6 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// ignore: must_be_immutable
 class IgniterProfile extends StatefulWidget {
   IgniterProfile({super.key});
 
@@ -85,8 +85,8 @@ class IgniterProfile extends StatefulWidget {
 
 class _IgniterProfileState extends State<IgniterProfile> {
   File? _coverPhoto;
-
   File? _profilePicture;
+  String _selectedChip = '';
 
   // Future<void> _pickCoverPhoto() async {
   //   final picker = ImagePicker();
@@ -113,52 +113,158 @@ class _IgniterProfileState extends State<IgniterProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Edit Igniter Profile'),),
+      appBar: AppBar(
+        title: Text('Edit Igniter Profile'),
+      ),
       body: SafeArea(
         child: Column(
           children: [
-            Column(
-  children: [
-    GestureDetector(
-      onTap: () {
-        // _pickCoverPhoto(); // Function to handle cover photo selection
-      },
-      child: Container(
-        width: 200,
-        height: 200,
-        decoration: BoxDecoration(
-          border: Border.all(),
-        ),
-        child: _coverPhoto != null
-            ? Image.file(
-                _coverPhoto!,
-                fit: BoxFit.cover,
+            SizedBox(
+              height: 200,
+              width: width(context),
+              child: Stack(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // _pickCoverPhoto(); // Function to handle cover photo selection
+                    },
+                    child: Container(
+                      width: width(context),
+                      height: 150,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                      ),
+                      child: _coverPhoto != null
+                          ? Image.file(
+                              _coverPhoto!,
+                              fit: BoxFit.cover,
+                            )
+                          : Icon(Icons.add_photo_alternate),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: GestureDetector(
+                      onTap: () {
+                        // _pickProfilePicture(); // Function to handle profile picture selection
+                      },
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[350],
+                          shape: BoxShape.circle,
+                        ),
+                        child: _profilePicture != null
+                            ? Image.file(
+                                _profilePicture!,
+                                fit: BoxFit.cover,
+                              )
+                            : Icon(Icons.person),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Spacer(),
+            Expanded(
+              flex: 8,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                height: height(context)*0.5,
+                width: width(context),
+                child: ListView(
+                  children: [
+                    TextFormField(
+              decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.name),
+              keyboardType: TextInputType.text,
+              textCapitalization: TextCapitalization.words,
+            ),
+            const Padding(padding: EdgeInsets.only(top: 15)),
+            Text(AppLocalizations.of(context)!.selectCategory, style: TextStyle(fontSize: 12)),
+            const Padding(padding: EdgeInsets.only(top: 15)),
+            SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: categories
+              .map(
+                (chip) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 5),
+                  child: ChoiceChip(
+                    label: Text(chip),
+                    selected: _selectedChip == chip,
+                    onSelected: (selected) {
+                      setState(() {
+                        _selectedChip = selected ? chip : '';
+                      });
+                    },
+                  ),
+                ),
               )
-            : Icon(Icons.add_photo_alternate),
-      ),
-    ),
-    const SizedBox(height: 20),
-    GestureDetector(
-      onTap: () {
-        // _pickProfilePicture(); // Function to handle profile picture selection
-      },
-      child: Container(
-        width: 100,
-        height: 100,
-        decoration: BoxDecoration(
-          border: Border.all(),
+              .toList(),
         ),
-        child: _profilePicture != null
-            ? Image.file(
-                _profilePicture!,
-                fit: BoxFit.cover,
-              )
-            : Icon(Icons.person),
-      ),
-    ),
-  ],
-),
-
+            ),
+            const Padding(padding: EdgeInsets.only(top: 15)),
+            TextFormField(
+              decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.phone),
+              keyboardType: TextInputType.phone,
+            ),
+            const Padding(padding: EdgeInsets.only(top: 15)),
+            TextFormField(
+              decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.website),
+              keyboardType: TextInputType.url,
+            ),
+            const Padding(padding: EdgeInsets.only(top: 15)),
+            TextFormField(
+              maxLines: 5,
+              minLines: 1,
+              decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.description),
+              keyboardType: TextInputType.text,
+              textCapitalization: TextCapitalization.sentences,
+            ),
+            const Padding(padding: EdgeInsets.only(top: 15)),
+            TextFormField(
+              decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.email),
+              keyboardType: TextInputType.emailAddress,
+            ),
+                  ]
+                )
+              ),
+            ),             
+            const Spacer(),
+            SizedBox(
+              width: width(context)*0.8,
+              child: ElevatedButton(
+                onPressed: () => showDialog(
+                    context: context,
+                    builder: (_) => AlertDialog(
+                      title: Text(
+                        AppLocalizations.of(context)!.createIgniter,
+                        textAlign: TextAlign.center,
+                      ),
+                      content: Text(
+                        AppLocalizations.of(context)!.igniterTrial,
+                        textAlign: TextAlign.center,
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => {},
+                          child: Text(AppLocalizations.of(context)!.proceed),
+                        ),
+                      ],
+                    ),
+                  ),
+                child: Text(AppLocalizations.of(context)!.save),
+              ),
+            ),
+          const Spacer(),
           ],
         ),
       ),
