@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
                   secondary: Colors.greenAccent[400]!)),
           darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
-          initialRoute: 'home',
+          initialRoute: 'patrone_dashboard',
           routes: {
             'home': (context) => const Home(),
             'signup': (context) => const SignUp(),
@@ -69,9 +69,36 @@ class MyApp extends StatelessWidget {
             'interests': (context) => const Interests(),
             'igniter_registration': (context) => const IgniterRegistration(),
             'igniter_profile': (context) => IgniterProfile(),
+            'patrone_dashboard': (context) => PatroneDashboard(),
           },
         );
       },
+    );
+  }
+}
+
+class PatroneDashboard extends StatelessWidget {
+  const PatroneDashboard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('WazzLitt! around me'),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.photo_camera),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Image.network('https://i.pinimg.com/originals/80/bc/83/80bc83c42b42baf06c3f85e162a746e4.jpg'),
+          ],
+        ),
+      )
     );
   }
 }
@@ -172,7 +199,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
             Expanded(
               flex: 8,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 30),
+                padding: EdgeInsets.symmetric(horizontal: 20),
                 height: height(context)*0.5,
                 width: width(context),
                 child: ListView(
@@ -255,7 +282,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                       ),
                       actions: [
                         TextButton(
-                          onPressed: () => {},
+                          onPressed: () => Navigator.pushNamed(context, 'patrone_dashboard'),
                           child: Text(AppLocalizations.of(context)!.proceed),
                         ),
                       ],
