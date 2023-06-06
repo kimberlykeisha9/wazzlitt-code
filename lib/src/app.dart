@@ -1,5 +1,5 @@
 import 'dart:io';
-// import 'package:image_picker/image_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -95,7 +95,7 @@ class PatroneDashboard extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            Image.network('https://github.com/kimberlykeisha9/wazzlitt-code/blob/master/assets/images/testimage.jpg?raw=true'),
+            // Image.network('https://github.com/kimberlykeisha9/wazzlitt-code/blob/master/assets/images/testimage.jpg?raw=true'),
           ],
         ),
       )
@@ -115,27 +115,27 @@ class _IgniterProfileState extends State<IgniterProfile> {
   File? _profilePicture;
   String _selectedChip = '';
 
-  // Future<void> _pickCoverPhoto() async {
-  //   final picker = ImagePicker();
-  //   final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickCoverPhoto() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
-  //   if (pickedImage != null) {
-  //     setState(() {
-  //       _coverPhoto = File(pickedImage.path);
-  //     });
-  //   }
-  // }
+    if (pickedImage != null) {
+      setState(() {
+        _coverPhoto = File(pickedImage.path);
+      });
+    }
+  }
 
-  // Future<void> _pickProfilePicture() async {
-  //   final picker = ImagePicker();
-  //   final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickProfilePicture() async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
-  //   if (pickedImage != null) {
-  //     setState(() {
-  //       _profilePicture = File(pickedImage.path);
-  //     });
-  //   }
-  // }
+    if (pickedImage != null) {
+      setState(() {
+        _profilePicture = File(pickedImage.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +153,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      // _pickCoverPhoto(); // Function to handle cover photo selection
+                      _pickCoverPhoto(); // Function to handle cover photo selection
                     },
                     child: Container(
                       width: width(context),
@@ -174,7 +174,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                     alignment: Alignment.bottomCenter,
                     child: GestureDetector(
                       onTap: () {
-                        // _pickProfilePicture(); // Function to handle profile picture selection
+                        _pickProfilePicture(); // Function to handle profile picture selection
                       },
                       child: Container(
                         width: 100,
