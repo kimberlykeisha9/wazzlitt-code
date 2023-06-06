@@ -42,7 +42,9 @@ class MyApp extends StatelessWidget {
                 toolbarHeight: height(context) * 0.1,
                 iconTheme: IconThemeData(color: Colors.indigo[900]!),
               ),
-              chipTheme: ChipThemeData(backgroundColor: Colors.greenAccent[100], selectedColor: Colors.greenAccent[400]),
+              chipTheme: ChipThemeData(
+                  backgroundColor: Colors.greenAccent[100],
+                  selectedColor: Colors.greenAccent[400]),
               inputDecorationTheme: InputDecorationTheme(
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
@@ -69,7 +71,7 @@ class MyApp extends StatelessWidget {
             'interests': (context) => const Interests(),
             'igniter_registration': (context) => const IgniterRegistration(),
             'igniter_profile': (context) => IgniterProfile(),
-            'patrone_dashboard': (context) => PatroneDashboard(),
+            'patrone_dashboard': (context) => const PatroneDashboard(),
           },
         );
       },
@@ -83,23 +85,92 @@ class PatroneDashboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('WazzLitt! around me'),
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.photo_camera),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Image.network('https://github.com/kimberlykeisha9/wazzlitt-code/blob/master/assets/images/testimage.jpg?raw=true'),
+        appBar: AppBar(
+          title: Text('WazzLitt! around me'),
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.photo_camera),
+            ),
           ],
         ),
-      )
-    );
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: Container(
+                  width: width(context),
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(fit: BoxFit.cover, image: AssetImage
+                      ('assets/images/igniter-2.png')),
+                  ),
+                  child: Column(
+                    children: [
+                      Text('User Caption', style: TextStyle(color: Colors
+                          .white)),
+                      Container(
+                        width: width(context),
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondary
+                              .withOpacity(0.25),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                color: Colors.grey,
+                                shape: BoxShape.circle
+                              ),
+                            ),
+                            Spacer(),
+                            Wrap(
+                              direction: Axis.vertical,
+                              children: [
+                                Text('User Name',),
+                                Text('0 days ago',),
+                              ],
+                            ),
+                            Spacer(),
+                            IconButton(onPressed: () {}, icon: FaIcon
+                              (FontAwesomeIcons.heart),),
+                            Text('0',),
+                            IconButton(onPressed: () {}, icon: FaIcon
+                              (FontAwesomeIcons.message),),
+                            Text('0',),
+                            IconButton(onPressed: () {}, icon: FaIcon
+                              (FontAwesomeIcons.share),),
+                          ]
+                        ),
+                      ),
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        width: width(context),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.secondary
+                              .withOpacity(0.75),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.place),
+                            Spacer(),
+                            Text('Tagged Location', style: TextStyle
+                              (fontWeight: FontWeight.bold)),
+                            const Spacer(flex: 16),
+                            Text('0km away'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 }
 
@@ -199,99 +270,99 @@ class _IgniterProfileState extends State<IgniterProfile> {
             Expanded(
               flex: 8,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                height: height(context)*0.5,
-                width: width(context),
-                child: ListView(
-                  children: [
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  height: height(context) * 0.5,
+                  width: width(context),
+                  child: ListView(children: [
                     TextFormField(
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.name),
-              keyboardType: TextInputType.text,
-              textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.name),
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    Text(AppLocalizations.of(context)!.selectCategory,
+                        style: TextStyle(fontSize: 12)),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: categories
+                            .map(
+                              (chip) => Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
+                                child: ChoiceChip(
+                                  label: Text(chip),
+                                  selected: _selectedChip == chip,
+                                  onSelected: (selected) {
+                                    setState(() {
+                                      _selectedChip = selected ? chip : '';
+                                    });
+                                  },
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.phone),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.website),
+                      keyboardType: TextInputType.url,
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    TextFormField(
+                      maxLines: 5,
+                      minLines: 1,
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.description),
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.sentences,
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.email),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                  ])),
             ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            Text(AppLocalizations.of(context)!.selectCategory, style: TextStyle(fontSize: 12)),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: categories
-              .map(
-                (chip) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: ChoiceChip(
-                    label: Text(chip),
-                    selected: _selectedChip == chip,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedChip = selected ? chip : '';
-                      });
-                    },
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-            ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            TextFormField(
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.phone),
-              keyboardType: TextInputType.phone,
-            ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            TextFormField(
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.website),
-              keyboardType: TextInputType.url,
-            ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            TextFormField(
-              maxLines: 5,
-              minLines: 1,
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.description),
-              keyboardType: TextInputType.text,
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            TextFormField(
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.email),
-              keyboardType: TextInputType.emailAddress,
-            ),
-                  ]
-                )
-              ),
-            ),             
             const Spacer(),
             SizedBox(
-              width: width(context)*0.8,
+              width: width(context) * 0.8,
               child: ElevatedButton(
                 onPressed: () => showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text(
-                        AppLocalizations.of(context)!.createIgniter,
-                        textAlign: TextAlign.center,
-                      ),
-                      content: Text(
-                        AppLocalizations.of(context)!.igniterTrial,
-                        textAlign: TextAlign.center,
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pushNamed(context, 'patrone_dashboard'),
-                          child: Text(AppLocalizations.of(context)!.proceed),
-                        ),
-                      ],
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: Text(
+                      AppLocalizations.of(context)!.createIgniter,
+                      textAlign: TextAlign.center,
                     ),
+                    content: Text(
+                      AppLocalizations.of(context)!.igniterTrial,
+                      textAlign: TextAlign.center,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pushNamed(context, 'patrone_dashboard'),
+                        child: Text(AppLocalizations.of(context)!.proceed),
+                      ),
+                    ],
                   ),
+                ),
                 child: Text(AppLocalizations.of(context)!.save),
               ),
             ),
-          const Spacer(),
+            const Spacer(),
           ],
         ),
       ),
