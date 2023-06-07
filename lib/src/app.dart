@@ -34,11 +34,14 @@ class MyApp extends StatelessWidget {
           onGenerateTitle: (BuildContext context) =>
               AppLocalizations.of(context)!.appTitle,
           theme: ThemeData(
+              bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                  backgroundColor: Colors.indigo[900]),
               appBarTheme: AppBarTheme(
                 color: Colors.transparent,
                 elevation: 0,
                 centerTitle: true,
-                titleTextStyle: TextStyle(color: Colors.black, fontSize: 16),
+                titleTextStyle:
+                    const TextStyle(color: Colors.black, fontSize: 16),
                 toolbarHeight: height(context) * 0.1,
                 iconTheme: IconThemeData(color: Colors.indigo[900]!),
               ),
@@ -79,98 +82,209 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PatroneDashboard extends StatelessWidget {
+class PatroneDashboard extends StatefulWidget {
   const PatroneDashboard({super.key});
+
+  @override
+  State<PatroneDashboard> createState() => _PatroneDashboardState();
+}
+
+class _PatroneDashboardState extends State<PatroneDashboard>
+    with TickerProviderStateMixin {
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  void showPopupMenu(BuildContext context) {
+    final RenderBox overlay =
+        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+    final Offset offset = Offset(overlay.size.width / 2, overlay.size.height);
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(offset.dx, offset.dy, 0, 0),
+      items: [
+        const PopupMenuItem(
+          value: 'report',
+          child: Text('Report'),
+        ),
+        const PopupMenuItem(
+          value: 'block',
+          child: Text('Block User'),
+        ),
+      ],
+      elevation: 8,
+    ).then((value) {
+      if (value == 'report') {
+        // Handle report action
+      } else if (value == 'block') {
+        // Handle block user action
+      }
+    });
+  }
+
+  Widget _
+
+  List<Widget> views(BuildContext context) {
+    return [feed(context), explore(context)];
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('WazzLitt! around me'),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.photo_camera),
-            ),
+      appBar: AppBar(
+        title: const Text('WazzLitt! around me'),
+        actions: [
+          IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.photo_camera),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: views(context)[_currentIndex],
+      ),
+      bottomNavigationBar: Theme(
+        data: ThemeData(
+          canvasColor: Theme.of(context).colorScheme.primary,
+        ),
+        child: BottomNavigationBar(
+          onTap: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          showSelectedLabels: false,
+          items: const [
+            BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
+            BottomNavigationBarItem(
+                label: 'Explore', icon: Icon(Icons.explore)),
+            BottomNavigationBarItem(label: 'Messages', icon: Icon(Icons.chat)),
+            BottomNavigationBarItem(
+                label: 'Profile', icon: Icon(Icons.account_circle)),
           ],
         ),
-        body: SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: Container(
+      ),
+    );
+  }
+
+  Widget explore(BuildContext context) {
+    return Column();
+  }
+
+  Column feed(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+            width: width(context),
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: AssetImage('assets/images/igniter-2.png')),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text('User Caption',
+                      style: TextStyle(color: Colors.white)),
+                ),
+                Container(
                   width: width(context),
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(fit: BoxFit.cover, image: AssetImage
-                      ('assets/images/igniter-2.png')),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.25),
                   ),
-                  child: Column(
-                    children: [
-                      Text('User Caption', style: TextStyle(color: Colors
-                          .white)),
-                      Container(
-                        width: width(context),
-                        padding: EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary
-                              .withOpacity(0.25),
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: const BoxDecoration(
+                              color: Colors.grey, shape: BoxShape.circle),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                        const Spacer(),
+                        const Wrap(
+                          direction: Axis.vertical,
+                          alignment: WrapAlignment.start,
                           children: [
-                            Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                color: Colors.grey,
-                                shape: BoxShape.circle
-                              ),
-                            ),
-                            Spacer(),
-                            Wrap(
-                              direction: Axis.vertical,
-                              children: [
-                                Text('User Name',),
-                                Text('0 days ago',),
-                              ],
-                            ),
-                            Spacer(),
-                            IconButton(onPressed: () {}, icon: FaIcon
-                              (FontAwesomeIcons.heart),),
-                            Text('0',),
-                            IconButton(onPressed: () {}, icon: FaIcon
-                              (FontAwesomeIcons.message),),
-                            Text('0',),
-                            IconButton(onPressed: () {}, icon: FaIcon
-                              (FontAwesomeIcons.share),),
-                          ]
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(10),
-                        width: width(context),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary
-                              .withOpacity(0.75),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.place),
-                            Spacer(),
-                            Text('Tagged Location', style: TextStyle
-                              (fontWeight: FontWeight.bold)),
-                            const Spacer(flex: 16),
-                            Text('0km away'),
+                            Text('User Name',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                            Text('0 days ago',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14)),
                           ],
                         ),
-                      ),
+                        const Spacer(flex: 4),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const FaIcon(
+                            FontAwesomeIcons.heart,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Text('0', style: TextStyle(color: Colors.white)),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const FaIcon(FontAwesomeIcons.message,
+                              color: Colors.white),
+                        ),
+                        const Text('0', style: TextStyle(color: Colors.white)),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const FaIcon(FontAwesomeIcons.share,
+                              color: Colors.white),
+                        ),
+                        IconButton(
+                          icon:
+                              const Icon(Icons.more_vert, color: Colors.white),
+                          onPressed: () {
+                            showPopupMenu(context);
+                          },
+                        ),
+                      ]),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  width: width(context),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.75),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.place, color: Colors.white),
+                      Spacer(),
+                      Text('Tagged Location',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
+                      Spacer(flex: 16),
+                      Text('0 km away', style: TextStyle(color: Colors.white)),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ));
+        ),
+      ],
+    );
   }
 }
 
@@ -212,7 +326,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Igniter Profile'),
+        title: const Text('Edit Igniter Profile'),
       ),
       body: SafeArea(
         child: Column(
@@ -229,7 +343,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                     child: Container(
                       width: width(context),
                       height: 150,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.grey,
                       ),
                       child: _coverPhoto != null
@@ -237,7 +351,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                               _coverPhoto!,
                               fit: BoxFit.cover,
                             )
-                          : Icon(Icons.add_photo_alternate),
+                          : const Icon(Icons.add_photo_alternate),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -259,7 +373,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                                 _profilePicture!,
                                 fit: BoxFit.cover,
                               )
-                            : Icon(Icons.person),
+                            : const Icon(Icons.person),
                       ),
                     ),
                   ),
@@ -270,7 +384,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
             Expanded(
               flex: 8,
               child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   height: height(context) * 0.5,
                   width: width(context),
                   child: ListView(children: [
@@ -282,7 +396,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                     ),
                     const Padding(padding: EdgeInsets.only(top: 15)),
                     Text(AppLocalizations.of(context)!.selectCategory,
-                        style: TextStyle(fontSize: 12)),
+                        style: const TextStyle(fontSize: 12)),
                     const Padding(padding: EdgeInsets.only(top: 15)),
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
@@ -395,7 +509,7 @@ class IgniterRegistration extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
                   decoration: const BoxDecoration(
                     image: DecorationImage(
@@ -428,7 +542,7 @@ class IgniterRegistration extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
                   decoration: const BoxDecoration(
                     image: DecorationImage(
@@ -461,7 +575,7 @@ class IgniterRegistration extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
                   decoration: const BoxDecoration(
                     image: DecorationImage(
