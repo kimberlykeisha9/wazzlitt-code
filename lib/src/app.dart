@@ -125,65 +125,100 @@ class Place extends StatelessWidget {
                   ],
                 ),
               ),
-              Text(this.placeName ?? 'Null'),
-              Chip(label: Text(this.category ?? 'Null')),
-              Text('Open - 08:00 AM to 08:00 PM'),
-              Text('Popularity: 95%'),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 8,
-                    child: SizedBox(
-                      height: 40,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.all(5)),
-                        onPressed: () {},
-                        child: Text('Follow', style: TextStyle(fontSize: 14)),
-                      ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Text(this.placeName ?? 'Null', style: TextStyle
+                      (fontWeight: FontWeight.bold, fontSize: 20,)),
+                    Chip(label: Text(this.category ?? 'Null')),
+                    Text('Open - 08:00 AM to 08:00 PM'),
+                    SizedBox(height: 5),
+                    Text('Popularity: 95%', style: TextStyle
+                      (fontWeight: FontWeight.bold)),
+                    SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            height: 30,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.all(5)),
+                              onPressed: () {},
+                              child: Text('Follow', style: TextStyle
+                                (fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                        Spacer(),
+                        Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            height: 30,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.all(5)),
+                              onPressed: () {},
+                              child:
+                                  Text('Chat Room', style: TextStyle
+                                    (fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                        Spacer(),
+                        Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            height: 30,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.all(5)),
+                              onPressed: () {},
+                              child: Text('Contact', style: TextStyle
+                                (fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  Spacer(),
-                  Expanded(
-                    flex: 8,
-                    child: SizedBox(
-                      height: 40,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.all(5)),
-                        onPressed: () {},
-                        child:
-                            Text('Chat room', style: TextStyle(fontSize: 14)),
-                      ),
-                    ),
-                  ),
-                  Spacer(),
-                  Expanded(
-                    flex: 8,
-                    child: SizedBox(
-                      height: 40,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.all(5)),
-                        onPressed: () {},
-                        child: Text('Contact', style: TextStyle(fontSize: 14)),
-                      ),
-                    ),
-                  ),
-                ],
+                    SizedBox(height: 30),
+                    Text('About ' + (this.placeName ?? 'Null'), style: TextStyle
+                      (fontWeight: FontWeight.bold, fontSize: 20,)),
+                    SizedBox(height: 10),
+                    Text(
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing '
+                            'elit. Praesent porta, libero at ultricies '
+                            'lacinia, diam sapien lacinia mi, quis aliquet '
+                            'diam ex et massa. Sed a tellus ac tortor '
+                            'placerat rutrum in non nunc.', textAlign:
+                    TextAlign.center),
+                    SizedBox(height: 30),
+                    Text('Location', style: TextStyle(fontWeight: FontWeight
+                        .bold)),
+                    Text('Street Name', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
               ),
-              Text('About ' + (this.placeName ?? 'Null')),
-              Text(
-                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent porta, libero at ultricies lacinia, diam sapien lacinia mi, quis aliquet diam ex et massa. Sed a tellus ac tortor placerat rutrum in non nunc.'),
-              Text('Location'),
-              Text('Street Name'),
               Container(
                 width: width(context),
                 height: 100,
                 color: Colors.grey,
               ),
-              Text('Photos'),
-              TextButton(onPressed: () {}, child: Text('See more')),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    const Text('Photos', style: TextStyle(fontWeight: FontWeight
+                        .bold)),
+                    SizedBox(height: 20, child: TextButton(style:
+                    TextButton.styleFrom(padding: const EdgeInsets.all(0)),
+                        onPressed: () {},
+                  child: Text('See more', style: TextStyle(fontSize: 12)))),
+                  ],
+                ),
+              ),
               SizedBox(
                 height: 400,
                 width: width(context),
