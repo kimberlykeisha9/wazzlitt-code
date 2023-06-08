@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
           onGenerateTitle: (BuildContext context) =>
               AppLocalizations.of(context)!.appTitle,
           theme: ThemeData(
+              tabBarTheme: TabBarTheme(labelColor: Colors.indigo[900]),
               bottomNavigationBarTheme: BottomNavigationBarThemeData(
                   backgroundColor: Colors.indigo[900]),
               appBarTheme: AppBarTheme(
@@ -82,6 +83,128 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class Place extends StatelessWidget {
+  const Place({super.key, this.placeName, this.category});
+
+  final String? placeName;
+  final String? category;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(this.placeName ?? 'Null'),
+        actions: [
+          IconButton(icon: Icon(Icons.share), onPressed: () {}),
+        ],
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 200,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: width(context),
+                      height: 150,
+                      color: Colors.grey,
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(this.placeName ?? 'Null'),
+              Chip(label: Text(this.category ?? 'Null')),
+              Text('Open - 08:00 AM to 08:00 PM'),
+              Text('Popularity: 95%'),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 8,
+                    child: SizedBox(
+                      height: 40,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(5)),
+                        onPressed: () {},
+                        child: Text('Follow', style: TextStyle(fontSize: 14)),
+                      ),
+                    ),
+                  ),
+                  Spacer(),
+                  Expanded(
+                    flex: 8,
+                    child: SizedBox(
+                      height: 40,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(5)),
+                        onPressed: () {},
+                        child:
+                            Text('Chat room', style: TextStyle(fontSize: 14)),
+                      ),
+                    ),
+                  ),
+                  Spacer(),
+                  Expanded(
+                    flex: 8,
+                    child: SizedBox(
+                      height: 40,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(5)),
+                        onPressed: () {},
+                        child: Text('Contact', style: TextStyle(fontSize: 14)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Text('About ' + (this.placeName ?? 'Null')),
+              Text(
+                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent porta, libero at ultricies lacinia, diam sapien lacinia mi, quis aliquet diam ex et massa. Sed a tellus ac tortor placerat rutrum in non nunc.'),
+              Text('Location'),
+              Text('Street Name'),
+              Container(
+                width: width(context),
+                height: 100,
+                color: Colors.grey,
+              ),
+              Text('Photos'),
+              TextButton(onPressed: () {}, child: Text('See more')),
+              SizedBox(
+                height: 400,
+                width: width(context),
+                child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 4,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        width: width(context) * 0.25,
+                        color: Colors.grey,
+                      );
+                    }),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class PatroneDashboard extends StatefulWidget {
   const PatroneDashboard({super.key});
 
@@ -92,11 +215,13 @@ class PatroneDashboard extends StatefulWidget {
 class _PatroneDashboardState extends State<PatroneDashboard>
     with TickerProviderStateMixin {
   int _currentIndex = 0;
+  TabController? _exploreController;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    _exploreController = TabController(length: 2, vsync: this);
   }
 
   void showPopupMenu(BuildContext context) {
@@ -127,22 +252,48 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     });
   }
 
-  Widget _
+  Widget? trailingIcon() {
+    switch (_currentIndex) {
+      case 0:
+        return IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.photo_camera),
+        );
+      case 1:
+        return IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.search),
+        );
+    }
+  }
+
+  Widget? titleWidget(BuildContext context) {
+    switch (_currentIndex) {
+      case 0:
+        return Text('WazzLitt! around me');
+      case 1:
+        return TabBar(
+            unselectedLabelStyle:
+                TextStyle(color: Theme.of(context).colorScheme.primary),
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            controller: _exploreController,
+            tabs: [Tab(text: 'Lit'), Tab(text: 'Places')]);
+    }
+  }
 
   List<Widget> views(BuildContext context) {
     return [feed(context), explore(context)];
   }
 
+  String _selectedChip = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('WazzLitt! around me'),
+        title: titleWidget(context),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.photo_camera),
-          ),
+          trailingIcon()!,
         ],
       ),
       body: SafeArea(
@@ -173,7 +324,286 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   }
 
   Widget explore(BuildContext context) {
-    return Column();
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: categories
+                .map(
+                  (chip) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: ChoiceChip(
+                      label: Text(chip),
+                      selected: _selectedChip == chip,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedChip = selected ? chip : '';
+                        });
+                      },
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _exploreController,
+            children: [
+              Column(
+                children: [
+                  SizedBox(
+                    height: width(context) * 0.5,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 2,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Container(
+                            height: width(context) * 0.5,
+                            width: width(context) * 0.5,
+                            color: Colors.indigo,
+                            padding: EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Event $index',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Description $index',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Text('Upcoming Events',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: SizedBox(
+                      child: ListView.builder(
+                        itemCount: 5,
+                        itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: ListTile(
+                            onTap: () => {
+                              showModalBottomSheet(
+                                useSafeArea: true,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (context) => Container(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.park, size: 80),
+                                      SizedBox(height: 10),
+                                      Text('Event $index',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        'Event $index location',
+                                      ),
+                                      Text('0 km away',
+                                          style: TextStyle(fontSize: 14)),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        'Event $index date',
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        'Event $index price',
+                                      ),
+                                      Text('Original price',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              decoration:
+                                                  TextDecoration.lineThrough)),
+                                      SizedBox(height: 30),
+                                      SizedBox(
+                                        width: width(context),
+                                        child: ElevatedButton(
+                                            onPressed: () {},
+                                            child: Text('Buy Tickets')),
+                                      ),
+                                      SizedBox(height: 30),
+                                      Text('About Event $index',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 10),
+                                      Text(
+                                          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent porta, libero at ultricies lacinia, diam sapien lacinia mi, quis aliquet diam ex et massa. Sed a tellus ac tortor placerat rutrum in non nunc. Mauris porttitor dapibus neque, at efficitur erat hendrerit nec. Cras mollis volutpat eros, vestibulum accumsan arcu rutrum a.'),
+                                      SizedBox(height: 10),
+                                      Chip(label: Text('Category')),
+                                      SizedBox(height: 10),
+                                      Text('Organizer',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold)),
+                                      ListTile(
+                                        leading: Icon(Icons.park),
+                                        title: Text('Organizer name'),
+                                        subtitle: Text('Category'),
+                                        trailing: TextButton(
+                                            onPressed: () {},
+                                            child: Text('Follow')),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            },
+                            leading: Icon(Icons.park),
+                            title: Text('Event $index',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Wrap(
+                              direction: Axis.vertical,
+                              children: [
+                                Text('01/01/1980',
+                                    style: TextStyle(fontSize: 14)),
+                                Text('\$0.00', style: TextStyle(fontSize: 14)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Column(children: [
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    child: ListView.builder(
+                      itemCount: categories.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: 10),
+                            Text(categories[index],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            SizedBox(
+                              height: 20,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.all(0)),
+                                onPressed: () {},
+                                child: const Text('See more',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 14)),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            SizedBox(
+                              width: width(context),
+                              height: 190,
+                              child: ListView.builder(
+                                itemCount: 3,
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (context, i) {
+                                  return GestureDetector(
+                                    onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Place(
+                                                placeName: 'Place $i',
+                                                category: categories[index]))),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          height: width(context) / 3,
+                                          width: width(context) / 3,
+                                          color: Colors.indigo,
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(height: 10),
+                                            Text(
+                                              'Place $i',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            // SizedBox(height: ),
+                                            Text(
+                                              '0 km away',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text('Nearby Places',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 10),
+                Flexible(
+                  child: SizedBox(
+                    child: ListView.builder(
+                      itemCount: 2,
+                      itemBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: ListTile(
+                          leading: Icon(Icons.place),
+                          title: Text('Place $index',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Wrap(
+                            direction: Axis.vertical,
+                            children: [
+                              Text('Location', style: TextStyle(fontSize: 14)),
+                              Text('0 km away', style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 
   Column feed(BuildContext context) {
