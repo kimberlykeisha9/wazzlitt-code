@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'settings/settings_controller.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:intl/intl.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -93,12 +94,15 @@ class ChatsView extends StatelessWidget {
         final chat = chatData[index];
         return ListTile(
           leading: Icon(Icons.park),
-          title: Text(chat.senderName),
+          title: Text(chat.senderName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),),
           subtitle: Text(
-            chat.messages.isNotEmpty ? chat.messages.last.content : '',
+            chat.messages.isNotEmpty ? chat.messages.last.senderName == 'You' ?
+            'You: ${chat.messages.last.content}' : chat.messages.last.content :
+            '',
           ),
           trailing: Text(
             chat.messages.isNotEmpty ? chat.messages.last.time : '',
+              style: TextStyle(fontSize: 12)
           ),
           onTap: () {
             Navigator.push(
@@ -109,44 +113,82 @@ class ChatsView extends StatelessWidget {
             );
           },
         );
-
       },
     );
   }
 }
 
-class ConversationScreen extends StatelessWidget {
+class ConversationScreen extends StatefulWidget {
   final Chat chat;
 
   ConversationScreen({required this.chat});
 
   @override
+  State<ConversationScreen> createState() => _ConversationScreenState();
+}
+
+class _ConversationScreenState extends State<ConversationScreen> {
+  TextEditingController messageController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(chat.senderName),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.account_circle),
-            onPressed: () {}
-          )
-        ]
+      appBar: AppBar(title: Text(widget.chat.senderName), actions: [
+        IconButton(icon: Icon(Icons.account_circle), onPressed: () {})
+      ]),
+      body: SafeArea(
+        child: ListView.builder(
+          physics: const BouncingScrollPhysics(),
+          itemCount: widget.chat.messages.length,
+          itemBuilder: (BuildContext context, int index) {
+            final isUser = widget.chat.messages[index].senderName == 'You';
+            final message = widget.chat.messages[index];
+            return ListTile(
+              contentPadding: const EdgeInsets.all(10),
+              leading: Icon(Icons.park),
+              tileColor: isUser
+                  ? Theme.of(context).colorScheme.secondary.withOpacity(0.25)
+                  : null,
+              title: Text(
+                message.senderName,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+              ),
+              subtitle: Text(message.content),
+              trailing: Text(message.time, style: TextStyle(fontSize: 12)),
+            );
+          },
+        ),
       ),
-      body: ListView.builder(
-        itemCount: chat.messages.length,
-        itemBuilder: (BuildContext context, int index) {
-          final isUser = chat.messages[index].senderName == 'You';
-          final message = chat.messages[index];
-          return ListTile(
-            tileColor: isUser ? Theme.of(context).colorScheme.secondary : null,
-            title: Text(
-              message.senderName,
-              style: TextStyle(fontWeight: FontWeight.bold),
+      bottomSheet: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                minLines: 1,
+                maxLines: 10,
+                controller: messageController,
+                decoration: const InputDecoration(
+                  hintText: 'Send a message...',
+                ),
+              ),
             ),
-            subtitle: Text(message.content),
-            trailing: Text(message.time),
-          );
-        },
+            SizedBox(width: 10),
+            IconButton(
+              onPressed: () {
+                setState(() {
+                  final content = messageController.text;
+                  final time = DateFormat.jm().format(DateTime.now());
+                  widget.chat.messages.add(
+                      Message(content: content, time: time, senderName: 'You'));
+                  messageController.clear();
+                });
+              },
+              icon: Icon(Icons.send,
+                  color: Theme.of(context).colorScheme.primary),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -501,6 +543,11 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           onPressed: () {},
           icon: const Icon(Icons.search),
         );
+      case 3:
+        return IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.menu),
+        );
     }
     return null;
   }
@@ -526,7 +573,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   }
 
   List<Widget> views(BuildContext context) {
-    return [feed(context), explore(context), ChatsView()];
+    return [feed(context), explore(context), ChatsView(), profile(context)];
   }
 
   String _selectedChip = '';
@@ -564,6 +611,174 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           ],
         ),
       ),
+    );
+  }
+
+  Widget profile(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: Stack(
+            children: [
+              Container(
+                width: width(context),
+                height: 150,
+                color: Colors.grey,
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[800],
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Text('User Name', style: TextStyle(fontWeight: FontWeight.bold)),
+              Text('@UserName'),
+              Text('User Bio'),
+              Text('Star Sign'),
+              Text('Capricorn'),
+              Row(
+                children: [
+                  Column(
+                    children: [
+                      Text('0'),
+                      Text('Posts'),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text('0'),
+                      Text('Followers'),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text('0'),
+                      Text('Following'),
+                    ],
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 10,
+                    child: SizedBox(
+                      height: 30,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.all(5)),
+                        onPressed: () {},
+                        child: Text('Edit Profile',
+                            style: TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                  ),
+                  Spacer(),
+                  Expanded(
+                    flex: 10,
+                    child: SizedBox(
+                      height: 30,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(5)),
+                        onPressed: () {},
+                        child: Text('Social Links',
+                            style: TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: DefaultTabController(length: 3, child: SizedBox(
+            child: Column(
+              children: [
+                TabBar(tabs: [
+                  Tab(icon: Icon(Icons.place)),
+                  Tab(icon: Icon(Icons.favorite)),
+                  Tab(icon: Icon(Icons.bookmark)),],
+                  labelColor: Theme.of(context).colorScheme.secondary,
+                  unselectedLabelColor: Theme.of(context).colorScheme
+                      .secondary.withOpacity(0.375),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                        ),
+                        itemCount: 4,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                            color: Colors.blue,
+                            child: Center(
+                              child: Text(
+                                'Post $index',
+                                style: TextStyle(color: Colors.white, fontSize: 20),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                        ),
+                        itemCount: 4,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                            color: Colors.red,
+                            child: Center(
+                              child: Text(
+                                'Liked $index',
+                                style: TextStyle(color: Colors.white, fontSize: 20),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                        ),
+                        itemCount: 4,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Container(
+                            color: Colors.orange,
+                            child: Center(
+                              child: Text(
+                                'Saved $index',
+                                style: TextStyle(color: Colors.white, fontSize: 20),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),),
+        ),
+      ],
     );
   }
 
