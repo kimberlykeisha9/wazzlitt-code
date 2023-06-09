@@ -78,12 +78,238 @@ class MyApp extends StatelessWidget {
             'igniter_registration': (context) => const IgniterRegistration(),
             'igniter_profile': (context) => IgniterProfile(),
             'patrone_dashboard': (context) => const PatroneDashboard(),
+            'settings': (context) => const Settings(),
+            'orders': (context) => const Orders(),
           },
         );
       },
     );
   }
 }
+
+class Settings extends StatelessWidget {
+  const Settings({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(AppLocalizations.of(context)!.privacyInfo, style:
+        const TextStyle(fontWeight: FontWeight.bold)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(AppLocalizations.of(context)!.profileVisibility),
+                    DropdownButton<String>(
+                      value: 'Public',
+                      onChanged: (String? value) {
+                        if (value == 'Public') {
+                          // Handle Public option
+                        } else if (value == 'Private') {
+                          // Handle Private option
+                        }
+                      },
+                      items: <String>[
+                        'Public',
+                        'Private',
+                      ].map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    )
+
+                  ]
+                ),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(AppLocalizations.of(context)!.allowMessages),
+                      DropdownButton<String>(
+                        value: 'Everyone',
+                        onChanged: (String? value) {
+                          if (value == 'Everyone') {
+                            // Handle Public option
+                          } else if (value == 'Followers') {
+                            // Handle Private option
+                          } else if (value == 'Followers I follow back') {
+                            // Handle
+                          }
+                        },
+                        items: <String>[
+                          'Everyone',
+                          'Followers',
+                        ].map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      )
+
+                    ]
+                ),
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(AppLocalizations.of(context)!.blocked),
+                      const Text('0'),
+                    ],
+                ),
+                Text(AppLocalizations.of(context)!.dataUsage),
+                const Text('Notification Settings', style:
+                TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Push Notifications'),
+                const Text('Email Notifications'),
+                const Text('SMS Notifications'),
+                const Text('Language and Localizations', style:
+                TextStyle(fontWeight: FontWeight.bold)),
+                const Text('Language'),
+                const Text('Date format'),
+                const Text('Currency'),
+                const Text('Connected Accounts', style:
+                TextStyle(fontWeight: FontWeight.bold)),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Facebook'),
+                    Switch(value: false, onChanged:
+                    (val) => val = true),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Twitter'),
+                    Switch(value: false, onChanged:
+                        (val) => val = true),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Instagram'),
+                    Switch(value: false, onChanged:
+                        (val) => val = true),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Email'),
+                    Switch(value: false, onChanged:
+                        (val) => val = true),
+                  ],
+                ),
+                const Text('Help and Support', style:
+                TextStyle(fontWeight: FontWeight.bold)),
+                const Text('FAQ and Help Centre'),
+                const Text('Contact Support'),
+                const Text('About and Legal Information', style:
+                TextStyle(fontWeight: FontWeight.bold)),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('App Version'),
+                    Text('1.0.0'),
+                  ],
+                ),
+                const Text('Terms of Service'),
+              ],
+            ),
+          ),
+        ),
+      )
+    );
+  }
+}
+
+class Orders extends StatelessWidget {
+  const Orders({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Orders'),
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search orders',
+                    prefixIcon: Icon(Icons.search),
+                    border: UnderlineInputBorder(),
+                    ),
+                  ),
+                ),
+              ExpansionTile(
+                title: Text('Valid orders'),
+                children: [
+                  ListView.builder(
+                    itemCount: 5, // Replace with the desired number of containers
+                    itemBuilder: (context, index) {
+                      return Container(
+                        height: 100,
+                        width: double.infinity,
+                        color: Colors.blue,
+                        margin: EdgeInsets.all(10),
+                        child: Center(
+                          child: Text(
+                            'Container ${index + 1}',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )
+
+                ]
+              ),
+              ExpansionTile(
+                title: Text('Past orders'),
+                children: [
+                  Container(
+                    color: Colors.red,
+                    padding: EdgeInsets.all(16),
+                    child: const Text('Container 1', style: TextStyle(color: Colors.white)),
+                  ),
+                  Container(
+                    color: Colors.green,
+                    padding: const EdgeInsets.all(16),
+                    child: Text('Container 2', style: TextStyle(color: Colors.white)),
+                  ),
+                  Container(
+                    color: Colors.blue,
+                    padding: EdgeInsets.all(16),
+                    child: Text('Container 3', style: TextStyle(color: Colors.white)),
+                  ),
+                ]
+              ),
+            ],
+          ),
+        )
+    );
+  }
+}
+
 
 class ChatsView extends StatelessWidget {
   @override
@@ -93,8 +319,8 @@ class ChatsView extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         final chat = chatData[index];
         return ListTile(
-          leading: Icon(Icons.park),
-          title: Text(chat.senderName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),),
+          leading: const Icon(Icons.park),
+          title: Text(chat.senderName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),),
           subtitle: Text(
             chat.messages.isNotEmpty ? chat.messages.last.senderName == 'You' ?
             'You: ${chat.messages.last.content}' : chat.messages.last.content :
@@ -102,7 +328,7 @@ class ChatsView extends StatelessWidget {
           ),
           trailing: Text(
             chat.messages.isNotEmpty ? chat.messages.last.time : '',
-              style: TextStyle(fontSize: 12)
+              style: const TextStyle(fontSize: 12)
           ),
           onTap: () {
             Navigator.push(
@@ -134,7 +360,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(widget.chat.senderName), actions: [
-        IconButton(icon: Icon(Icons.account_circle), onPressed: () {})
+        IconButton(icon: const Icon(Icons.account_circle), onPressed: () {})
       ]),
       body: SafeArea(
         child: ListView.builder(
@@ -145,16 +371,16 @@ class _ConversationScreenState extends State<ConversationScreen> {
             final message = widget.chat.messages[index];
             return ListTile(
               contentPadding: const EdgeInsets.all(10),
-              leading: Icon(Icons.park),
+              leading: const Icon(Icons.park),
               tileColor: isUser
                   ? Theme.of(context).colorScheme.secondary.withOpacity(0.25)
                   : null,
               title: Text(
                 message.senderName,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
               ),
               subtitle: Text(message.content),
-              trailing: Text(message.time, style: TextStyle(fontSize: 12)),
+              trailing: Text(message.time, style: const TextStyle(fontSize: 12)),
             );
           },
         ),
@@ -173,7 +399,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                 ),
               ),
             ),
-            SizedBox(width: 10),
+            const SizedBox(width: 10),
             IconButton(
               onPressed: () {
                 setState(() {
@@ -292,7 +518,7 @@ class Place extends StatelessWidget {
         title: Text(this.placeName ?? 'Null'),
         actions: [
           IconButton(
-            icon: Icon(Icons.share),
+            icon: const Icon(Icons.share),
             onPressed: () {
               showModalBottomSheet(
                 context: context,
@@ -301,13 +527,13 @@ class Place extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        ListTile(
+                        const ListTile(
                           leading: Icon(Icons.share),
                           title: Text('Share on social media'),
                         ),
                         ListTile(
-                          leading: Icon(Icons.facebook),
-                          title: Text('Share on Facebook'),
+                          leading: const Icon(Icons.facebook),
+                          title: const Text('Share on Facebook'),
                           onTap: () {
                             // Implement Facebook sharing logic here
                             _shareOnFacebook();
@@ -315,8 +541,8 @@ class Place extends StatelessWidget {
                           },
                         ),
                         ListTile(
-                          leading: Icon(FontAwesomeIcons.twitter),
-                          title: Text('Share on Twitter'),
+                          leading: const Icon(FontAwesomeIcons.twitter),
+                          title: const Text('Share on Twitter'),
                           onTap: () {
                             // Implement Twitter sharing logic here
                             _shareOnTwitter();
@@ -365,16 +591,16 @@ class Place extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(this.placeName ?? 'Null',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         )),
                     Chip(label: Text(this.category ?? 'Null')),
-                    Text('Open - 08:00 AM to 08:00 PM'),
-                    SizedBox(height: 5),
-                    Text('Popularity: 95%',
+                    const Text('Open - 08:00 AM to 08:00 PM'),
+                    const SizedBox(height: 5),
+                    const Text('Popularity: 95%',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
                     Row(
                       children: [
                         Expanded(
@@ -383,14 +609,14 @@ class Place extends StatelessWidget {
                             height: 30,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.all(5)),
+                                  padding: const EdgeInsets.all(5)),
                               onPressed: () {},
-                              child: Text('Follow',
+                              child: const Text('Follow',
                                   style: TextStyle(fontSize: 12)),
                             ),
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Expanded(
                           flex: 10,
                           child: SizedBox(
@@ -399,45 +625,45 @@ class Place extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.all(5)),
                               onPressed: () {},
-                              child: Text('Chat Room',
+                              child: const Text('Chat Room',
                                   style: TextStyle(fontSize: 12)),
                             ),
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Expanded(
                           flex: 10,
                           child: SizedBox(
                             height: 30,
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.all(5)),
+                                  padding: const EdgeInsets.all(5)),
                               onPressed: () {},
-                              child: Text('Contact',
+                              child: const Text('Contact',
                                   style: TextStyle(fontSize: 12)),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 30),
+                    const SizedBox(height: 30),
                     Text('About ' + (this.placeName ?? 'Null'),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         )),
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                         'Lorem ipsum dolor sit amet, consectetur adipiscing '
                         'elit. Praesent porta, libero at ultricies '
                         'lacinia, diam sapien lacinia mi, quis aliquet '
                         'diam ex et massa. Sed a tellus ac tortor '
                         'placerat rutrum in non nunc.',
                         textAlign: TextAlign.center),
-                    SizedBox(height: 30),
-                    Text('Location',
+                    const SizedBox(height: 30),
+                    const Text('Location',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    Text('Street Name', style: TextStyle(fontSize: 12)),
+                    const Text('Street Name', style: TextStyle(fontSize: 12)),
                   ],
                 ),
               ),
@@ -458,7 +684,7 @@ class Place extends StatelessWidget {
                             style: TextButton.styleFrom(
                                 padding: const EdgeInsets.all(0)),
                             onPressed: () {},
-                            child: Text('See more',
+                            child: const Text('See more',
                                 style: TextStyle(fontSize: 12)))),
                   ],
                 ),
@@ -544,9 +770,25 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           icon: const Icon(Icons.search),
         );
       case 3:
-        return IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.menu),
+        return PopupMenuButton<String>(
+          onSelected: (String value) {
+            if (value == 'Settings') {
+              Navigator.pushNamed(context, 'settings');
+            } else if (value == 'Order') {
+              Navigator.pushNamed(context, 'orders');
+            }
+          },
+          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+            const PopupMenuItem<String>(
+              value: 'Settings',
+              child: Text('Settings'),
+            ),
+            const PopupMenuItem<String>(
+              value: 'Order',
+              child: Text('Orders'),
+            ),
+          ],
+          icon: const Icon(Icons.more_vert),
         );
     }
     return null;
@@ -555,19 +797,19 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   Widget? titleWidget(BuildContext context) {
     switch (_currentIndex) {
       case 0:
-        return Text('WazzLitt! around me');
+        return const Text('WazzLitt! around me');
       case 1:
         return TabBar(
           unselectedLabelStyle:
               TextStyle(color: Theme.of(context).colorScheme.primary),
           indicatorColor: Theme.of(context).colorScheme.primary,
           controller: _exploreController,
-          tabs: [Tab(text: 'Lit'), Tab(text: 'Places')],
+          tabs: [const Tab(text: 'Lit'), const Tab(text: 'Places')],
         );
       case 2:
-        return Text('Messages');
+        return const Text('Messages');
       case 3:
-        return Text('Profile');
+        return const Text('Profile');
     }
     return null;
   }
@@ -584,7 +826,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       appBar: AppBar(
         title: titleWidget(context),
         actions: [
-          trailingIcon() ?? SizedBox(),
+          trailingIcon() ?? const SizedBox(),
         ],
       ),
       body: SafeArea(
@@ -644,12 +886,15 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              Text('User Name', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('@UserName', style: TextStyle(fontSize: 12)),
-              Text('User Bio'),
-              Text('Star Sign', style: TextStyle(fontSize: 12)),
-              Text('Capricorn', style: TextStyle(fontWeight: FontWeight.bold)),
-              Row(
+              const Text('User Name', style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('@UserName', style: TextStyle(fontSize: 12)),
+              const SizedBox(height:10),
+              const Text('User Bio'),
+              const SizedBox(height:10),
+              const Text('Star Sign', style: TextStyle(fontSize: 12)),
+              const Text('Capricorn', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height:10),
+              const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Column(
@@ -672,6 +917,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                   ),
                 ],
               ),
+              const SizedBox(height:10),
               Row(
                 children: [
                   Expanded(
@@ -680,14 +926,14 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                       height: 30,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                            padding: EdgeInsets.all(5)),
+                            padding: const EdgeInsets.all(5)),
                         onPressed: () {},
-                        child: Text('Edit Profile',
+                        child: const Text('Edit Profile',
                             style: TextStyle(fontSize: 12)),
                       ),
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Expanded(
                     flex: 10,
                     child: SizedBox(
@@ -696,7 +942,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                         style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.all(5)),
                         onPressed: () {},
-                        child: Text('Social Links',
+                        child: const Text('Social Links',
                             style: TextStyle(fontSize: 12)),
                       ),
                     ),
@@ -711,9 +957,9 @@ class _PatroneDashboardState extends State<PatroneDashboard>
             child: Column(
               children: [
                 TabBar(tabs: [
-                  Tab(icon: Icon(Icons.place)),
-                  Tab(icon: Icon(Icons.favorite)),
-                  Tab(icon: Icon(Icons.bookmark)),],
+                  const Tab(icon: Icon(Icons.place)),
+                  const Tab(icon: Icon(Icons.favorite)),
+                  const Tab(icon: Icon(Icons.bookmark)),],
                   labelColor: Theme.of(context).colorScheme.secondary,
                   unselectedLabelColor: Theme.of(context).colorScheme
                       .secondary.withOpacity(0.375),
@@ -722,7 +968,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                   child: TabBarView(
                     children: [
                       GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                         ),
                         itemCount: 4,
@@ -732,14 +978,14 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                             child: Center(
                               child: Text(
                                 'Post $index',
-                                style: TextStyle(color: Colors.white, fontSize: 20),
+                                style: const TextStyle(color: Colors.white, fontSize: 20),
                               ),
                             ),
                           );
                         },
                       ),
                       GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                         ),
                         itemCount: 4,
@@ -749,14 +995,14 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                             child: Center(
                               child: Text(
                                 'Liked $index',
-                                style: TextStyle(color: Colors.white, fontSize: 20),
+                                style: const TextStyle(color: Colors.white, fontSize: 20),
                               ),
                             ),
                           );
                         },
                       ),
                       GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                         ),
                         itemCount: 4,
@@ -766,7 +1012,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                             child: Center(
                               child: Text(
                                 'Saved $index',
-                                style: TextStyle(color: Colors.white, fontSize: 20),
+                                style: const TextStyle(color: Colors.white, fontSize: 20),
                               ),
                             ),
                           );
@@ -825,23 +1071,23 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                             height: width(context) * 0.5,
                             width: width(context) * 0.5,
                             color: Colors.indigo,
-                            padding: EdgeInsets.all(20),
+                            padding: const EdgeInsets.all(20),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Event $index',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
                                   ),
                                 ),
-                                SizedBox(height: 8),
+                                const SizedBox(height: 8),
                                 Text(
                                   'Description $index',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     fontSize: 14,
                                     color: Colors.white,
                                   ),
@@ -853,7 +1099,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                       },
                     ),
                   ),
-                  Text('Upcoming Events',
+                  const Text('Upcoming Events',
                       style: TextStyle(fontWeight: FontWeight.bold)),
                   Expanded(
                     child: SizedBox(
@@ -872,70 +1118,70 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Icon(Icons.park, size: 80),
-                                      SizedBox(height: 10),
+                                      const Icon(Icons.park, size: 80),
+                                      const SizedBox(height: 10),
                                       Text('Event $index',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold)),
-                                      SizedBox(height: 10),
+                                      const SizedBox(height: 10),
                                       Text(
                                         'Event $index location',
                                       ),
-                                      Text('0 km away',
+                                      const Text('0 km away',
                                           style: TextStyle(fontSize: 14)),
-                                      SizedBox(height: 10),
+                                      const SizedBox(height: 10),
                                       Text(
                                         'Event $index date',
                                       ),
-                                      SizedBox(height: 10),
+                                      const SizedBox(height: 10),
                                       Text(
                                         'Event $index price',
                                       ),
-                                      Text('Original price',
+                                      const Text('Original price',
                                           style: TextStyle(
                                               fontSize: 14,
                                               decoration:
                                                   TextDecoration.lineThrough)),
-                                      SizedBox(height: 30),
+                                      const SizedBox(height: 30),
                                       SizedBox(
                                         width: width(context),
                                         child: ElevatedButton(
                                             onPressed: () {},
-                                            child: Text('Buy Tickets')),
+                                            child: const Text('Buy Tickets')),
                                       ),
-                                      SizedBox(height: 30),
+                                      const SizedBox(height: 30),
                                       Text('About Event $index',
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold)),
-                                      SizedBox(height: 10),
-                                      Text(
+                                      const SizedBox(height: 10),
+                                      const Text(
                                           'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent porta, libero at ultricies lacinia, diam sapien lacinia mi, quis aliquet diam ex et massa. Sed a tellus ac tortor placerat rutrum in non nunc. Mauris porttitor dapibus neque, at efficitur erat hendrerit nec. Cras mollis volutpat eros, vestibulum accumsan arcu rutrum a.'),
-                                      SizedBox(height: 10),
-                                      Chip(label: Text('Category')),
-                                      SizedBox(height: 10),
-                                      Text('Organizer',
+                                      const SizedBox(height: 10),
+                                      const Chip(label: Text('Category')),
+                                      const SizedBox(height: 10),
+                                      const Text('Organizer',
                                           style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.bold)),
                                       ListTile(
-                                        leading: Icon(Icons.park),
-                                        title: Text('Organizer name'),
-                                        subtitle: Text('Category'),
+                                        leading: const Icon(Icons.park),
+                                        title: const Text('Organizer name'),
+                                        subtitle: const Text('Category'),
                                         trailing: TextButton(
                                             onPressed: () {},
-                                            child: Text('Follow')),
+                                            child: const Text('Follow')),
                                       ),
                                     ],
                                   ),
                                 ),
                               ),
                             },
-                            leading: Icon(Icons.park),
+                            leading: const Icon(Icons.park),
                             title: Text('Event $index',
-                                style: TextStyle(fontWeight: FontWeight.bold)),
-                            subtitle: Wrap(
+                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: const Wrap(
                               direction: Axis.vertical,
                               children: [
                                 Text('01/01/1980',
@@ -960,7 +1206,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                         return Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             Text(categories[index],
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold)),
@@ -976,7 +1222,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                         fontSize: 14)),
                               ),
                             ),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                             SizedBox(
                               width: width(context),
                               height: 190,
@@ -1003,21 +1249,21 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            SizedBox(height: 10),
+                                            const SizedBox(height: 10),
                                             Text(
                                               'Place $i',
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             // SizedBox(height: ),
-                                            Text(
+                                            const Text(
                                               '0 km away',
                                               style: TextStyle(
                                                 fontSize: 14,
                                               ),
                                             ),
-                                            SizedBox(height: 10),
+                                            const SizedBox(height: 10),
                                           ],
                                         ),
                                       ],
@@ -1032,10 +1278,10 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                     ),
                   ),
                 ),
-                SizedBox(height: 10),
-                Text('Nearby Places',
+                const SizedBox(height: 10),
+                const Text('Nearby Places',
                     style: TextStyle(fontWeight: FontWeight.bold)),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Flexible(
                   child: SizedBox(
                     child: ListView.builder(
@@ -1043,10 +1289,10 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                       itemBuilder: (context, index) => Padding(
                         padding: const EdgeInsets.all(10),
                         child: ListTile(
-                          leading: Icon(Icons.place),
+                          leading: const Icon(Icons.place),
                           title: Text('Place $index',
-                              style: TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Wrap(
+                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: const Wrap(
                             direction: Axis.vertical,
                             children: [
                               Text('Location', style: TextStyle(fontSize: 14)),
