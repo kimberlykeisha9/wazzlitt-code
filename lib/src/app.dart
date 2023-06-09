@@ -645,11 +645,12 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           child: Column(
             children: [
               Text('User Name', style: TextStyle(fontWeight: FontWeight.bold)),
-              Text('@UserName'),
+              Text('@UserName', style: TextStyle(fontSize: 12)),
               Text('User Bio'),
-              Text('Star Sign'),
-              Text('Capricorn'),
+              Text('Star Sign', style: TextStyle(fontSize: 12)),
+              Text('Capricorn', style: TextStyle(fontWeight: FontWeight.bold)),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Column(
                     children: [
