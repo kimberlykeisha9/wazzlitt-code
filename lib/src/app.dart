@@ -5,7 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'settings/settings_controller.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -228,7 +228,6 @@ final List<Chat> chatData = [
   ),
   // Add more sample chat data as needed
 ];
-
 
 class Place extends StatelessWidget {
   const Place({super.key, this.placeName, this.category});
@@ -464,7 +463,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
 
   void showPopupMenu(BuildContext context) {
     final RenderBox overlay =
-        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+        Overlay.of(context).context.findRenderObject() as RenderBox;
     final Offset offset = Offset(overlay.size.width / 2, overlay.size.height);
 
     showMenu(
@@ -503,6 +502,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           icon: const Icon(Icons.search),
         );
     }
+    return null;
   }
 
   Widget? titleWidget(BuildContext context) {
@@ -522,6 +522,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       case 3:
         return Text('Profile');
     }
+    return null;
   }
 
   List<Widget> views(BuildContext context) {
@@ -1333,6 +1334,7 @@ class Interests extends StatelessWidget {
                               categories[index],
                               style: TextStyle(
                                 fontSize: 20,
+                                // ignore: dead_code
                                 color: isChecked ? Colors.white : Colors.black,
                               ),
                             ),
