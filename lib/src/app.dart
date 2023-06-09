@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'settings/settings_controller.dart';
+import 'package:share/share.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -83,11 +84,165 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class ChatsView extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: chatData.length,
+      itemBuilder: (BuildContext context, int index) {
+        final chat = chatData[index];
+        return ListTile(
+          leading: Icon(Icons.park),
+          title: Text(chat.senderName),
+          subtitle: Text(
+            chat.messages.isNotEmpty ? chat.messages.last.content : '',
+          ),
+          trailing: Text(
+            chat.messages.isNotEmpty ? chat.messages.last.time : '',
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ConversationScreen(chat: chat),
+              ),
+            );
+          },
+        );
+
+      },
+    );
+  }
+}
+
+class ConversationScreen extends StatelessWidget {
+  final Chat chat;
+
+  ConversationScreen({required this.chat});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(chat.senderName),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.account_circle),
+            onPressed: () {}
+          )
+        ]
+      ),
+      body: ListView.builder(
+        itemCount: chat.messages.length,
+        itemBuilder: (BuildContext context, int index) {
+          final isUser = chat.messages[index].senderName == 'You';
+          final message = chat.messages[index];
+          return ListTile(
+            tileColor: isUser ? Theme.of(context).colorScheme.secondary : null,
+            title: Text(
+              message.senderName,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(message.content),
+            trailing: Text(message.time),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class Chat {
+  final String senderName;
+  final String senderImage;
+  final List<Message> messages;
+
+  Chat({
+    required this.senderName,
+    required this.senderImage,
+    required this.messages,
+  });
+}
+
+class Message {
+  final String senderName;
+  final String content;
+  final String time;
+
+  Message({
+    required this.senderName,
+    required this.content,
+    required this.time,
+  });
+}
+
+// Sample chat data
+final List<Chat> chatData = [
+  Chat(
+    senderName: 'John Doe',
+    senderImage: 'assets/images/john_doe_avatar.jpg',
+    messages: [
+      Message(
+        senderName: 'John Doe',
+        content: 'Hello, how are you?',
+        time: '10:30 AM',
+      ),
+      Message(
+        senderName: 'You',
+        content: 'I\'m good, thanks! How about you?',
+        time: '10:35 AM',
+      ),
+    ],
+  ),
+  Chat(
+    senderName: 'Jane Smith',
+    senderImage: 'assets/images/jane_smith_avatar.jpg',
+    messages: [
+      Message(
+        senderName: 'Jane Smith',
+        content: 'I will be there soon.',
+        time: '9:45 AM',
+      ),
+      Message(
+        senderName: 'You',
+        content: 'Great, see you soon!',
+        time: '9:50 AM',
+      ),
+    ],
+  ),
+  Chat(
+    senderName: 'David Johnson',
+    senderImage: 'assets/images/david_johnson_avatar.jpg',
+    messages: [
+      Message(
+        senderName: 'You',
+        content: 'Can you please send me the document?',
+        time: 'Yesterday',
+      ),
+      Message(
+        senderName: 'David Johnson',
+        content: 'Sure, I will send it to you shortly.',
+        time: 'Yesterday',
+      ),
+    ],
+  ),
+  // Add more sample chat data as needed
+];
+
+
 class Place extends StatelessWidget {
   const Place({super.key, this.placeName, this.category});
 
   final String? placeName;
   final String? category;
+
+  void _shareOnFacebook() {
+    Share.share('Shared on Facebook');
+  }
+
+  void _shareOnTwitter() {
+    Share.share('Shared on Twitter');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +250,46 @@ class Place extends StatelessWidget {
       appBar: AppBar(
         title: Text(this.placeName ?? 'Null'),
         actions: [
-          IconButton(icon: Icon(Icons.share), onPressed: () {}),
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          leading: Icon(Icons.share),
+                          title: Text('Share on social media'),
+                        ),
+                        ListTile(
+                          leading: Icon(Icons.facebook),
+                          title: Text('Share on Facebook'),
+                          onTap: () {
+                            // Implement Facebook sharing logic here
+                            _shareOnFacebook();
+                            Navigator.pop(context); // Close the bottom sheet
+                          },
+                        ),
+                        ListTile(
+                          leading: Icon(FontAwesomeIcons.twitter),
+                          title: Text('Share on Twitter'),
+                          onTap: () {
+                            // Implement Twitter sharing logic here
+                            _shareOnTwitter();
+                            Navigator.pop(context); // Close the bottom sheet
+                          },
+                        ),
+                        // Add more social media sharing options as needed
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
       body: SafeArea(
@@ -129,13 +323,16 @@ class Place extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Text(this.placeName ?? 'Null', style: TextStyle
-                      (fontWeight: FontWeight.bold, fontSize: 20,)),
+                    Text(this.placeName ?? 'Null',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        )),
                     Chip(label: Text(this.category ?? 'Null')),
                     Text('Open - 08:00 AM to 08:00 PM'),
                     SizedBox(height: 5),
-                    Text('Popularity: 95%', style: TextStyle
-                      (fontWeight: FontWeight.bold)),
+                    Text('Popularity: 95%',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     SizedBox(height: 30),
                     Row(
                       children: [
@@ -147,8 +344,22 @@ class Place extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.all(5)),
                               onPressed: () {},
-                              child: Text('Follow', style: TextStyle
-                                (fontSize: 12)),
+                              child: Text('Follow',
+                                  style: TextStyle(fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                        Spacer(),
+                        Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            height: 30,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.all(5)),
+                              onPressed: () {},
+                              child: Text('Chat Room',
+                                  style: TextStyle(fontSize: 12)),
                             ),
                           ),
                         ),
@@ -161,42 +372,30 @@ class Place extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                   padding: EdgeInsets.all(5)),
                               onPressed: () {},
-                              child:
-                                  Text('Chat Room', style: TextStyle
-                                    (fontSize: 12)),
-                            ),
-                          ),
-                        ),
-                        Spacer(),
-                        Expanded(
-                          flex: 10,
-                          child: SizedBox(
-                            height: 30,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.all(5)),
-                              onPressed: () {},
-                              child: Text('Contact', style: TextStyle
-                                (fontSize: 12)),
+                              child: Text('Contact',
+                                  style: TextStyle(fontSize: 12)),
                             ),
                           ),
                         ),
                       ],
                     ),
                     SizedBox(height: 30),
-                    Text('About ' + (this.placeName ?? 'Null'), style: TextStyle
-                      (fontWeight: FontWeight.bold, fontSize: 20,)),
+                    Text('About ' + (this.placeName ?? 'Null'),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        )),
                     SizedBox(height: 10),
                     Text(
                         'Lorem ipsum dolor sit amet, consectetur adipiscing '
-                            'elit. Praesent porta, libero at ultricies '
-                            'lacinia, diam sapien lacinia mi, quis aliquet '
-                            'diam ex et massa. Sed a tellus ac tortor '
-                            'placerat rutrum in non nunc.', textAlign:
-                    TextAlign.center),
+                        'elit. Praesent porta, libero at ultricies '
+                        'lacinia, diam sapien lacinia mi, quis aliquet '
+                        'diam ex et massa. Sed a tellus ac tortor '
+                        'placerat rutrum in non nunc.',
+                        textAlign: TextAlign.center),
                     SizedBox(height: 30),
-                    Text('Location', style: TextStyle(fontWeight: FontWeight
-                        .bold)),
+                    Text('Location',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
                     Text('Street Name', style: TextStyle(fontSize: 12)),
                   ],
                 ),
@@ -210,12 +409,16 @@ class Place extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    const Text('Photos', style: TextStyle(fontWeight: FontWeight
-                        .bold)),
-                    SizedBox(height: 20, child: TextButton(style:
-                    TextButton.styleFrom(padding: const EdgeInsets.all(0)),
-                        onPressed: () {},
-                  child: Text('See more', style: TextStyle(fontSize: 12)))),
+                    const Text('Photos',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    SizedBox(
+                        height: 20,
+                        child: TextButton(
+                            style: TextButton.styleFrom(
+                                padding: const EdgeInsets.all(0)),
+                            onPressed: () {},
+                            child: Text('See more',
+                                style: TextStyle(fontSize: 12)))),
                   ],
                 ),
               ),
@@ -308,16 +511,21 @@ class _PatroneDashboardState extends State<PatroneDashboard>
         return Text('WazzLitt! around me');
       case 1:
         return TabBar(
-            unselectedLabelStyle:
-                TextStyle(color: Theme.of(context).colorScheme.primary),
-            indicatorColor: Theme.of(context).colorScheme.primary,
-            controller: _exploreController,
-            tabs: [Tab(text: 'Lit'), Tab(text: 'Places')]);
+          unselectedLabelStyle:
+              TextStyle(color: Theme.of(context).colorScheme.primary),
+          indicatorColor: Theme.of(context).colorScheme.primary,
+          controller: _exploreController,
+          tabs: [Tab(text: 'Lit'), Tab(text: 'Places')],
+        );
+      case 2:
+        return Text('Messages');
+      case 3:
+        return Text('Profile');
     }
   }
 
   List<Widget> views(BuildContext context) {
-    return [feed(context), explore(context)];
+    return [feed(context), explore(context), ChatsView()];
   }
 
   String _selectedChip = '';
@@ -328,7 +536,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       appBar: AppBar(
         title: titleWidget(context),
         actions: [
-          trailingIcon()!,
+          trailingIcon() ?? SizedBox(),
         ],
       ),
       body: SafeArea(
