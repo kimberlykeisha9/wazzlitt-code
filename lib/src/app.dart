@@ -80,9 +80,183 @@ class MyApp extends StatelessWidget {
             'patrone_dashboard': (context) => const PatroneDashboard(),
             'settings': (context) => const Settings(),
             'orders': (context) => const Orders(),
+            'confirmed': (context) => const ConfirmedOrder(),
+            // 'place_order': (context) => PlaceOrder(),
           },
         );
       },
+    );
+  }
+}
+
+class ConfirmedOrder extends StatelessWidget {
+  const ConfirmedOrder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          children: [
+            Spacer(flex: 4),
+            Icon(FontAwesomeIcons.champagneGlasses, size: 60),
+            Spacer(),
+            Text('It\'s Litt!!', style: TextStyle(fontSize: 24, fontWeight:
+            FontWeight.bold)),
+            Spacer(),
+            Text('You have successfully placed your order for **ORDER**. Check '
+                'your email for an invoice and the orders panel for your '
+                'transaction details.'),
+            Spacer(),
+            SizedBox(
+              width: width(context),
+              child: ElevatedButton(
+                child: Text('Return to home'),
+                onPressed: () {
+                  Navigator.pop(context);
+                }
+              )
+            ),
+            Spacer(flex: 4),
+          ]
+        ),
+      ),
+    );
+  }
+}
+
+
+enum OrderType { event, service }
+
+class PlaceOrder extends StatefulWidget {
+  PlaceOrder({super.key, required this.orderType, required this.orderTitle});
+
+  final OrderType orderType;
+  final String orderTitle;
+
+  @override
+  State<PlaceOrder> createState() => _PlaceOrderState();
+}
+
+class _PlaceOrderState extends State<PlaceOrder> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.orderType == OrderType.service
+            ? 'Services for ${widget.orderTitle}'
+            : 'Tickets for ${widget.orderTitle}'),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              Text(widget.orderTitle, style: TextStyle(fontSize: 20, fontWeight:
+              FontWeight.bold)),
+              Spacer(),
+              Text(widget.orderType == OrderType.service
+                  ? 'Choose which services you would like to order'
+                  : 'Choose which tickets you would like to order'),
+              Spacer(),
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: 4,
+                itemBuilder: (context, index) {
+                  int quantity = 1;
+
+                  void increment() {
+                    setState(() {
+                      quantity++;
+                    });
+                  }
+
+                  void decrement() {
+                    if (quantity > 1) {
+                      setState(() {
+                        quantity--;
+                      });
+                    }
+                  }
+                  return widget.orderType == OrderType.service
+                    ? ListTile(
+                  title: Text('Service $index'),
+                  subtitle: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('\$ 0.00'),
+                      Text('Service description'),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.remove),
+                        onPressed: decrement,
+                      ),
+                      Text(
+                        quantity.toString(),
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: increment,
+                      ),
+                    ],
+                  )
+                ) : ListTile(
+                  title: Text('Ticket Type $index'),
+                      subtitle: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('\$ 0.00'),
+                          Text('Ticket type description'),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.remove),
+                            onPressed: decrement,
+                          ),
+                          Text(
+                            quantity.toString(),
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.add),
+                            onPressed: increment,
+                          ),
+                        ],
+                      )
+                );
+                },
+              ),
+              Spacer(flex: 3),
+              CheckboxListTile(value: true, onChanged: (val) {},
+              subtitle: Text('I confirm that I am liable to the Terms and '
+                  'Conditions of this purchase and all other regulations set.')),
+              Spacer(flex: 3),
+              SizedBox(
+                width: width(context),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.popAndPushNamed(context, 'confirmed');
+                  },
+                      child: Text('Checkout')
+                )
+              ),
+              Spacer(flex: 5),
+            ]
+          ),
+        )
+      ),
     );
   }
 }
@@ -93,143 +267,245 @@ class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(AppLocalizations.of(context)!.privacyInfo, style:
-        const TextStyle(fontWeight: FontWeight.bold)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(AppLocalizations.of(context)!.profileVisibility),
-                    DropdownButton<String>(
-                      value: 'Public',
-                      onChanged: (String? value) {
-                        if (value == 'Public') {
-                          // Handle Public option
-                        } else if (value == 'Private') {
-                          // Handle Private option
-                        }
-                      },
-                      items: <String>[
-                        'Public',
-                        'Private',
-                      ].map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    )
-
-                  ]
-                ),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(AppLocalizations.of(context)!.allowMessages),
-                      DropdownButton<String>(
-                        value: 'Everyone',
-                        onChanged: (String? value) {
-                          if (value == 'Everyone') {
-                            // Handle Public option
-                          } else if (value == 'Followers') {
-                            // Handle Private option
-                          } else if (value == 'Followers I follow back') {
-                            // Handle
-                          }
-                        },
-                        items: <String>[
-                          'Everyone',
-                          'Followers',
-                        ].map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      )
-
-                    ]
-                ),
-                Row(
+        appBar: AppBar(
+          title: const Text('Settings'),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(AppLocalizations.of(context)!.privacyInfo,
+                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppLocalizations.of(context)!.profileVisibility),
+                        DropdownButton<String>(
+                          value: 'Public',
+                          onChanged: (String? value) {
+                            if (value == 'Public') {
+                              // Handle Public option
+                            } else if (value == 'Private') {
+                              // Handle Private option
+                            }
+                          },
+                          items: <String>[
+                            'Public',
+                            'Private',
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        )
+                      ]),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppLocalizations.of(context)!.allowMessages),
+                        DropdownButton<String>(
+                          value: 'Everyone',
+                          onChanged: (String? value) {
+                            if (value == 'Everyone') {
+                              // Handle Public option
+                            } else if (value == 'Followers') {
+                              // Handle Private option
+                            } else if (value == 'Followers I follow back') {
+                              // Handle
+                            }
+                          },
+                          items: <String>[
+                            'Everyone',
+                            'Followers',
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        )
+                      ]),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(AppLocalizations.of(context)!.blocked),
                       const Text('0'),
                     ],
+                  ),
+                  Text(AppLocalizations.of(context)!.dataUsage),
+                  const Text('Notification Settings',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Push Notifications'),
+                  const Text('Email Notifications'),
+                  const Text('SMS Notifications'),
+                  const Text('Language and Localizations',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('Language'),
+                  const Text('Date format'),
+                  const Text('Currency'),
+                  const Text('Connected Accounts',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Facebook'),
+                      Switch(value: false, onChanged: (val) => val = true),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Twitter'),
+                      Switch(value: false, onChanged: (val) => val = true),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Instagram'),
+                      Switch(value: false, onChanged: (val) => val = true),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Email'),
+                      Switch(value: false, onChanged: (val) => val = true),
+                    ],
+                  ),
+                  const Text('Help and Support',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('FAQ and Help Centre'),
+                  const Text('Contact Support'),
+                  const Text('About and Legal Information',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('App Version'),
+                      Text('1.0.0'),
+                    ],
+                  ),
+                  const Text('Terms of Service'),
+                ],
+              ),
+            ),
+          ),
+        ));
+  }
+}
+
+class OrderDetails extends StatelessWidget {
+  const OrderDetails({super.key, this.orderTitle});
+
+  final String? orderTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(this.orderTitle ?? ''),
+      ),
+      body: SafeArea(
+          child: Column(children: [
+        Expanded(
+          child: Container(
+            color: Colors.grey,
+          ),
+        ),
+        Flexible(
+          flex: 3,
+          child: Padding(
+            padding: const EdgeInsets.all(30),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(orderTitle ?? 'null',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                      )),
                 ),
-                Text(AppLocalizations.of(context)!.dataUsage),
-                const Text('Notification Settings', style:
-                TextStyle(fontWeight: FontWeight.bold)),
-                const Text('Push Notifications'),
-                const Text('Email Notifications'),
-                const Text('SMS Notifications'),
-                const Text('Language and Localizations', style:
-                TextStyle(fontWeight: FontWeight.bold)),
-                const Text('Language'),
-                const Text('Date format'),
-                const Text('Currency'),
-                const Text('Connected Accounts', style:
-                TextStyle(fontWeight: FontWeight.bold)),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Facebook'),
-                    Switch(value: false, onChanged:
-                    (val) => val = true),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Twitter'),
-                    Switch(value: false, onChanged:
-                        (val) => val = true),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Instagram'),
-                    Switch(value: false, onChanged:
-                        (val) => val = true),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Email'),
-                    Switch(value: false, onChanged:
-                        (val) => val = true),
-                  ],
-                ),
-                const Text('Help and Support', style:
-                TextStyle(fontWeight: FontWeight.bold)),
-                const Text('FAQ and Help Centre'),
-                const Text('Contact Support'),
-                const Text('About and Legal Information', style:
-                TextStyle(fontWeight: FontWeight.bold)),
+                const Spacer(),
+                const Center(child: Text('Order Address')),
+                const Spacer(flex: 3),
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('App Version'),
-                    Text('1.0.0'),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Order',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 10),
+                        Text('Order Content', style: TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('Quantity',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 10),
+                        Text('Order Quantity', style: TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('Price',
+                            style: TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold)),
+                        SizedBox(height: 10),
+                        Text('\$ 0.00', style: TextStyle(fontSize: 14)),
+                      ],
+                    ),
                   ],
                 ),
-                const Text('Terms of Service'),
+                const SizedBox(height: 10),
+                const Text('Validity Date: 01 January 2023',
+                    style: TextStyle(fontSize: 14)),
+                const Spacer(flex: 3),
+                const Text('Payment Status: Completed',
+                    style: TextStyle(fontSize: 14)),
+                const Spacer(),
+                const Text('Purchase Date: 01 January 2023',
+                    style: TextStyle(fontSize: 14)),
+                const Spacer(),
+                const Text('Order ID: ABCD-EFGH-IJKL-MNOP',
+                    style: TextStyle(fontSize: 14)),
+                const Spacer(),
+                const Text('Transaction Type: Credit Card',
+                    style: TextStyle(fontSize: 14)),
+                const Spacer(flex: 3),
+                SizedBox(
+                  width: width(context),
+                  child: ElevatedButton(
+                      onPressed: () {}, child: const Text('Request Invoice')),
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: width(context),
+                  child: ElevatedButton(
+                      onPressed: () {}, child: const Text('Raise Dispute')),
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: width(context),
+                  child: ElevatedButton(
+                      onPressed: () {}, child: const Text('Contact Organizer')),
+                ),
               ],
             ),
           ),
-        ),
-      )
+        )
+      ])),
     );
   }
 }
@@ -244,72 +520,152 @@ class Orders extends StatelessWidget {
           title: const Text('Orders'),
         ),
         body: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.all(20),
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search orders',
-                    prefixIcon: Icon(Icons.search),
-                    border: UnderlineInputBorder(),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(20),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search orders',
+                      prefixIcon: Icon(Icons.search),
+                      border: UnderlineInputBorder(),
                     ),
                   ),
                 ),
-              ExpansionTile(
-                title: Text('Valid orders'),
-                children: [
-                  ListView.builder(
-                    itemCount: 5, // Replace with the desired number of containers
-                    itemBuilder: (context, index) {
-                      return Container(
-                        height: 100,
-                        width: double.infinity,
-                        color: Colors.blue,
-                        margin: EdgeInsets.all(10),
-                        child: Center(
-                          child: Text(
-                            'Container ${index + 1}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                ExpansionTile(title: const Text('Valid orders'), children: [
+                  GridView.builder(
+                    shrinkWrap: true,
+                    itemCount: 6,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                    ),
+                    itemBuilder: (context, index) => GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => OrderDetails(
+                              orderTitle: 'Valid Order $index',
                             ),
                           ),
-                        ),
-                      );
-                    },
-                  )
-
-                ]
-              ),
-              ExpansionTile(
-                title: Text('Past orders'),
-                children: [
-                  Container(
-                    color: Colors.red,
-                    padding: EdgeInsets.all(16),
-                    child: const Text('Container 1', style: TextStyle(color: Colors.white)),
+                        );
+                      },
+                      child: Container(
+                          color: Colors.red,
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              const Spacer(flex: 10),
+                              Text(
+                                'Valid Order $index',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Spacer(flex: 3),
+                              const Text(
+                                '0 Tickets',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const Spacer(),
+                              const Text(
+                                '\$ 0.00',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const Spacer(),
+                              const Text(
+                                'Date',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const Spacer(flex: 10),
+                            ],
+                          )),
+                    ),
                   ),
-                  Container(
-                    color: Colors.green,
-                    padding: const EdgeInsets.all(16),
-                    child: Text('Container 2', style: TextStyle(color: Colors.white)),
-                  ),
-                  Container(
-                    color: Colors.blue,
-                    padding: EdgeInsets.all(16),
-                    child: Text('Container 3', style: TextStyle(color: Colors.white)),
-                  ),
-                ]
-              ),
-            ],
+                ]),
+                ExpansionTile(
+                  title: const Text('Past orders'),
+                  children: [
+                    GridView.builder(
+                      shrinkWrap: true,
+                      itemCount: 6,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                      ),
+                      itemBuilder: (context, index) => GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => OrderDetails(
+                                orderTitle: 'Past Order $index',
+                              ),
+                            ),
+                          );
+                        },
+                        child: Container(
+                            color: Colors.red,
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              children: [
+                                const Spacer(flex: 10),
+                                Text(
+                                  'Past Order $index',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Spacer(flex: 3),
+                                const Text(
+                                  '0 Tickets',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const Spacer(),
+                                const Text(
+                                  '\$ 0.00',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const Spacer(),
+                                const Text(
+                                  'Date',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const Spacer(flex: 10),
+                              ],
+                            )),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        )
-    );
+        ));
   }
 }
-
 
 class ChatsView extends StatelessWidget {
   @override
@@ -320,16 +676,20 @@ class ChatsView extends StatelessWidget {
         final chat = chatData[index];
         return ListTile(
           leading: const Icon(Icons.park),
-          title: Text(chat.senderName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),),
+          title: Text(
+            chat.senderName,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+          ),
           subtitle: Text(
-            chat.messages.isNotEmpty ? chat.messages.last.senderName == 'You' ?
-            'You: ${chat.messages.last.content}' : chat.messages.last.content :
-            '',
+            chat.messages.isNotEmpty
+                ? chat.messages.last.senderName == 'You'
+                    ? 'You: ${chat.messages.last.content}'
+                    : chat.messages.last.content
+                : '',
           ),
           trailing: Text(
-            chat.messages.isNotEmpty ? chat.messages.last.time : '',
-              style: const TextStyle(fontSize: 12)
-          ),
+              chat.messages.isNotEmpty ? chat.messages.last.time : '',
+              style: const TextStyle(fontSize: 12)),
           onTap: () {
             Navigator.push(
               context,
@@ -377,10 +737,12 @@ class _ConversationScreenState extends State<ConversationScreen> {
                   : null,
               title: Text(
                 message.senderName,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
               ),
               subtitle: Text(message.content),
-              trailing: Text(message.time, style: const TextStyle(fontSize: 12)),
+              trailing:
+                  Text(message.time, style: const TextStyle(fontSize: 12)),
             );
           },
         ),
@@ -660,7 +1022,21 @@ class Place extends StatelessWidget {
                         'diam ex et massa. Sed a tellus ac tortor '
                         'placerat rutrum in non nunc.',
                         textAlign: TextAlign.center),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PlaceOrder(
+                                orderType: OrderType.service,
+                                orderTitle: this.placeName ?? ''),
+                          ),
+                        );
+                      },
+                      child: Text('Check out our services'),
+                    ),
+                    const SizedBox(height: 10),
                     const Text('Location',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const Text('Street Name', style: TextStyle(fontSize: 12)),
@@ -710,6 +1086,341 @@ class Place extends StatelessWidget {
   }
 }
 
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: 200,
+          child: Stack(
+            children: [
+              Container(
+                width: width(context),
+                height: 150,
+                color: Colors.grey,
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[800],
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              const Text('User Name',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const Text('@UserName', style: TextStyle(fontSize: 12)),
+              const SizedBox(height: 10),
+              const Text('User Bio'),
+              const SizedBox(height: 10),
+              const Text('Star Sign', style: TextStyle(fontSize: 12)),
+              const Text('Capricorn',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('Posts', style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('Followers', style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text('Following', style: TextStyle(fontSize: 14)),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 10,
+                    child: SizedBox(
+                      height: 30,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(5)),
+                        onPressed: () {},
+                        child: const Text('Edit Profile',
+                            style: TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Expanded(
+                    flex: 10,
+                    child: SizedBox(
+                      height: 30,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.all(5)),
+                        onPressed: () {},
+                        child: const Text('Social Links',
+                            style: TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: DefaultTabController(
+            length: 3,
+            child: SizedBox(
+              child: Column(
+                children: [
+                  TabBar(
+                    tabs: const [
+                      Tab(icon: Icon(Icons.place)),
+                      Tab(icon: Icon(Icons.favorite)),
+                      Tab(icon: Icon(Icons.bookmark)),
+                    ],
+                    labelColor: Theme.of(context).colorScheme.secondary,
+                    unselectedLabelColor: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.375),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                      children: [
+                        GridView.builder(
+                          shrinkWrap: true,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                          ),
+                          itemCount: 4,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Container(
+                              color: Colors.blue,
+                              child: Center(
+                                child: Text(
+                                  'Post $index',
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                          ),
+                          itemCount: 4,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Container(
+                              color: Colors.red,
+                              child: Center(
+                                child: Text(
+                                  'Liked $index',
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                          ),
+                          itemCount: 4,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Container(
+                              color: Colors.orange,
+                              child: Center(
+                                child: Text(
+                                  'Saved $index',
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class UploadImage extends StatefulWidget {
+  UploadImage({super.key});
+
+  @override
+  State<UploadImage> createState() => _UploadImageState();
+}
+
+class _UploadImageState extends State<UploadImage> {
+   String _selectedChip = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('New Post'),
+      ),
+      body: SafeArea(
+        child: PageView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Where are you getting Litt at?'),
+                  SizedBox(height: 20),
+                  TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Search'
+                    )
+                  ),
+                  SizedBox(height: 20),
+                  Text('Suggestions'),
+                  SizedBox(height: 10),
+                  Expanded(
+                    child: SizedBox(
+                      child: ListView.builder(
+                          itemCount: 8,
+                          itemBuilder: (context , index) {
+                            return ListTile(
+                              leading: Icon(Icons.favorite),
+                              title: Text('Location $index'),
+                              subtitle: Text('Street Name'),
+                            );
+                          }
+                      ),
+                    )
+                  )
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          color: Colors.grey,
+                          width: 100,
+                          height: 150,
+                        ),
+                        SizedBox(width:10),
+                        Expanded(
+                            child: TextFormField(
+                                maxLength: 100,
+                                minLines: 5,
+                                decoration: InputDecoration(
+                                    labelText: 'Add a caption to your post',
+                                  border: InputBorder.none,
+                                )
+                            )
+                        )
+                      ]
+                  ),
+                  SizedBox(height:20),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: categories
+                          .map(
+                            (chip) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: ChoiceChip(
+                            label: Text(chip),
+                            selected: _selectedChip == chip,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedChip = selected ? chip : '';
+                              });
+                            },
+                          ),
+                        ),
+                      )
+                          .toList(),
+                    ),
+                  ),
+                  SizedBox(height:20),
+                  Text('Vibing at **Tagged Location**'),
+                  SizedBox(height:10),
+                  Text('Share to'),
+                  Row(
+                      children: [
+                        IconButton(
+                          onPressed:(){},
+                          icon: Icon(FontAwesomeIcons.facebook)
+                        ),
+                        IconButton(
+                            onPressed:(){},
+                            icon: Icon(FontAwesomeIcons.twitter)
+                        ),
+                        IconButton(
+                            onPressed:(){},
+                            icon: Icon(FontAwesomeIcons.instagram)
+                        ),
+                        IconButton(
+                            onPressed:(){},
+                            icon: Icon(FontAwesomeIcons.tiktok)
+                        ),
+                        IconButton(
+                            onPressed:(){},
+                            icon: Icon(FontAwesomeIcons.whatsapp)
+                        ),
+                      ]
+                  )
+                ]
+              ),
+            )
+          ]
+        )
+      )
+    );
+  }
+}
+
+
 class PatroneDashboard extends StatefulWidget {
   const PatroneDashboard({super.key});
 
@@ -721,6 +1432,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     with TickerProviderStateMixin {
   int _currentIndex = 0;
   TabController? _exploreController;
+  String? selectedReason;
 
   @override
   void initState() {
@@ -750,9 +1462,75 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       elevation: 8,
     ).then((value) {
       if (value == 'report') {
-        // Handle report action
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                    title: Text('Make a Report'),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        DropdownButtonFormField<String>(
+                          value: selectedReason,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedReason = newValue;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Reason for Report',
+                            // border: OutlineInputBorder(),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: 'Spam',
+                              child: Text('Spam'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Harassment',
+                              child: Text('Harassment'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Inappropriate Content',
+                              child: Text('Inappropriate Content'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Other',
+                              child: Text('Other'),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        TextFormField(
+                          decoration: InputDecoration(
+                              labelText: 'Any further information?'),
+                          minLines: 1,
+                          maxLines: 5,
+                        )
+                      ],
+                    ),
+                    actions: [
+                      TextButton(onPressed: () {}, child: Text('Submit Report'))
+                    ]));
       } else if (value == 'block') {
-        // Handle block user action
+        showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+                    title: Text('Block User'),
+                    content: Text('Are you sure you want to block this user?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('Yes, I am sure'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        child: Text('No'),
+                      ),
+                    ]));
       }
     });
   }
@@ -761,12 +1539,22 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     switch (_currentIndex) {
       case 0:
         return IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    UploadImage(),
+              ),
+            );
+          },
           icon: const Icon(Icons.photo_camera),
         );
       case 1:
         return IconButton(
-          onPressed: () {},
+          onPressed: () {
+
+          },
           icon: const Icon(Icons.search),
         );
       case 3:
@@ -815,7 +1603,12 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   }
 
   List<Widget> views(BuildContext context) {
-    return [feed(context), explore(context), ChatsView(), profile(context)];
+    return [
+      feed(context),
+      explore(context),
+      ChatsView(),
+      const ProfileScreen(),
+    ];
   }
 
   String _selectedChip = '';
@@ -829,9 +1622,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           trailingIcon() ?? const SizedBox(),
         ],
       ),
-      body: SafeArea(
-        child: views(context)[_currentIndex],
-      ),
+      body: views(context)[_currentIndex],
       bottomNavigationBar: Theme(
         data: ThemeData(
           canvasColor: Theme.of(context).colorScheme.primary,
@@ -853,179 +1644,6 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           ],
         ),
       ),
-    );
-  }
-
-  Widget profile(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 200,
-          child: Stack(
-            children: [
-              Container(
-                width: width(context),
-                height: 150,
-                color: Colors.grey,
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[800],
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              const Text('User Name', style: TextStyle(fontWeight: FontWeight.bold)),
-              const Text('@UserName', style: TextStyle(fontSize: 12)),
-              const SizedBox(height:10),
-              const Text('User Bio'),
-              const SizedBox(height:10),
-              const Text('Star Sign', style: TextStyle(fontSize: 12)),
-              const Text('Capricorn', style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height:10),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Column(
-                    children: [
-                      Text('0'),
-                      Text('Posts'),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text('0'),
-                      Text('Followers'),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      Text('0'),
-                      Text('Following'),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height:10),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 10,
-                    child: SizedBox(
-                      height: 30,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(5)),
-                        onPressed: () {},
-                        child: const Text('Edit Profile',
-                            style: TextStyle(fontSize: 12)),
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  Expanded(
-                    flex: 10,
-                    child: SizedBox(
-                      height: 30,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(5)),
-                        onPressed: () {},
-                        child: const Text('Social Links',
-                            style: TextStyle(fontSize: 12)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: DefaultTabController(length: 3, child: SizedBox(
-            child: Column(
-              children: [
-                TabBar(tabs: [
-                  const Tab(icon: Icon(Icons.place)),
-                  const Tab(icon: Icon(Icons.favorite)),
-                  const Tab(icon: Icon(Icons.bookmark)),],
-                  labelColor: Theme.of(context).colorScheme.secondary,
-                  unselectedLabelColor: Theme.of(context).colorScheme
-                      .secondary.withOpacity(0.375),
-                ),
-                Expanded(
-                  child: TabBarView(
-                    children: [
-                      GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                        ),
-                        itemCount: 4,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                            color: Colors.blue,
-                            child: Center(
-                              child: Text(
-                                'Post $index',
-                                style: const TextStyle(color: Colors.white, fontSize: 20),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                        ),
-                        itemCount: 4,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                            color: Colors.red,
-                            child: Center(
-                              child: Text(
-                                'Liked $index',
-                                style: const TextStyle(color: Colors.white, fontSize: 20),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                        ),
-                        itemCount: 4,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                            color: Colors.orange,
-                            child: Center(
-                              child: Text(
-                                'Saved $index',
-                                style: const TextStyle(color: Colors.white, fontSize: 20),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),),
-        ),
-      ],
     );
   }
 
@@ -1147,7 +1765,19 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                       SizedBox(
                                         width: width(context),
                                         child: ElevatedButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      PlaceOrder(
+                                                          orderType:
+                                                              OrderType.event,
+                                                          orderTitle:
+                                                              'Event $index'),
+                                                ),
+                                              );
+                                            },
                                             child: const Text('Buy Tickets')),
                                       ),
                                       const SizedBox(height: 30),
@@ -1180,7 +1810,8 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                             },
                             leading: const Icon(Icons.park),
                             title: Text('Event $index',
-                                style: const TextStyle(fontWeight: FontWeight.bold)),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
                             subtitle: const Wrap(
                               direction: Axis.vertical,
                               children: [
@@ -1291,7 +1922,8 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                         child: ListTile(
                           leading: const Icon(Icons.place),
                           title: Text('Place $index',
-                              style: const TextStyle(fontWeight: FontWeight.bold)),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
                           subtitle: const Wrap(
                             direction: Axis.vertical,
                             children: [
