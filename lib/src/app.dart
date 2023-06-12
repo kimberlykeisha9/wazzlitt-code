@@ -34,15 +34,21 @@ class MyApp extends StatelessWidget {
           onGenerateTitle: (BuildContext context) =>
               AppLocalizations.of(context)!.appTitle,
           theme: ThemeData(
+              tabBarTheme: TabBarTheme(labelColor: Colors.indigo[900]),
+              bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                  backgroundColor: Colors.indigo[900]),
               appBarTheme: AppBarTheme(
                 color: Colors.transparent,
                 elevation: 0,
                 centerTitle: true,
-                titleTextStyle: TextStyle(color: Colors.black, fontSize: 16),
+                titleTextStyle:
+                    const TextStyle(color: Colors.black, fontSize: 16),
                 toolbarHeight: height(context) * 0.1,
                 iconTheme: IconThemeData(color: Colors.indigo[900]!),
               ),
-              chipTheme: ChipThemeData(backgroundColor: Colors.greenAccent[100], selectedColor: Colors.greenAccent[400]),
+              chipTheme: ChipThemeData(
+                  backgroundColor: Colors.greenAccent[100],
+                  selectedColor: Colors.greenAccent[400]),
               inputDecorationTheme: InputDecorationTheme(
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
@@ -69,7 +75,7 @@ class MyApp extends StatelessWidget {
             'interests': (context) => const Interests(),
             'igniter_registration': (context) => const IgniterRegistration(),
             'igniter_profile': (context) => IgniterProfile(),
-            'patrone_dashboard': (context) => PatroneDashboard(),
+            'patrone_dashboard': (context) => const PatroneDashboard(),
           },
         );
       },
@@ -77,28 +83,672 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PatroneDashboard extends StatelessWidget {
-  const PatroneDashboard({super.key});
+class Place extends StatelessWidget {
+  const Place({super.key, this.placeName, this.category});
+
+  final String? placeName;
+  final String? category;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('WazzLitt! around me'),
+        title: Text(this.placeName ?? 'Null'),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.photo_camera),
-          ),
+          IconButton(icon: Icon(Icons.share), onPressed: () {}),
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            // Image.network('https://github.com/kimberlykeisha9/wazzlitt-code/blob/master/assets/images/testimage.jpg?raw=true'),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 200,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: width(context),
+                      height: 150,
+                      color: Colors.grey,
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Text(this.placeName ?? 'Null', style: TextStyle
+                      (fontWeight: FontWeight.bold, fontSize: 20,)),
+                    Chip(label: Text(this.category ?? 'Null')),
+                    Text('Open - 08:00 AM to 08:00 PM'),
+                    SizedBox(height: 5),
+                    Text('Popularity: 95%', style: TextStyle
+                      (fontWeight: FontWeight.bold)),
+                    SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            height: 30,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.all(5)),
+                              onPressed: () {},
+                              child: Text('Follow', style: TextStyle
+                                (fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                        Spacer(),
+                        Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            height: 30,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.all(5)),
+                              onPressed: () {},
+                              child:
+                                  Text('Chat Room', style: TextStyle
+                                    (fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                        Spacer(),
+                        Expanded(
+                          flex: 10,
+                          child: SizedBox(
+                            height: 30,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                  padding: EdgeInsets.all(5)),
+                              onPressed: () {},
+                              child: Text('Contact', style: TextStyle
+                                (fontSize: 12)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    Text('About ' + (this.placeName ?? 'Null'), style: TextStyle
+                      (fontWeight: FontWeight.bold, fontSize: 20,)),
+                    SizedBox(height: 10),
+                    Text(
+                        'Lorem ipsum dolor sit amet, consectetur adipiscing '
+                            'elit. Praesent porta, libero at ultricies '
+                            'lacinia, diam sapien lacinia mi, quis aliquet '
+                            'diam ex et massa. Sed a tellus ac tortor '
+                            'placerat rutrum in non nunc.', textAlign:
+                    TextAlign.center),
+                    SizedBox(height: 30),
+                    Text('Location', style: TextStyle(fontWeight: FontWeight
+                        .bold)),
+                    Text('Street Name', style: TextStyle(fontSize: 12)),
+                  ],
+                ),
+              ),
+              Container(
+                width: width(context),
+                height: 100,
+                color: Colors.grey,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    const Text('Photos', style: TextStyle(fontWeight: FontWeight
+                        .bold)),
+                    SizedBox(height: 20, child: TextButton(style:
+                    TextButton.styleFrom(padding: const EdgeInsets.all(0)),
+                        onPressed: () {},
+                  child: Text('See more', style: TextStyle(fontSize: 12)))),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 400,
+                width: width(context),
+                child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 4,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        width: width(context) * 0.25,
+                        color: Colors.grey,
+                      );
+                    }),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class PatroneDashboard extends StatefulWidget {
+  const PatroneDashboard({super.key});
+
+  @override
+  State<PatroneDashboard> createState() => _PatroneDashboardState();
+}
+
+class _PatroneDashboardState extends State<PatroneDashboard>
+    with TickerProviderStateMixin {
+  int _currentIndex = 0;
+  TabController? _exploreController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _exploreController = TabController(length: 2, vsync: this);
+  }
+
+  void showPopupMenu(BuildContext context) {
+    final RenderBox overlay =
+        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+    final Offset offset = Offset(overlay.size.width / 2, overlay.size.height);
+
+    showMenu(
+      context: context,
+      position: RelativeRect.fromLTRB(offset.dx, offset.dy, 0, 0),
+      items: [
+        const PopupMenuItem(
+          value: 'report',
+          child: Text('Report'),
+        ),
+        const PopupMenuItem(
+          value: 'block',
+          child: Text('Block User'),
+        ),
+      ],
+      elevation: 8,
+    ).then((value) {
+      if (value == 'report') {
+        // Handle report action
+      } else if (value == 'block') {
+        // Handle block user action
+      }
+    });
+  }
+
+  Widget? trailingIcon() {
+    switch (_currentIndex) {
+      case 0:
+        return IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.photo_camera),
+        );
+      case 1:
+        return IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.search),
+        );
+    }
+  }
+
+  Widget? titleWidget(BuildContext context) {
+    switch (_currentIndex) {
+      case 0:
+        return Text('WazzLitt! around me');
+      case 1:
+        return TabBar(
+            unselectedLabelStyle:
+                TextStyle(color: Theme.of(context).colorScheme.primary),
+            indicatorColor: Theme.of(context).colorScheme.primary,
+            controller: _exploreController,
+            tabs: [Tab(text: 'Lit'), Tab(text: 'Places')]);
+    }
+  }
+
+  List<Widget> views(BuildContext context) {
+    return [feed(context), explore(context)];
+  }
+
+  String _selectedChip = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: titleWidget(context),
+        actions: [
+          trailingIcon()!,
+        ],
+      ),
+      body: SafeArea(
+        child: views(context)[_currentIndex],
+      ),
+      bottomNavigationBar: Theme(
+        data: ThemeData(
+          canvasColor: Theme.of(context).colorScheme.primary,
+        ),
+        child: BottomNavigationBar(
+          onTap: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          showSelectedLabels: false,
+          items: const [
+            BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
+            BottomNavigationBarItem(
+                label: 'Explore', icon: Icon(Icons.explore)),
+            BottomNavigationBarItem(label: 'Messages', icon: Icon(Icons.chat)),
+            BottomNavigationBarItem(
+                label: 'Profile', icon: Icon(Icons.account_circle)),
           ],
         ),
-      )
+      ),
+    );
+  }
+
+  Widget explore(BuildContext context) {
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: categories
+                .map(
+                  (chip) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: ChoiceChip(
+                      label: Text(chip),
+                      selected: _selectedChip == chip,
+                      onSelected: (selected) {
+                        setState(() {
+                          _selectedChip = selected ? chip : '';
+                        });
+                      },
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _exploreController,
+            children: [
+              Column(
+                children: [
+                  SizedBox(
+                    height: width(context) * 0.5,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 2,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Container(
+                            height: width(context) * 0.5,
+                            width: width(context) * 0.5,
+                            color: Colors.indigo,
+                            padding: EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Event $index',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Description $index',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  Text('Upcoming Events',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Expanded(
+                    child: SizedBox(
+                      child: ListView.builder(
+                        itemCount: 5,
+                        itemBuilder: (context, index) => Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: ListTile(
+                            onTap: () => {
+                              showModalBottomSheet(
+                                useSafeArea: true,
+                                isScrollControlled: true,
+                                context: context,
+                                builder: (context) => Container(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.park, size: 80),
+                                      SizedBox(height: 10),
+                                      Text('Event $index',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        'Event $index location',
+                                      ),
+                                      Text('0 km away',
+                                          style: TextStyle(fontSize: 14)),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        'Event $index date',
+                                      ),
+                                      SizedBox(height: 10),
+                                      Text(
+                                        'Event $index price',
+                                      ),
+                                      Text('Original price',
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              decoration:
+                                                  TextDecoration.lineThrough)),
+                                      SizedBox(height: 30),
+                                      SizedBox(
+                                        width: width(context),
+                                        child: ElevatedButton(
+                                            onPressed: () {},
+                                            child: Text('Buy Tickets')),
+                                      ),
+                                      SizedBox(height: 30),
+                                      Text('About Event $index',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold)),
+                                      SizedBox(height: 10),
+                                      Text(
+                                          'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent porta, libero at ultricies lacinia, diam sapien lacinia mi, quis aliquet diam ex et massa. Sed a tellus ac tortor placerat rutrum in non nunc. Mauris porttitor dapibus neque, at efficitur erat hendrerit nec. Cras mollis volutpat eros, vestibulum accumsan arcu rutrum a.'),
+                                      SizedBox(height: 10),
+                                      Chip(label: Text('Category')),
+                                      SizedBox(height: 10),
+                                      Text('Organizer',
+                                          style: TextStyle(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold)),
+                                      ListTile(
+                                        leading: Icon(Icons.park),
+                                        title: Text('Organizer name'),
+                                        subtitle: Text('Category'),
+                                        trailing: TextButton(
+                                            onPressed: () {},
+                                            child: Text('Follow')),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            },
+                            leading: Icon(Icons.park),
+                            title: Text('Event $index',
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            subtitle: Wrap(
+                              direction: Axis.vertical,
+                              children: [
+                                Text('01/01/1980',
+                                    style: TextStyle(fontSize: 14)),
+                                Text('\$0.00', style: TextStyle(fontSize: 14)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Column(children: [
+                Expanded(
+                  flex: 2,
+                  child: SizedBox(
+                    child: ListView.builder(
+                      itemCount: categories.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: 10),
+                            Text(categories[index],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            SizedBox(
+                              height: 20,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                    padding: const EdgeInsets.all(0)),
+                                onPressed: () {},
+                                child: const Text('See more',
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.normal,
+                                        fontSize: 14)),
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            SizedBox(
+                              width: width(context),
+                              height: 190,
+                              child: ListView.builder(
+                                itemCount: 3,
+                                scrollDirection: Axis.horizontal,
+                                itemBuilder: (context, i) {
+                                  return GestureDetector(
+                                    onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Place(
+                                                placeName: 'Place $i',
+                                                category: categories[index]))),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          height: width(context) / 3,
+                                          width: width(context) / 3,
+                                          color: Colors.indigo,
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(height: 10),
+                                            Text(
+                                              'Place $i',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            // SizedBox(height: ),
+                                            Text(
+                                              '0 km away',
+                                              style: TextStyle(
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                Text('Nearby Places',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                SizedBox(height: 10),
+                Flexible(
+                  child: SizedBox(
+                    child: ListView.builder(
+                      itemCount: 2,
+                      itemBuilder: (context, index) => Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: ListTile(
+                          leading: Icon(Icons.place),
+                          title: Text('Place $index',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Wrap(
+                            direction: Axis.vertical,
+                            children: [
+                              Text('Location', style: TextStyle(fontSize: 14)),
+                              Text('0 km away', style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Column feed(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: Container(
+            width: width(context),
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                  fit: BoxFit.cover,
+                  image: AssetImage('assets/images/igniter-2.png')),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text('User Caption',
+                      style: TextStyle(color: Colors.white)),
+                ),
+                Container(
+                  width: width(context),
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.25),
+                  ),
+                  child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: const BoxDecoration(
+                              color: Colors.grey, shape: BoxShape.circle),
+                        ),
+                        const Spacer(),
+                        const Wrap(
+                          direction: Axis.vertical,
+                          alignment: WrapAlignment.start,
+                          children: [
+                            Text('User Name',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold)),
+                            Text('0 days ago',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14)),
+                          ],
+                        ),
+                        const Spacer(flex: 4),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const FaIcon(
+                            FontAwesomeIcons.heart,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Text('0', style: TextStyle(color: Colors.white)),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const FaIcon(FontAwesomeIcons.message,
+                              color: Colors.white),
+                        ),
+                        const Text('0', style: TextStyle(color: Colors.white)),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const FaIcon(FontAwesomeIcons.share,
+                              color: Colors.white),
+                        ),
+                        IconButton(
+                          icon:
+                              const Icon(Icons.more_vert, color: Colors.white),
+                          onPressed: () {
+                            showPopupMenu(context);
+                          },
+                        ),
+                      ]),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  width: width(context),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.75),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.place, color: Colors.white),
+                      Spacer(),
+                      Text('Tagged Location',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
+                      Spacer(flex: 16),
+                      Text('0 km away', style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -141,7 +791,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Igniter Profile'),
+        title: const Text('Edit Igniter Profile'),
       ),
       body: SafeArea(
         child: Column(
@@ -158,7 +808,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                     child: Container(
                       width: width(context),
                       height: 150,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.grey,
                       ),
                       child: _coverPhoto != null
@@ -166,7 +816,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                               _coverPhoto!,
                               fit: BoxFit.cover,
                             )
-                          : Icon(Icons.add_photo_alternate),
+                          : const Icon(Icons.add_photo_alternate),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -188,7 +838,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                                 _profilePicture!,
                                 fit: BoxFit.cover,
                               )
-                            : Icon(Icons.person),
+                            : const Icon(Icons.person),
                       ),
                     ),
                   ),
@@ -199,99 +849,99 @@ class _IgniterProfileState extends State<IgniterProfile> {
             Expanded(
               flex: 8,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                height: height(context)*0.5,
-                width: width(context),
-                child: ListView(
-                  children: [
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  height: height(context) * 0.5,
+                  width: width(context),
+                  child: ListView(children: [
                     TextFormField(
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.name),
-              keyboardType: TextInputType.text,
-              textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.name),
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.words,
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    Text(AppLocalizations.of(context)!.selectCategory,
+                        style: const TextStyle(fontSize: 12)),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: categories
+                            .map(
+                              (chip) => Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 5),
+                                child: ChoiceChip(
+                                  label: Text(chip),
+                                  selected: _selectedChip == chip,
+                                  onSelected: (selected) {
+                                    setState(() {
+                                      _selectedChip = selected ? chip : '';
+                                    });
+                                  },
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.phone),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.website),
+                      keyboardType: TextInputType.url,
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    TextFormField(
+                      maxLines: 5,
+                      minLines: 1,
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.description),
+                      keyboardType: TextInputType.text,
+                      textCapitalization: TextCapitalization.sentences,
+                    ),
+                    const Padding(padding: EdgeInsets.only(top: 15)),
+                    TextFormField(
+                      decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.email),
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                  ])),
             ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            Text(AppLocalizations.of(context)!.selectCategory, style: TextStyle(fontSize: 12)),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: categories
-              .map(
-                (chip) => Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: ChoiceChip(
-                    label: Text(chip),
-                    selected: _selectedChip == chip,
-                    onSelected: (selected) {
-                      setState(() {
-                        _selectedChip = selected ? chip : '';
-                      });
-                    },
-                  ),
-                ),
-              )
-              .toList(),
-        ),
-            ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            TextFormField(
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.phone),
-              keyboardType: TextInputType.phone,
-            ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            TextFormField(
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.website),
-              keyboardType: TextInputType.url,
-            ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            TextFormField(
-              maxLines: 5,
-              minLines: 1,
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.description),
-              keyboardType: TextInputType.text,
-              textCapitalization: TextCapitalization.sentences,
-            ),
-            const Padding(padding: EdgeInsets.only(top: 15)),
-            TextFormField(
-              decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.email),
-              keyboardType: TextInputType.emailAddress,
-            ),
-                  ]
-                )
-              ),
-            ),             
             const Spacer(),
             SizedBox(
-              width: width(context)*0.8,
+              width: width(context) * 0.8,
               child: ElevatedButton(
                 onPressed: () => showDialog(
-                    context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text(
-                        AppLocalizations.of(context)!.createIgniter,
-                        textAlign: TextAlign.center,
-                      ),
-                      content: Text(
-                        AppLocalizations.of(context)!.igniterTrial,
-                        textAlign: TextAlign.center,
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pushNamed(context, 'patrone_dashboard'),
-                          child: Text(AppLocalizations.of(context)!.proceed),
-                        ),
-                      ],
+                  context: context,
+                  builder: (_) => AlertDialog(
+                    title: Text(
+                      AppLocalizations.of(context)!.createIgniter,
+                      textAlign: TextAlign.center,
                     ),
+                    content: Text(
+                      AppLocalizations.of(context)!.igniterTrial,
+                      textAlign: TextAlign.center,
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () =>
+                            Navigator.pushNamed(context, 'patrone_dashboard'),
+                        child: Text(AppLocalizations.of(context)!.proceed),
+                      ),
+                    ],
                   ),
+                ),
                 child: Text(AppLocalizations.of(context)!.save),
               ),
             ),
-          const Spacer(),
+            const Spacer(),
           ],
         ),
       ),
@@ -324,7 +974,7 @@ class IgniterRegistration extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
                   decoration: const BoxDecoration(
                     image: DecorationImage(
@@ -357,7 +1007,7 @@ class IgniterRegistration extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
                   decoration: const BoxDecoration(
                     image: DecorationImage(
@@ -390,7 +1040,7 @@ class IgniterRegistration extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
                 child: Container(
-                  padding: EdgeInsets.symmetric(vertical: 30),
+                  padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
                   decoration: const BoxDecoration(
                     image: DecorationImage(
