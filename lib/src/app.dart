@@ -163,7 +163,7 @@ class _ServiceOverviewState extends State<ServiceOverview> {
 
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [Text('${DateFormat.yMMMM().format(period)}',
+                    children: [Text(DateFormat.yMMMM().format(period),
                         style:
                     const TextStyle
                       (fontWeight: FontWeight.bold)),
@@ -218,7 +218,7 @@ class _ServiceOverviewState extends State<ServiceOverview> {
                     height: 40,
                       width: width(context),
                       alignment: Alignment.center,
-                    child: Row(
+                    child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Expanded(
