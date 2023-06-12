@@ -81,10 +81,579 @@ class MyApp extends StatelessWidget {
             'settings': (context) => const Settings(),
             'orders': (context) => const Orders(),
             'confirmed': (context) => const ConfirmedOrder(),
+            'igniter_dashboard': (context) => const IgniterDashboard(),
             // 'place_order': (context) => PlaceOrder(),
           },
         );
       },
+    );
+  }
+}
+
+class ServiceOverview extends StatefulWidget {
+  const ServiceOverview({super.key, required this.serviceTitle});
+
+  final String serviceTitle;
+
+  @override
+  State<ServiceOverview> createState() => _ServiceOverviewState();
+}
+
+class _ServiceOverviewState extends State<ServiceOverview> {
+  DateTime period = DateTime.now();
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        period = pickedDate;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.serviceTitle),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.grey,
+                  width: 100,
+                  height: 100,
+                ),
+                const SizedBox(height: 20),
+                Text(widget.serviceTitle, style: const TextStyle(fontWeight: FontWeight
+                    .bold, fontSize: 20)),
+                const SizedBox(height: 10),
+                const Text('Product Brief Description'),
+                const SizedBox(height: 10),
+                const Text('\$0.00'),
+                const SizedBox(height: 20),
+                    const Text('Overview',
+                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 5),
+                    const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text('Total Gross Sales', style: TextStyle
+                          (fontWeight: FontWeight.bold)), Text('\$0.00',
+                        )]),
+                    const SizedBox(height: 5),
+                    const Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [Text('Units Sold', style: TextStyle
+                          (fontWeight: FontWeight.bold)),
+                          Text
+                          ('0')]),
+                    const SizedBox(height: 10),
+                const Text('Sales History',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [Text('${DateFormat.yMMMM().format(period)}',
+                        style:
+                    const TextStyle
+                      (fontWeight: FontWeight.bold)),
+                      TextButton(
+                        onPressed: () => _selectDate(context),
+                        child: const Text
+                          ('Choose Month'),
+                      )]),
+
+                const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [Text('Sales of Period', style: TextStyle
+                      (fontWeight: FontWeight.bold)),
+                      Text
+                        ('\$ 0.00')]),
+                const SizedBox(height: 20),
+                const Text('Last 5 Transactions',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                const Row(
+                  children: [
+                    Expanded(
+                flex: 2,
+                        child: Text('Date', style: TextStyle(fontWeight:
+                        FontWeight.bold, fontSize: 12)),
+                    ),
+                    SizedBox(width: 5),
+                    Expanded(
+                        flex: 3,
+                      child: Text('Transaction ID', style: TextStyle(fontWeight:
+                      FontWeight.bold, fontSize: 12)),
+                    ),
+                    SizedBox(width: 5),
+                    Expanded(
+                      child: Text('Quantity', style: TextStyle(fontWeight:
+                      FontWeight.bold, fontSize: 12), textAlign: TextAlign
+                          .right),
+                    ),
+                    SizedBox(width: 5),
+                    Expanded(
+                      child: Text('Amount', style: TextStyle(fontWeight:
+                      FontWeight.bold, fontSize: 12), textAlign: TextAlign
+                          .right),
+                    ),
+                  ]
+                ),
+                const SizedBox(height: 10),
+                ListView.builder(
+                  itemCount: 5,
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) => Container(
+                    height: 40,
+                      width: width(context),
+                      alignment: Alignment.center,
+                    child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                    flex: 2,
+                            child: Text('01/Jan/2023', style: TextStyle(fontSize:
+                            14)),
+                          ),
+                          Expanded(
+                            flex: 3,
+                            child: Text('ABCD-EFGH-IJKL', style: TextStyle
+                              ( fontSize: 14)),
+                          ),
+                          Expanded(
+                            child: Text('0', style: TextStyle(fontSize: 14), textAlign: TextAlign.right),
+                          ),
+                          Expanded(
+                            child: Text('\$ 0.00', style: TextStyle(fontSize: 14), textAlign: TextAlign.right),
+                          ),
+                        ]
+                    ),
+                    )
+                  ),
+              ],
+            ),
+          ),
+        )
+      ),
+    );
+  }
+}
+
+
+class IgniterDashboard extends StatefulWidget {
+  const IgniterDashboard({super.key});
+
+  @override
+  State<IgniterDashboard> createState() => _IgniterDashboardState();
+}
+
+class _IgniterDashboardState extends State<IgniterDashboard> {
+  var _currentIndex = 0;
+  DateTime period = DateTime.now();
+  List<String> getCurrentWeek() {
+    final DateTime monday = period.subtract(Duration(days: period.weekday - 1));
+    final DateFormat formatter = DateFormat('MMM d');
+
+    final List<DateTime> weekDays =
+        List.generate(7, (index) => monday.add(Duration(days: index)));
+
+    final List<String> formattedDates =
+        weekDays.map((date) => formatter.format(date)).toList();
+
+    return formattedDates;
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        period = pickedDate;
+      });
+    }
+  }
+
+  List<Widget> view(BuildContext) {
+    return [
+      dashboard(context),
+      const ChatsView(chatType: ChatRoomType.business),
+      profile(context)
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    getCurrentWeek();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Dashboard'),
+      ),
+      body: view(context)[_currentIndex],
+      bottomNavigationBar: Theme(
+        data: ThemeData(
+          canvasColor: Theme.of(context).colorScheme.primary,
+        ),
+        child: BottomNavigationBar(
+          onTap: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          currentIndex: _currentIndex,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          unselectedItemColor: Colors.white.withOpacity(0.5),
+          selectedItemColor: Colors.white,
+          items: const [
+            BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
+            BottomNavigationBarItem(label: 'Messages', icon: Icon(Icons.chat)),
+            BottomNavigationBarItem(
+                label: 'Profile', icon: Icon(Icons.account_circle)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SafeArea dashboard(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+                height: 60,
+                width: 60,
+                decoration:
+                    const BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
+            const Text('Business Name',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                )),
+            const SizedBox(height: 20),
+            const Card(
+                elevation: 10,
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Column(children: [
+                    Text('Daily Stats Overview',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        )),
+                    SizedBox(height: 20),
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(
+                            children: [
+                              Text('Services Sold',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('0',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              SizedBox(height: 20),
+                              Text('Revenue Earned',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('\$0.00',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text('Daily Chats',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('0',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              SizedBox(height: 20),
+                              Text('Tagged Posts',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('0',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text('Daily Impressions',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('0',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              SizedBox(height: 20),
+                              Text('New Followers',
+                                  style: TextStyle(fontSize: 12)),
+                              Text('0',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ])
+                  ]),
+                )),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  const Text('Services Overview',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                      )),
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                          'Week (${getCurrentWeek()[0]} - ${getCurrentWeek()[6]})'),
+                      TextButton(
+                        onPressed: () => _selectDate(context),
+                        child: const Text('Change Period'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: 3,
+                    itemBuilder: (context, index) => Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Service $index',
+                            style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 5),
+                        const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [Text('Sales'), Text('\$0.00')]),
+                        const SizedBox(height: 5),
+                        const Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [Text('Units Sold'), Text('0')]),
+                        const SizedBox(height: 10),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: width(context),
+                    child: ElevatedButton(
+                      child: const Text('Add a new service'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const NewService(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text('Performance Overview',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 20),
+                  const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Text('Chats received today'), Text('0')]),
+                  const SizedBox(height: 5),
+                  const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Text('Reports received'), Text('0')]),
+                  const SizedBox(height: 5),
+                  const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Text('Tagged posts'), Text('0')]),
+                  const SizedBox(height: 5),
+                  const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Text('Followers'), Text('0')]),
+                  const SizedBox(height: 5),
+                  const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [Text('Profile Visits (Monthly'), Text('0')]),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  SafeArea profile(BuildContext context) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 200,
+              child: Stack(
+                children: [
+                  Container(
+                    width: width(context),
+                    height: 150,
+                    color: Colors.grey,
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  const Text('Business Name',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  const SizedBox(height: 20),
+                  const Text('0 Followers'),
+                  const SizedBox(height: 10),
+                  const Text('97% Popularity'),
+                  const SizedBox(height: 10),
+                  const Text('Something Street, Town', style: TextStyle(fontSize: 14)),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 10,
+                        child: SizedBox(
+                          height: 30,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.all(5)),
+                            onPressed: () {},
+                            child: const Text('Edit Profile',
+                                style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                      ),
+                      const Spacer(),
+                      Expanded(
+                        flex: 10,
+                        child: SizedBox(
+                          height: 30,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.all(5)),
+                            onPressed: () {},
+                            child: const Text('Social Links',
+                                style: TextStyle(fontSize: 12)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    const Text('Open - 09:00 AM to 09:00 PM'),
+                    TextButton(
+                      child: const Text('Edit'),
+                      onPressed: () {},
+                    )
+                  ]),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    const Text('About Us', style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextButton(
+                      child: const Text('Edit'),
+                      onPressed: () {},
+                    )
+                  ]),
+                  const Text(
+                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. '
+                        'Praesent vel enim ipsum. Donec sit amet scelerisque justo, non'
+                        ' eleifend sem. Phasellus vestibulum sapien quis sodales accumsan. '
+                        'Ut consectetur felis id nunc volutpat tristique. Suspendisse '
+                        'euismod volutpat augue nec bibendum. In ut nisl odio. Quisque '
+                        'diam risus, pharetra suscipit egestas sit amet, laoreet feugiat '
+                        'nunc. Phasellus bibendum dui at sapien consequat, vel vestibulum '
+                        'elit consequat. Sed ullamcorper tortor mauris, eu volutpat turpis'
+                        ' hendrerit at.',
+                  ),
+                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                    const Text('Services', style: TextStyle(fontWeight: FontWeight.bold)),
+                    TextButton(
+                      child: const Text('Edit'),
+                      onPressed: () {},
+                    )
+                  ]),
+                  ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: 3,
+                      itemBuilder: (context, index) => ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context, MaterialPageRoute(
+                            builder: (context) => ServiceOverview
+                              (serviceTitle: 'Service $index'),
+                          ),
+                          );
+                        },
+                          leading: Container(
+                            width: 50,
+                            height: 50,
+                            color: Colors.grey,
+                          ),
+                          title: Text('Service $index'),
+                          subtitle: const Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('Product Brief Description'),
+                                Text('\$0.00'),
+                              ]))),
+                  const SizedBox(height: 20),
+                  const Text('Tagged Photos',
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  TextButton(
+                    child: const Text('Tap to review'),
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 150,
+              width: width(context),
+              child: ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemCount: 4,
+                itemBuilder: (context, index) => Container(
+                  height: 150,
+                  width: width(context) * 0.25,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -98,35 +667,30 @@ class ConfirmedOrder extends StatelessWidget {
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(40),
-        child: Column(
-          children: [
-            Spacer(flex: 4),
-            Icon(FontAwesomeIcons.champagneGlasses, size: 60),
-            Spacer(),
-            Text('It\'s Litt!!', style: TextStyle(fontSize: 24, fontWeight:
-            FontWeight.bold)),
-            Spacer(),
-            Text('You have successfully placed your order for **ORDER**. Check '
-                'your email for an invoice and the orders panel for your '
-                'transaction details.'),
-            Spacer(),
-            SizedBox(
+        child: Column(children: [
+          const Spacer(flex: 4),
+          const Icon(FontAwesomeIcons.champagneGlasses, size: 60),
+          const Spacer(),
+          const Text('It\'s Litt!!',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          const Spacer(),
+          const Text('You have successfully placed your order for **ORDER**. Check '
+              'your email for an invoice and the orders panel for your '
+              'transaction details.'),
+          const Spacer(),
+          SizedBox(
               width: width(context),
               child: ElevatedButton(
-                child: Text('Return to home'),
-                onPressed: () {
-                  Navigator.pop(context);
-                }
-              )
-            ),
-            Spacer(flex: 4),
-          ]
-        ),
+                  child: const Text('Return to home'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  })),
+          const Spacer(flex: 4),
+        ]),
       ),
     );
   }
 }
-
 
 enum OrderType { event, service }
 
@@ -140,6 +704,80 @@ class PlaceOrder extends StatefulWidget {
   State<PlaceOrder> createState() => _PlaceOrderState();
 }
 
+class NewService extends StatefulWidget {
+  const NewService({super.key});
+
+  @override
+  State<NewService> createState() => _NewServiceState();
+}
+
+class _NewServiceState extends State<NewService> {
+  int available = 0;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(title: const Text('New Service Details'), actions: [
+          TextButton(
+              onPressed: () {
+                showSnackbar(context, 'Saved new product');
+              },
+              child: const Text('Save'))
+        ]),
+        body: SafeArea(
+            child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(children: [
+            Container(
+              color: Colors.grey,
+              width: 150,
+              height: 150,
+            ),
+            const Spacer(),
+            const Text('Product Image'),
+            const Spacer(),
+            TextFormField(
+              decoration: const InputDecoration(labelText: 'Service name*'),
+            ),
+            const Spacer(),
+            TextFormField(
+              minLines: 5,
+              maxLines: 10,
+              decoration: const InputDecoration(labelText: 'Description*'),
+            ),
+            const Spacer(),
+            TextFormField(
+              decoration: const InputDecoration(labelText: 'Price*'),
+            ),
+            const Spacer(),
+            Row(
+              children: [
+                const Text('Is this product still available?'),
+                const Spacer(flex: 6),
+                Radio(
+                    value: 1,
+                    groupValue: available,
+                    onChanged: (val) {
+                      setState(() => available = val!);
+                    }),
+                const Spacer(),
+                const Text('Yes'),
+                const Spacer(),
+                Radio(
+                    value: 2,
+                    groupValue: available,
+                    onChanged: (val) {
+                      setState(() => available = val!);
+                    }),
+                const Spacer(),
+                const Text('No'),
+              ],
+            ),
+            const Spacer(flex: 3),
+          ]),
+        )));
+  }
+}
+
 class _PlaceOrderState extends State<PlaceOrder> {
   @override
   Widget build(BuildContext context) {
@@ -150,67 +788,67 @@ class _PlaceOrderState extends State<PlaceOrder> {
             : 'Tickets for ${widget.orderTitle}'),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              Text(widget.orderTitle, style: TextStyle(fontSize: 20, fontWeight:
-              FontWeight.bold)),
-              Spacer(),
-              Text(widget.orderType == OrderType.service
-                  ? 'Choose which services you would like to order'
-                  : 'Choose which tickets you would like to order'),
-              Spacer(),
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: 4,
-                itemBuilder: (context, index) {
-                  int quantity = 1;
+          child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(children: [
+          Text(widget.orderTitle,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Spacer(),
+          Text(widget.orderType == OrderType.service
+              ? 'Choose which services you would like to order'
+              : 'Choose which tickets you would like to order'),
+          const Spacer(),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: 4,
+            itemBuilder: (context, index) {
+              int quantity = 1;
 
-                  void increment() {
-                    setState(() {
-                      quantity++;
-                    });
-                  }
+              void increment() {
+                setState(() {
+                  quantity++;
+                });
+              }
 
-                  void decrement() {
-                    if (quantity > 1) {
-                      setState(() {
-                        quantity--;
-                      });
-                    }
-                  }
-                  return widget.orderType == OrderType.service
-                    ? ListTile(
-                  title: Text('Service $index'),
-                  subtitle: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('\$ 0.00'),
-                      Text('Service description'),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove),
-                        onPressed: decrement,
+              void decrement() {
+                if (quantity > 1) {
+                  setState(() {
+                    quantity--;
+                  });
+                }
+              }
+
+              return widget.orderType == OrderType.service
+                  ? ListTile(
+                      title: Text('Service $index'),
+                      subtitle: const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('\$ 0.00'),
+                          Text('Service description'),
+                        ],
                       ),
-                      Text(
-                        quantity.toString(),
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.add),
-                        onPressed: increment,
-                      ),
-                    ],
-                  )
-                ) : ListTile(
-                  title: Text('Ticket Type $index'),
-                      subtitle: Column(
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove),
+                            onPressed: decrement,
+                          ),
+                          Text(
+                            quantity.toString(),
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add),
+                            onPressed: increment,
+                          ),
+                        ],
+                      ))
+                  : ListTile(
+                      title: Text('Ticket Type $index'),
+                      subtitle: const Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -222,41 +860,38 @@ class _PlaceOrderState extends State<PlaceOrder> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: Icon(Icons.remove),
+                            icon: const Icon(Icons.remove),
                             onPressed: decrement,
                           ),
                           Text(
                             quantity.toString(),
-                            style: TextStyle(fontSize: 16),
+                            style: const TextStyle(fontSize: 16),
                           ),
                           IconButton(
-                            icon: Icon(Icons.add),
+                            icon: const Icon(Icons.add),
                             onPressed: increment,
                           ),
                         ],
-                      )
-                );
-                },
-              ),
-              Spacer(flex: 3),
-              CheckboxListTile(value: true, onChanged: (val) {},
-              subtitle: Text('I confirm that I am liable to the Terms and '
+                      ));
+            },
+          ),
+          const Spacer(flex: 3),
+          CheckboxListTile(
+              value: true,
+              onChanged: (val) {},
+              subtitle: const Text('I confirm that I am liable to the Terms and '
                   'Conditions of this purchase and all other regulations set.')),
-              Spacer(flex: 3),
-              SizedBox(
-                width: width(context),
-                child: ElevatedButton(
+          const Spacer(flex: 3),
+          SizedBox(
+              width: width(context),
+              child: ElevatedButton(
                   onPressed: () {
                     Navigator.popAndPushNamed(context, 'confirmed');
                   },
-                      child: Text('Checkout')
-                )
-              ),
-              Spacer(flex: 5),
-            ]
-          ),
-        )
-      ),
+                  child: const Text('Checkout'))),
+          const Spacer(flex: 5),
+        ]),
+      )),
     );
   }
 }
@@ -667,7 +1302,13 @@ class Orders extends StatelessWidget {
   }
 }
 
+enum ChatRoomType { individual, business }
+
 class ChatsView extends StatelessWidget {
+  const ChatsView({super.key, required this.chatType});
+
+  final ChatRoomType chatType;
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -694,7 +1335,8 @@ class ChatsView extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ConversationScreen(chat: chat),
+                builder: (context) => ConversationScreen(
+                    chat: chat, chatType: ChatRoomType.individual),
               ),
             );
           },
@@ -706,8 +1348,9 @@ class ChatsView extends StatelessWidget {
 
 class ConversationScreen extends StatefulWidget {
   final Chat chat;
+  final ChatRoomType chatType;
 
-  ConversationScreen({required this.chat});
+  ConversationScreen({required this.chat, required this.chatType});
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -715,37 +1358,119 @@ class ConversationScreen extends StatefulWidget {
 
 class _ConversationScreenState extends State<ConversationScreen> {
   TextEditingController messageController = TextEditingController();
+  final Chat test = Chat(
+      senderName: 'Business',
+      chatType: ChatRoomType.individual,
+      senderImage: 'assets/images/david_johnson_avatar.jpg',
+      messages: [
+        Message(
+          senderName: 'You',
+          content: 'How is everything going',
+          time: 'Yesterday',
+        ),
+        Message(
+          senderName: 'David Johnson',
+          content: 'Everything is cool over here',
+          time: 'Yesterday',
+        ),
+        Message(
+          senderName: 'Moses Mbuva',
+          content: 'Want to go grab a drink?',
+          time: 'Yesterday',
+        )
+      ]);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.chat.senderName), actions: [
+      appBar: AppBar(title: Text(test.senderName), actions: [
         IconButton(icon: const Icon(Icons.account_circle), onPressed: () {})
       ]),
       body: SafeArea(
-        child: ListView.builder(
-          physics: const BouncingScrollPhysics(),
-          itemCount: widget.chat.messages.length,
-          itemBuilder: (BuildContext context, int index) {
-            final isUser = widget.chat.messages[index].senderName == 'You';
-            final message = widget.chat.messages[index];
-            return ListTile(
-              contentPadding: const EdgeInsets.all(10),
-              leading: const Icon(Icons.park),
-              tileColor: isUser
-                  ? Theme.of(context).colorScheme.secondary.withOpacity(0.25)
-                  : null,
-              title: Text(
-                message.senderName,
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+        child: test.chatType == ChatRoomType.individual
+            ? ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: test.messages.length,
+                itemBuilder: (BuildContext context, int index) {
+                  final isUser =
+                      widget.chat.messages[index].senderName == 'You';
+                  final message = widget.chat.messages[index];
+                  return ListTile(
+                    contentPadding: const EdgeInsets.all(10),
+                    leading: const Icon(Icons.park),
+                    tileColor: isUser
+                        ? Theme.of(context)
+                            .colorScheme
+                            .secondary
+                            .withOpacity(0.25)
+                        : null,
+                    title: Text(
+                      message.senderName,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                    subtitle: Text(message.content),
+                    trailing: Text(message.time,
+                        style: const TextStyle(fontSize: 12)),
+                  );
+                },
+              )
+            : Column(
+                children: [
+                  Container(
+                    height: 150,
+                    width: width(context),
+                    color: Colors.grey,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Welcome to ${widget.chat.senderName}\'s Chatroom',
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 20)),
+                        const SizedBox(height: 20),
+                        const Text(
+                          'This is where people get to talk and inform each other '
+                          'about what is going on at your business place. All messages '
+                          'expire after 24 hours.',
+                        ),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                      child: SizedBox(
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: widget.chat.messages.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final isUser =
+                            widget.chat.messages[index].senderName == 'You';
+                        final message = widget.chat.messages[index];
+                        return ListTile(
+                          contentPadding: const EdgeInsets.all(10),
+                          leading: const Icon(Icons.park),
+                          tileColor: isUser
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .secondary
+                                  .withOpacity(0.25)
+                              : null,
+                          title: Text(
+                            message.senderName,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                          subtitle: Text(message.content),
+                          trailing: Text(message.time,
+                              style: const TextStyle(fontSize: 12)),
+                        );
+                      },
+                    ),
+                  )),
+                ],
               ),
-              subtitle: Text(message.content),
-              trailing:
-                  Text(message.time, style: const TextStyle(fontSize: 12)),
-            );
-          },
-        ),
       ),
       bottomSheet: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
@@ -785,12 +1510,14 @@ class _ConversationScreenState extends State<ConversationScreen> {
 class Chat {
   final String senderName;
   final String senderImage;
+  final ChatRoomType chatType;
   final List<Message> messages;
 
   Chat({
     required this.senderName,
     required this.senderImage,
     required this.messages,
+    required this.chatType,
   });
 }
 
@@ -811,6 +1538,7 @@ final List<Chat> chatData = [
   Chat(
     senderName: 'John Doe',
     senderImage: 'assets/images/john_doe_avatar.jpg',
+    chatType: ChatRoomType.individual,
     messages: [
       Message(
         senderName: 'John Doe',
@@ -827,6 +1555,7 @@ final List<Chat> chatData = [
   Chat(
     senderName: 'Jane Smith',
     senderImage: 'assets/images/jane_smith_avatar.jpg',
+    chatType: ChatRoomType.individual,
     messages: [
       Message(
         senderName: 'Jane Smith',
@@ -842,6 +1571,7 @@ final List<Chat> chatData = [
   ),
   Chat(
     senderName: 'David Johnson',
+    chatType: ChatRoomType.individual,
     senderImage: 'assets/images/david_johnson_avatar.jpg',
     messages: [
       Message(
@@ -856,7 +1586,28 @@ final List<Chat> chatData = [
       ),
     ],
   ),
-  // Add more sample chat data as needed
+  Chat(
+    senderName: 'Business',
+    chatType: ChatRoomType.business,
+    senderImage: 'assets/images/david_johnson_avatar.jpg',
+    messages: [
+      Message(
+        senderName: 'You',
+        content: 'How is everything going',
+        time: 'Yesterday',
+      ),
+      Message(
+        senderName: 'David Johnson',
+        content: 'Everything is cool over here',
+        time: 'Yesterday',
+      ),
+      Message(
+        senderName: 'Moses Mbuva',
+        content: 'Want to go grab a drink?',
+        time: 'Yesterday',
+      ),
+    ],
+  ),
 ];
 
 class Place extends StatelessWidget {
@@ -1034,7 +1785,7 @@ class Place extends StatelessWidget {
                           ),
                         );
                       },
-                      child: Text('Check out our services'),
+                      child: const Text('Check out our services'),
                     ),
                     const SizedBox(height: 10),
                     const Text('Location',
@@ -1283,6 +2034,14 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
+void showSnackbar(BuildContext context, String message) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(message),
+    ),
+  );
+}
+
 class UploadImage extends StatefulWidget {
   UploadImage({super.key});
 
@@ -1291,82 +2050,79 @@ class UploadImage extends StatefulWidget {
 }
 
 class _UploadImageState extends State<UploadImage> {
-   String _selectedChip = '';
+  String _selectedChip = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('New Post'),
-      ),
-      body: SafeArea(
-        child: PageView(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Where are you getting Litt at?'),
-                  SizedBox(height: 20),
-                  TextFormField(
-                    decoration: InputDecoration(
-                      labelText: 'Search'
-                    )
-                  ),
-                  SizedBox(height: 20),
-                  Text('Suggestions'),
-                  SizedBox(height: 10),
-                  Expanded(
+        appBar: AppBar(title: const Text('New Post'), actions: [
+          IconButton(
+            onPressed: () {
+              showSnackbar(context, 'Posted');
+            },
+            icon: const Icon(Icons.check),
+          )
+        ]),
+        body: SafeArea(
+            child: PageView(children: [
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Where are you getting Litt at?',
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                const SizedBox(height: 20),
+                TextFormField(decoration: const InputDecoration(labelText: 'Search')),
+                const SizedBox(height: 20),
+                const Text('Suggestions'),
+                const SizedBox(height: 10),
+                Expanded(
                     child: SizedBox(
-                      child: ListView.builder(
-                          itemCount: 8,
-                          itemBuilder: (context , index) {
-                            return ListTile(
-                              leading: Icon(Icons.favorite),
-                              title: Text('Location $index'),
-                              subtitle: Text('Street Name'),
-                            );
-                          }
-                      ),
-                    )
-                  )
-                ],
-              ),
+                  child: ListView.builder(
+                      itemCount: 8,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          leading: const Icon(Icons.favorite),
+                          title: Text('Location $index'),
+                          subtitle: const Text('Street Name'),
+                        );
+                      }),
+                ))
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          color: Colors.grey,
-                          width: 100,
-                          height: 150,
-                        ),
-                        SizedBox(width:10),
-                        Expanded(
-                            child: TextFormField(
-                                maxLength: 100,
-                                minLines: 5,
-                                decoration: InputDecoration(
-                                    labelText: 'Add a caption to your post',
-                                  border: InputBorder.none,
-                                )
-                            )
-                        )
-                      ]
-                  ),
-                  SizedBox(height:20),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: categories
-                          .map(
-                            (chip) => Padding(
+          ),
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Container(
+                  color: Colors.grey,
+                  width: 100,
+                  height: 150,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: TextFormField(
+                        maxLength: 100,
+                        minLines: 5,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
+                          labelText: 'Add a caption to your post',
+                          border: InputBorder.none,
+                        )))
+              ]),
+              const SizedBox(height: 20),
+              const Text('Select a category'),
+              const SizedBox(height: 10),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: categories
+                      .map(
+                        (chip) => Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 5),
                           child: ChoiceChip(
                             label: Text(chip),
@@ -1379,47 +2135,48 @@ class _UploadImageState extends State<UploadImage> {
                           ),
                         ),
                       )
-                          .toList(),
-                    ),
-                  ),
-                  SizedBox(height:20),
-                  Text('Vibing at **Tagged Location**'),
-                  SizedBox(height:10),
-                  Text('Share to'),
-                  Row(
-                      children: [
-                        IconButton(
-                          onPressed:(){},
-                          icon: Icon(FontAwesomeIcons.facebook)
-                        ),
-                        IconButton(
-                            onPressed:(){},
-                            icon: Icon(FontAwesomeIcons.twitter)
-                        ),
-                        IconButton(
-                            onPressed:(){},
-                            icon: Icon(FontAwesomeIcons.instagram)
-                        ),
-                        IconButton(
-                            onPressed:(){},
-                            icon: Icon(FontAwesomeIcons.tiktok)
-                        ),
-                        IconButton(
-                            onPressed:(){},
-                            icon: Icon(FontAwesomeIcons.whatsapp)
-                        ),
-                      ]
-                  )
-                ]
+                      .toList(),
+                ),
               ),
-            )
-          ]
-        )
-      )
-    );
+              const SizedBox(height: 30),
+              const Text.rich(
+                TextSpan(
+                  text: 'Vibing at ',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: '**Tagged Location**',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              const Text('Share to'),
+              Row(children: [
+                IconButton(
+                    onPressed: () {}, icon: const Icon(FontAwesomeIcons.facebook)),
+                IconButton(
+                    onPressed: () {}, icon: const Icon(FontAwesomeIcons.twitter)),
+                IconButton(
+                    onPressed: () {}, icon: const Icon(FontAwesomeIcons.instagram)),
+                IconButton(
+                    onPressed: () {}, icon: const Icon(FontAwesomeIcons.tiktok)),
+                IconButton(
+                    onPressed: () {}, icon: const Icon(FontAwesomeIcons.whatsapp)),
+              ])
+            ]),
+          )
+        ])));
   }
 }
-
 
 class PatroneDashboard extends StatefulWidget {
   const PatroneDashboard({super.key});
@@ -1465,7 +2222,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                    title: Text('Make a Report'),
+                    title: const Text('Make a Report'),
                     content: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -1476,32 +2233,32 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                               selectedReason = newValue;
                             });
                           },
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Reason for Report',
                             // border: OutlineInputBorder(),
                           ),
                           items: [
-                            DropdownMenuItem(
+                            const DropdownMenuItem(
                               value: 'Spam',
                               child: Text('Spam'),
                             ),
-                            DropdownMenuItem(
+                            const DropdownMenuItem(
                               value: 'Harassment',
                               child: Text('Harassment'),
                             ),
-                            DropdownMenuItem(
+                            const DropdownMenuItem(
                               value: 'Inappropriate Content',
                               child: Text('Inappropriate Content'),
                             ),
-                            DropdownMenuItem(
+                            const DropdownMenuItem(
                               value: 'Other',
                               child: Text('Other'),
                             ),
                           ],
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         TextFormField(
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                               labelText: 'Any further information?'),
                           minLines: 1,
                           maxLines: 5,
@@ -1509,26 +2266,26 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                       ],
                     ),
                     actions: [
-                      TextButton(onPressed: () {}, child: Text('Submit Report'))
+                      TextButton(onPressed: () {}, child: const Text('Submit Report'))
                     ]));
       } else if (value == 'block') {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                    title: Text('Block User'),
-                    content: Text('Are you sure you want to block this user?'),
+                    title: const Text('Block User'),
+                    content: const Text('Are you sure you want to block this user?'),
                     actions: [
                       TextButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Text('Yes, I am sure'),
+                        child: const Text('Yes, I am sure'),
                       ),
                       TextButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        child: Text('No'),
+                        child: const Text('No'),
                       ),
                     ]));
       }
@@ -1543,8 +2300,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    UploadImage(),
+                builder: (context) => UploadImage(),
               ),
             );
           },
@@ -1552,9 +2308,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
         );
       case 1:
         return IconButton(
-          onPressed: () {
-
-          },
+          onPressed: () {},
           icon: const Icon(Icons.search),
         );
       case 3:
@@ -1564,6 +2318,8 @@ class _PatroneDashboardState extends State<PatroneDashboard>
               Navigator.pushNamed(context, 'settings');
             } else if (value == 'Order') {
               Navigator.pushNamed(context, 'orders');
+            } else if (value == 'Igniter') {
+              Navigator.pushNamed(context, 'igniter_dashboard');
             }
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -1574,6 +2330,10 @@ class _PatroneDashboardState extends State<PatroneDashboard>
             const PopupMenuItem<String>(
               value: 'Order',
               child: Text('Orders'),
+            ),
+            const PopupMenuItem<String>(
+              value: 'Igniter',
+              child: Text('Switch to Igniter Profile'),
             ),
           ],
           icon: const Icon(Icons.more_vert),
@@ -1606,7 +2366,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     return [
       feed(context),
       explore(context),
-      ChatsView(),
+      const ChatsView(chatType: ChatRoomType.individual),
       const ProfileScreen(),
     ];
   }
@@ -1633,7 +2393,11 @@ class _PatroneDashboardState extends State<PatroneDashboard>
               _currentIndex = index;
             });
           },
+          currentIndex: _currentIndex,
           showSelectedLabels: false,
+          showUnselectedLabels: false,
+          unselectedItemColor: Colors.white.withOpacity(0.5),
+          selectedItemColor: Colors.white,
           items: const [
             BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
             BottomNavigationBarItem(
