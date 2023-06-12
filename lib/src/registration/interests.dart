@@ -68,7 +68,7 @@ class Interests extends StatelessWidget {
                   width: width(context),
                   child: ElevatedButton(
                       onPressed: () =>
-                          Navigator.pushNamed(context, 'igniter_registration'),
+                          Navigator.pushNamed(context, 'patrone_dashboard'),
                       child: Text(AppLocalizations.of(context)!.proceed)))
             ],
           ),

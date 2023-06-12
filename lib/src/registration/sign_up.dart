@@ -1,10 +1,32 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../app.dart';
 
-class SignUp extends StatelessWidget {
+class SignUp extends StatefulWidget {
   const SignUp({super.key});
+
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
+  late String _direction = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
+      setState(() {
+        if (kDebugMode) {
+          print(_direction);
+        }
+        _direction = ModalRoute.of(context)!.settings.arguments as String;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +53,15 @@ class SignUp extends StatelessWidget {
               SizedBox(
                   width: width(context),
                   child: ElevatedButton(
-                    onPressed: () =>
-                        Navigator.pushNamed(context, 'patrone_registration'),
+                    onPressed: () {
+                      if (_direction == 'patrone') {
+                        Navigator.pushNamed(context, 'patrone_registration');
+                      } else if (_direction == 'igniter') {
+                        Navigator.pushNamed(context, 'igniter_registration');
+                      } else {
+                        showSnackbar(context, 'Something went wrong');
+                      }
+                    },
                     child: Text(
                       AppLocalizations.of(context)!.proceed,
                     ),

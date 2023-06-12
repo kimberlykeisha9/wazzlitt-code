@@ -148,7 +148,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
             } else if (value == 'Order') {
               Navigator.pushNamed(context, 'orders');
             } else if (value == 'Igniter') {
-              Navigator.pushNamed(context, 'igniter_dashboard');
+              Navigator.popAndPushNamed(context, 'igniter_dashboard');
             }
           },
           itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[

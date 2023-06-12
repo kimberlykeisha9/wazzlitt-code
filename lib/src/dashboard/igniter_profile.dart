@@ -183,7 +183,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                     actions: [
                       TextButton(
                         onPressed: () =>
-                            Navigator.pushNamed(context, 'patrone_dashboard'),
+                            Navigator.pushNamed(context, 'igniter_dashboard'),
                         child: Text(AppLocalizations.of(context)!.proceed),
                       ),
                     ],

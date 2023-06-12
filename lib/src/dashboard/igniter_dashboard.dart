@@ -96,6 +96,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                 width: 60,
                 decoration:
                     const BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
+                    const SizedBox(height: 20),
             const Text('Business Name',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
