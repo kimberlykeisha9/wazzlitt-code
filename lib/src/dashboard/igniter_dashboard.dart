@@ -5,6 +5,7 @@ import '../app.dart';
 import '../place/new_service.dart';
 import '../place/service_overview..dart';
 import 'chats_view.dart';
+import 'igniter_drawer.dart';
 
 class IgniterDashboard extends StatefulWidget {
   const IgniterDashboard({super.key});
@@ -56,6 +57,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
   Widget build(BuildContext context) {
     getCurrentWeek();
     return Scaffold(
+      drawer: IgniterDrawer(),
       appBar: AppBar(
         title: const Text('Dashboard'),
       ),

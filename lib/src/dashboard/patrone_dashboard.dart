@@ -5,6 +5,7 @@ import '../app.dart';
 import '../place/place.dart';
 import '../place/place_order.dart';
 import 'chats_view.dart';
+import 'patrone_drawer.dart';
 import 'upload_image.dart';
 
 class PatroneDashboard extends StatefulWidget {
@@ -66,20 +67,20 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                             labelText: 'Reason for Report',
                             // border: OutlineInputBorder(),
                           ),
-                          items: [
-                            const DropdownMenuItem(
+                          items: const [
+                            DropdownMenuItem(
                               value: 'Spam',
                               child: Text('Spam'),
                             ),
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: 'Harassment',
                               child: Text('Harassment'),
                             ),
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: 'Inappropriate Content',
                               child: Text('Inappropriate Content'),
                             ),
-                            const DropdownMenuItem(
+                            DropdownMenuItem(
                               value: 'Other',
                               child: Text('Other'),
                             ),
@@ -95,14 +96,16 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                       ],
                     ),
                     actions: [
-                      TextButton(onPressed: () {}, child: const Text('Submit Report'))
+                      TextButton(
+                          onPressed: () {}, child: const Text('Submit Report'))
                     ]));
       } else if (value == 'block') {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
                     title: const Text('Block User'),
-                    content: const Text('Are you sure you want to block this user?'),
+                    content:
+                        const Text('Are you sure you want to block this user?'),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -140,34 +143,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           onPressed: () {},
           icon: const Icon(Icons.search),
         );
-      case 3:
-        return PopupMenuButton<String>(
-          onSelected: (String value) {
-            if (value == 'Settings') {
-              Navigator.pushNamed(context, 'settings');
-            } else if (value == 'Order') {
-              Navigator.pushNamed(context, 'orders');
-            } else if (value == 'Igniter') {
-              Navigator.popAndPushNamed(context, 'igniter_dashboard');
-            }
-          },
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-            const PopupMenuItem<String>(
-              value: 'Settings',
-              child: Text('Settings'),
-            ),
-            const PopupMenuItem<String>(
-              value: 'Order',
-              child: Text('Orders'),
-            ),
-            const PopupMenuItem<String>(
-              value: 'Igniter',
-              child: Text('Switch to Igniter Profile'),
-            ),
-          ],
-          icon: const Icon(Icons.more_vert),
-        );
-    }
+     }
     return null;
   }
 
@@ -181,7 +157,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
               TextStyle(color: Theme.of(context).colorScheme.primary),
           indicatorColor: Theme.of(context).colorScheme.primary,
           controller: _exploreController,
-          tabs: [const Tab(text: 'Lit'), const Tab(text: 'Places')],
+          tabs: const [Tab(text: 'Lit'), Tab(text: 'Places')],
         );
       case 2:
         return const Text('Messages');
@@ -205,6 +181,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: PatroneDrawer(),
       appBar: AppBar(
         title: titleWidget(context),
         actions: [
@@ -648,3 +625,4 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     );
   }
 }
+

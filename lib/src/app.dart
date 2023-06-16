@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
                   secondary: Colors.greenAccent[400]!)),
           darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
-          initialRoute: 'home',
+          initialRoute: 'patrone_dashboard',
           routes: {
             'home': (context) => const Home(),
             'signup': (context) => const SignUp(),
