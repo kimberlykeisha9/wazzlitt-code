@@ -13,6 +13,8 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   late String _direction = '';
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+ final TextEditingController _phoneController = TextEditingController();
 
   @override
   void initState() {
@@ -42,25 +44,39 @@ class _SignUpState extends State<SignUp> {
                 textAlign: TextAlign.center,
               ),
               const Spacer(),
-              TextFormField(
-                maxLength: 9,
-                decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context)!.phone,
-                    border: InputBorder.none),
-                keyboardType: TextInputType.number,
+              Form(
+                key: _formKey,
+                child: TextFormField(
+                  maxLength: 9,
+                  controller: _phoneController,
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.phone,
+                      border: InputBorder.none),
+                  keyboardType: TextInputType.number,
+                   validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Phone number is required';
+                  }
+                  if (value.length != 9) {
+                    return 'Phone number must be 9 digits long';
+                  }
+                  return null; // Return null if the input is valid
+                },
+                ),
               ),
               const Spacer(),
               SizedBox(
                   width: width(context),
                   child: ElevatedButton(
                     onPressed: () {
+                      if(_formKey.currentState!.validate()) {
                       if (_direction == 'patrone') {
                         Navigator.pushNamed(context, 'patrone_registration');
                       } else if (_direction == 'igniter') {
                         Navigator.pushNamed(context, 'igniter_registration');
                       } else {
                         showSnackbar(context, 'Something went wrong');
-                      }
+                      } }
                     },
                     child: Text(
                       AppLocalizations.of(context)!.proceed,

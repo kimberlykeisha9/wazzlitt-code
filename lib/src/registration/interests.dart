@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../app.dart';
 
-class Interests extends StatelessWidget {
+class Interests extends StatefulWidget {
   const Interests({super.key});
 
+  @override
+  State<Interests> createState() => _InterestsState();
+}
+
+class _InterestsState extends State<Interests> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,17 +36,27 @@ class Interests extends StatelessWidget {
                     crossAxisCount: 2, // Two items per column
                   ),
                   itemBuilder: (BuildContext context, int index) {
-                    bool isChecked;
-                    isChecked = true;
+                    bool isSelected = _selectedCategories.contains(categories[index]);
                     return GridTile(
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          if (_selectedCategories.contains(categories[index])) {
+                            setState(() {
+                              _selectedCategories.remove(categories[index]);
+                            });
+                          } else if (!_selectedCategories.contains(categories[index])) {
+                            setState(() {
+                              _selectedCategories.add(categories[index]);
+                            });
+                          }
+                        },
                         child: Container(
                           margin: const EdgeInsets.all(5),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(10),
-                            image: const DecorationImage(
-                              image: AssetImage('assets/images/igniter-1.png'),
+                            image: DecorationImage(
+                              colorFilter: isSelected ? null : const ColorFilter.mode(Colors.white, BlendMode.saturation),
+                              image: const AssetImage('assets/images/igniter-1.png'),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -51,9 +66,10 @@ class Interests extends StatelessWidget {
                             child: Text(
                               categories[index],
                               style: TextStyle(
-                                fontSize: 20,
+                                fontSize: isSelected ? 20 : 16,
                                 // ignore: dead_code
-                                color: isChecked ? Colors.white : Colors.black,
+                                color: Colors.white,
+                                fontWeight: isSelected ? FontWeight.bold : null
                               ),
                             ),
                           ),
@@ -67,8 +83,13 @@ class Interests extends StatelessWidget {
               SizedBox(
                   width: width(context),
                   child: ElevatedButton(
-                      onPressed: () =>
-                          Navigator.pushNamed(context, 'patrone_dashboard'),
+                      onPressed: () {
+                        if(_selectedCategories.length < 3) {
+                          showSnackbar(context, 'Please select at least 3 categories to proceed');
+                        } else {
+                          Navigator.pushNamed(context, 'patrone_dashboard');
+                        }
+                      },
                       child: Text(AppLocalizations.of(context)!.proceed)))
             ],
           ),
@@ -77,3 +98,5 @@ class Interests extends StatelessWidget {
     );
   }
 }
+
+List<String> _selectedCategories = [];
