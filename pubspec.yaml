@@ -17,13 +17,15 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   font_awesome_flutter: ^10.4.0
-  # google_fonts: ^5.0.0
   google_maps_flutter: ^2.2.8
   provider: ^6.0.5
   url_launcher: ^6.1.11
   image_picker: ^0.8.7+5
   share_plus: ^7.0.2
   intl: ^0.18.0
+  location: ^4.4.0
+  shared_preferences: ^2.1.2
+  google_fonts: ^5.0.0
 
 dev_dependencies:
   flutter_test:
