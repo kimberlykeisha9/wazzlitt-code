@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../app.dart';
 
 class PlaceOrder extends StatefulWidget {
-  PlaceOrder({super.key, required this.orderType, required this.orderTitle});
+  const PlaceOrder({super.key, required this.orderType, required this.orderTitle});
 
   final OrderType orderType;
   final String orderTitle;

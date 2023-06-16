@@ -21,62 +21,20 @@ class _PatroneDashboardState extends State<PatroneDashboard>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _exploreController = TabController(length: 2, vsync: this);
-  }
-
-  Widget? trailingIcon() {
-    switch (_currentIndex) {
-      case 0:
-        return IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UploadImage(),
-              ),
-            );
-          },
-          icon: const Icon(Icons.photo_camera),
-        );
-      case 1:
-        return IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.search),
-        );
-    }
-    return null;
-  }
-
-  Widget? titleWidget(BuildContext context) {
-    switch (_currentIndex) {
-      case 0:
-        return const Text('WazzLitt! around me');
-      case 1:
-        return TabBar(
-          unselectedLabelStyle:
-              TextStyle(color: Theme.of(context).colorScheme.primary),
-          indicatorColor: Theme.of(context).colorScheme.primary,
-          controller: _exploreController,
-          tabs: const [Tab(text: 'Lit'), Tab(text: 'Places')],
-        );
-      case 2:
-        return const Text('Messages');
-      case 3:
-        return const Text('Profile');
-    }
-    return null;
   }
 
   List<Widget> views(BuildContext context) {
     return [
       PageView.builder(
-        itemBuilder: (context, index) => FeedImage(),
+        itemBuilder: (context, index) => const FeedImage(),
         itemCount: 3,
         scrollDirection: Axis.vertical,
       ),
-      Explore(tabController: _exploreController!,),
+      Explore(
+        tabController: _exploreController!,
+      ),
       const ChatsView(chatType: ChatRoomType.individual),
       const ProfileScreen(),
     ];
@@ -121,8 +79,46 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     );
   }
 
-  
+  Widget? trailingIcon() {
+    switch (_currentIndex) {
+      case 0:
+        return IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const UploadImage(),
+              ),
+            );
+          },
+          icon: const Icon(Icons.photo_camera),
+        );
+      case 1:
+        return IconButton(
+          onPressed: () {},
+          icon: const Icon(Icons.search),
+        );
+    }
+    return null;
+  }
+
+  Widget? titleWidget(BuildContext context) {
+    switch (_currentIndex) {
+      case 0:
+        return const Text('WazzLitt! around me');
+      case 1:
+        return TabBar(
+          unselectedLabelStyle:
+              TextStyle(color: Theme.of(context).colorScheme.primary),
+          indicatorColor: Theme.of(context).colorScheme.primary,
+          controller: _exploreController,
+          tabs: const [Tab(text: 'Lit'), Tab(text: 'Places')],
+        );
+      case 2:
+        return const Text('Messages');
+      case 3:
+        return const Text('Profile');
+    }
+    return null;
+  }
 }
-
-
-

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../app.dart';
 import '../place/new_service.dart';
-import '../place/service_overview..dart';
+import '../place/service_overview.dart';
 import 'chats_view.dart';
 import 'igniter_drawer.dart';
 
@@ -45,7 +45,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
     }
   }
 
-  List<Widget> view(BuildContext) {
+  List<Widget> view(BuildContext context) {
     return [
       dashboard(context),
       const ChatsView(chatType: ChatRoomType.business),
@@ -57,7 +57,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
   Widget build(BuildContext context) {
     getCurrentWeek();
     return Scaffold(
-      drawer: IgniterDrawer(),
+      drawer: const IgniterDrawer(),
       appBar: AppBar(
         title: const Text('Dashboard'),
       ),

@@ -27,60 +27,60 @@ class IgniterDrawer extends StatelessWidget {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('WazzLitt Balance'),
-                    Text('\$0.00',
+                    const Text('WazzLitt Balance'),
+                    const Text('\$0.00',
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 20)),
-                            SizedBox(height: 10),
+                            const SizedBox(height: 10),
                     SizedBox(
                       height: 20,
                       width: 50,
                       child: TextButton(
                           style: TextButton.styleFrom(
                               padding: const EdgeInsets.all(0)),
-                          child: Text('Top Up'),
+                          child: const Text('Top Up'),
                           onPressed: () {},),
                     )
                   ],),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             GestureDetector(
               onTap:() => Navigator.pushNamed(context, 'settings'),
-              child: Row(
-                children: const [
+              child: const Row(
+                children: [
                   Icon(Icons.settings),
                   SizedBox(width: 10),
                   Text('Settings'),
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             GestureDetector(
               onTap:() => Navigator.pushNamed(context, 'orders'),
-              child: Row(
-                children: const [
+              child: const Row(
+                children: [
                   Icon(FontAwesomeIcons.bagShopping),
                   SizedBox(width: 10),
                   Text('Orders'),
                 ],
               ),
             ),
-            Spacer(),
+            const Spacer(),
             GestureDetector(
               onTap:() => Navigator.popAndPushNamed(context, 'patrone_dashboard'),
-              child: Row(
-                children: const [
+              child: const Row(
+                children: [
                   Icon(FontAwesomeIcons.bolt),
                   SizedBox(width: 10),
                   Text('Switch to Patrone Profile'),
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             GestureDetector(
               onTap:() => Navigator.pushNamed(context, 'home'),
-              child: Row(
-                children: const [
+              child: const Row(
+                children: [
                   Icon(Icons.logout),
                   SizedBox(width: 10),
                   Text('Log Out'),

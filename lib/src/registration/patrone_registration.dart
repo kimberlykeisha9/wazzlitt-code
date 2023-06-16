@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../app.dart';
 
 class PatroneRegistration extends StatefulWidget {
-  PatroneRegistration({super.key});
+  const PatroneRegistration({super.key});
 
   @override
   State<PatroneRegistration> createState() => _PatroneRegistrationState();

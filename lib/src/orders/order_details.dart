@@ -10,7 +10,7 @@ class OrderDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(this.orderTitle ?? ''),
+        title: Text(orderTitle ?? ''),
       ),
       body: SafeArea(
           child: Column(children: [

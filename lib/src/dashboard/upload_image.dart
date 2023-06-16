@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../app.dart';
 
 class UploadImage extends StatefulWidget {
-  UploadImage({super.key});
+  const UploadImage({super.key});
 
   @override
   State<UploadImage> createState() => _UploadImageState();
