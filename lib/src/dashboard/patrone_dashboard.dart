@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import '../app.dart';
+import '../location/location.dart';
 import 'chats_view.dart';
 import 'explore.dart';
 import 'feed_image.dart';
@@ -22,6 +23,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   @override
   void initState() {
     super.initState();
+    getLocationInfo();
     _exploreController = TabController(length: 2, vsync: this);
   }
 
