@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../user_data/user_data.dart';
 import '../app.dart';
 import '../place/place.dart';
 import '../place/place_order.dart';
+import '../registration/interests.dart';
 
 class Explore extends StatefulWidget {
   final TabController tabController;
@@ -18,11 +20,25 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   TabController? _exploreController;
   String _selectedChip = '';
 
+  List<Category> categories = [];
   @override
   void initState() {
     super.initState();
     _exploreController = widget.tabController;
+    firestore.collection('app_data').doc('categories').get().then((value) {
+      var data = value.data() as Map<String, dynamic>;
+      data.forEach((key, value) {
+        var itemData = value as Map<String, dynamic>;
+        String display = itemData['display'];
+        String image = itemData['image'];
+        setState(() {
+          Category category = Category(display, image);
+          categories.add(category);
+        });
+      });
+    });
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -35,11 +51,11 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                   (chip) => Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: ChoiceChip(
-                      label: Text(chip),
+                      label: Text(chip.display),
                       selected: _selectedChip == chip,
                       onSelected: (selected) {
                         setState(() {
-                          _selectedChip = selected ? chip : '';
+                          _selectedChip = selected ? chip.display : '';
                         });
                       },
                     ),
@@ -215,7 +231,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(height: 10),
-                            Text(categories[index],
+                            Text(categories[index].display,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold)),
                             SizedBox(
@@ -244,7 +260,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                                         MaterialPageRoute(
                                             builder: (context) => Place(
                                                 placeName: 'Place $i',
-                                                category: categories[index]))),
+                                                category: categories[index].display))),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [

@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../registration/interests.dart';
 
 class IgniterProfile extends StatefulWidget {
   const IgniterProfile({super.key});
@@ -23,6 +26,8 @@ class _IgniterProfileState extends State<IgniterProfile> {
   File? _profilePicture;
   String _selectedChip = '';
 
+  List<Category> categories = [];
+
   @override
   void initState() {
     super.initState();
@@ -32,6 +37,18 @@ class _IgniterProfileState extends State<IgniterProfile> {
     _websiteController = TextEditingController();
     _descriptionController = TextEditingController();
     _emailController = TextEditingController();
+    firestore.collection('app_data').doc('categories').get().then((value) {
+      var data = value.data() as Map<String, dynamic>;
+      data.forEach((key, value) {
+        var itemData = value as Map<String, dynamic>;
+        String display = itemData['display'];
+        String image = itemData['image'];
+        setState(() {
+          Category category = Category(display, image);
+          categories.add(category);
+        });
+      });
+    });
   }
 
   Future<void> _pickCoverPhoto() async {
@@ -152,11 +169,12 @@ class _IgniterProfileState extends State<IgniterProfile> {
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 5),
                                   child: ChoiceChip(
-                                    label: Text(chip),
-                                    selected: _selectedChip == chip,
+                                    label: Text(chip.display),
+                                    selected: _selectedChip == chip.display,
                                     onSelected: (selected) {
                                       setState(() {
-                                        _selectedChip = selected ? chip : '';
+                                        _selectedChip = selected ? chip
+                                            .display : '';
                                       });
                                     },
                                   ),

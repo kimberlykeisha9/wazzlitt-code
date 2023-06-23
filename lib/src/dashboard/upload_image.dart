@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../user_data/user_data.dart';
 import '../app.dart';
+import '../registration/interests.dart';
 
 class UploadImage extends StatefulWidget {
   const UploadImage({super.key});
@@ -11,6 +13,24 @@ class UploadImage extends StatefulWidget {
 
 class _UploadImageState extends State<UploadImage> {
   String _selectedChip = '';
+
+  List<Category> categories = [];
+  @override
+  void initState() {
+    super.initState();
+    firestore.collection('app_data').doc('categories').get().then((value) {
+      var data = value.data() as Map<String, dynamic>;
+      data.forEach((key, value) {
+        var itemData = value as Map<String, dynamic>;
+        String display = itemData['display'];
+        String image = itemData['image'];
+        setState(() {
+          Category category = Category(display, image);
+          categories.add(category);
+        });
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,11 +105,11 @@ class _UploadImageState extends State<UploadImage> {
                         (chip) => Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 5),
                           child: ChoiceChip(
-                            label: Text(chip),
-                            selected: _selectedChip == chip,
+                            label: Text(chip.display),
+                            selected: _selectedChip == chip.display,
                             onSelected: (selected) {
                               setState(() {
-                                _selectedChip = selected ? chip : '';
+                                _selectedChip = selected ? chip.display : '';
                               });
                             },
                           ),

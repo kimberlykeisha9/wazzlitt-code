@@ -48,7 +48,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
   List<Widget> view(BuildContext context) {
     return [
       dashboard(context),
-      const ChatsView(chatType: ChatRoomType.business),
+      ChatsView(chatType: ChatRoomType.business),
       profile(context)
     ];
   }

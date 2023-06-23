@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "1016492729672-moches5sfp3d48dqm5df3pcu69l2fsdu.apps.googleusercontent.com",
+          "client_id": "1016492729672-omlcb08cnjn5pmqrsg10065r9k3iblb1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.wazzlitt",
+            "certificate_hash": "9e181ab3a24f9f3fcdda23a7b30cc75f4e699c26"
+          }
+        },
+        {
+          "client_id": "1016492729672-h0s6nm1qh3d4e5jmuehgff0k45v8o02f.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,8 +35,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1016492729672-moches5sfp3d48dqm5df3pcu69l2fsdu.apps.googleusercontent.com",
+              "client_id": "1016492729672-h0s6nm1qh3d4e5jmuehgff0k45v8o02f.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1016492729672-8esb0cdt3rva9i5ej9d44p5cd2v3tdd5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.wazzlitt.RunnerTests"
+              }
             }
           ]
         }

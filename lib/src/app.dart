@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
                 centerTitle: true,
                 titleTextStyle:
                     const TextStyle(color: Colors.black, fontSize: 16),
-                toolbarHeight: height(context) * 0.1,
+                toolbarHeight: height(context) * 0.075,
                 iconTheme: IconThemeData(color: Colors.indigo[900]!),
               ),
               chipTheme: ChipThemeData(
@@ -78,7 +78,7 @@ class MyApp extends StatelessWidget {
                   secondary: Colors.greenAccent[400]!)),
           // darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
-          initialRoute: 'home',
+          initialRoute: 'patrone_dashboard',
           routes: {
             'home': (context) => const Home(),
             'signup': (context) => const SignUp(),
@@ -227,7 +227,7 @@ void showSnackbar(BuildContext context, String message) {
   );
 }
 
-List<String> categories = ['Ratchet', 'Free Spirit', 'Classy', 'Rock', 'Afro'];
+// List<String> categories = ['Ratchet', 'Free Spirit', 'Classy', 'Rock', 'Afro'];
 
 double height(context) {
   return MediaQuery.of(context).size.height;

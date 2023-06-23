@@ -7,12 +7,19 @@ import '../src/app.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
 
+Future<void> signOut() async {
+  await auth.signOut();
+}
+
 Future<void> signInWithPhoneNumber(
     String phoneNumber, BuildContext context, dynamic onCodeSent) async {
   // Function to handle the verification completed event
   void verificationCompleted(PhoneAuthCredential credential) async {
-    // Sign in with the phone credential
-    await auth.signInWithCredential(credential);
+    String? verificationId = await getData('verificationID');
+    if (verificationId != null) {
+      // Verify the code manually instead of automatic sign-in
+      verifyCode(credential.smsCode ?? '', verificationId);
+    }
     log(
       'Phone number automatically verified and signed in: ${credential.smsCode}',
     );
@@ -31,8 +38,9 @@ Future<void> signInWithPhoneNumber(
   // Function to handle the code sent event
   void codeSent(String verificationId, [int? forceResendingToken]) {
     // Store the verification ID somewhere (e.g., in a global variable)
-    String? storedVerificationId = verificationId;
+    storeData('verificationID', verificationId);
     onCodeSent;
+    showSnackbar(context, 'Code has been sent');
   }
 
   // Function to handle the code auto-retrieval timeout event
@@ -42,6 +50,7 @@ Future<void> signInWithPhoneNumber(
       TextButton(
           onPressed: () {
             signInWithPhoneNumber(phoneNumber, context, onCodeSent);
+            ScaffoldMessenger.of(context).clearMaterialBanners();
           },
           child: Text('Resend Code')),
       TextButton(
@@ -75,10 +84,40 @@ Future<void> signInWithPhoneNumber(
   }
 }
 
+Future<bool> verifyCode(String smsCode, String verificationId) async {
+  bool? isNew;
+  try {
+    // Create PhoneAuthCredential with the verification ID and code
+    PhoneAuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: verificationId,
+      smsCode: smsCode,
+    );
+
+    // Sign in with the phone credential
+    UserCredential userCredential = await auth.signInWithCredential(credential);
+    User? user = userCredential.user;
+
+    if (user != null) {
+      log('Phone number verification successful: $smsCode');
+      // Check if the user is new or existing
+      isNew = userCredential.additionalUserInfo?.isNewUser ?? true;
+      if (isNew) {
+        log('New registration for the phone number.');
+      } else {
+        log('Phone number is already registered.');
+      }
+    }
+  } catch (e) {
+    log('Error verifying phone number: ${e.toString()}');
+  }
+  return isNew!;
+}
+
+
 Future<bool> isNewUser() async {
   // Check if the phone number is already registered
   final user = auth.currentUser;
-  final bool _isNew = user == null;
+  final bool isNew = user == null;
 
   try {
     // If the user exists, it's not a new registration
@@ -90,5 +129,5 @@ Future<bool> isNewUser() async {
   } catch (e) {
     log('Error checking phone number registration: ${e.toString()}');
   }
-  return _isNew;
+  return isNew;
 }

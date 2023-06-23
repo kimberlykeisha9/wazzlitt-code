@@ -18,6 +18,7 @@ class _SignUpState extends State<SignUp> {
   late String _direction = '';
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _smsController = TextEditingController();
   PageController _pageController = PageController();
 
   @override
@@ -84,19 +85,17 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    getData('phone').then((value) =>
-    _phoneNumber == value);
+    getData('phone').then((value) => _phoneNumber == value);
   }
 
   @override
   Widget build(BuildContext context) {
-    getData('phone').then((value) =>
-    _phoneNumber == value);
+    getData('phone').then((value) => _phoneNumber == value);
     return Column(
       children: [
         Spacer(),
         Text(
-          'A verification code has been sent to $_phoneNumber',
+          'A verification code will be sent to $_phoneNumber',
           textAlign: TextAlign.center,
         ),
         Spacer(),
@@ -109,8 +108,8 @@ class _PhoneVerificationState extends State<PhoneVerification> {
           child: Text('Change phone number'),
           onPressed: () {
             widget._pageController.previousPage(
-                duration: const Duration(milliseconds: 200), curve: Curves
-                .easeInOut);
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeInOut);
           },
         ),
         Spacer(),
@@ -134,20 +133,39 @@ class _PhoneVerificationState extends State<PhoneVerification> {
           width: width(context),
           child: ElevatedButton(
             onPressed: () {
-              isNewUser().then((value) => {
-                if (value == true) {
-
-                } else {
-
-                }
-              });
-              // if (widget._direction == 'patrone') {
-              //   Navigator.pushNamed(context, 'patrone_registration');
-              // } else if (widget._direction == 'igniter') {
-              //   Navigator.pushNamed(context, 'igniter_registration');
-              // } else {
-              //   showSnackbar(context, 'Something went wrong');
-              // }
+              getData('verificationID')
+                  .then((value) =>
+                      verifyCode(_verificationController.text, value!))
+                  .then((value) => {
+                        if (value == true)
+                          {
+                            if (widget._direction == 'patrone')
+                              {
+                                Navigator.pushNamed(
+                                    context, 'patrone_registration')
+                              }
+                            else if (widget._direction == 'igniter')
+                              {
+                                Navigator.pushNamed(
+                                    context, 'igniter_registration')
+                              }
+                            else
+                              {showSnackbar(context, 'Something went wrong')}
+                          } else {
+                          if (widget._direction == 'patrone')
+                            {
+                              Navigator.pushNamed(
+                                  context, 'patrone_dashboard')
+                            }
+                          else if (widget._direction == 'igniter')
+                            {
+                              Navigator.pushNamed(
+                                  context, 'igniter_dashboard')
+                            }
+                          else
+                            {showSnackbar(context, 'Something went wrong')}
+                        }
+                      });
             },
             child: Text('Verify'),
           ),
@@ -159,12 +177,12 @@ class _PhoneVerificationState extends State<PhoneVerification> {
 }
 
 class PhoneNumberPrompt extends StatefulWidget {
-  const PhoneNumberPrompt({
-    super.key,
-    required GlobalKey<FormState> formKey,
-    required TextEditingController phoneController,
-    required PageController pageController
-  })  : _formKey = formKey,
+  const PhoneNumberPrompt(
+      {super.key,
+      required GlobalKey<FormState> formKey,
+      required TextEditingController phoneController,
+      required PageController pageController})
+      : _formKey = formKey,
         _phoneController = phoneController,
         _pageController = pageController;
 
@@ -210,16 +228,14 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
             width: width(context),
             child: ElevatedButton(
               onPressed: () {
-
                 if (widget._formKey.currentState!.validate()) {
                   getData('phone').then((number) => signInWithPhoneNumber(
-                    number ?? '',
-                    context,
-                    widget._pageController.nextPage(
-                      duration: const Duration(milliseconds: 200),
-                      curve: Curves.easeInOut,
-                    ),
-                  ));
+                      number ?? '',
+                      context,
+                      widget._pageController.nextPage(
+                        duration: const Duration(milliseconds: 200),
+                        curve: Curves.easeInOut,
+                      )));
                 }
               },
               child: Text(
