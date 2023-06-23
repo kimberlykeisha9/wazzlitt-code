@@ -23,7 +23,6 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   @override
   void initState() {
     super.initState();
-    getLocationInfo();
     _exploreController = TabController(length: 2, vsync: this);
   }
 

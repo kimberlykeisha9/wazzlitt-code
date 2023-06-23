@@ -2,6 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:wazzlitt/authorization/authorization.dart';
 import '../app.dart';
 
 class SignUp extends StatefulWidget {
@@ -14,12 +17,12 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   late String _direction = '';
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
- final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  PageController _pageController = PageController();
 
   @override
   void initState() {
     super.initState();
-
     WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
       setState(() {
         if (kDebugMode) {
@@ -34,71 +37,209 @@ class _SignUpState extends State<SignUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Padding(
-        padding: const EdgeInsets.all(30),
-        child: SafeArea(
-          child: Column(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(30),
+          child: PageView(
+            controller: _pageController,
+            physics: NeverScrollableScrollPhysics(),
             children: [
-              Text(
-                AppLocalizations.of(context)!.verifyPhone,
-                textAlign: TextAlign.center,
+              PhoneNumberPrompt(
+                formKey: _formKey,
+                phoneController: _phoneController,
+                pageController: _pageController,
               ),
-              const Spacer(),
-              Form(
-                key: _formKey,
-                child: TextFormField(
-                  maxLength: 9,
-                  controller: _phoneController,
-                  decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.phone,
-                      border: InputBorder.none),
-                  keyboardType: TextInputType.number,
-                   validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Phone number is required';
-                  }
-                  if (value.length != 9) {
-                    return 'Phone number must be 9 digits long';
-                  }
-                  return null; // Return null if the input is valid
-                },
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                  width: width(context),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if(_formKey.currentState!.validate()) {
-                      if (_direction == 'patrone') {
-                        Navigator.pushNamed(context, 'patrone_registration');
-                      } else if (_direction == 'igniter') {
-                        Navigator.pushNamed(context, 'igniter_registration');
-                      } else {
-                        showSnackbar(context, 'Something went wrong');
-                      } }
-                    },
-                    child: Text(
-                      AppLocalizations.of(context)!.proceed,
-                    ),
-                  )),
-              const Spacer(),
-              Text(
-                AppLocalizations.of(context)!.googleSignIn,
-              ),
-              IconButton(
-                icon: const FaIcon(FontAwesomeIcons.google),
-                onPressed: () {},
-              ),
-              const Spacer(flex: 2),
-              Text(
-                AppLocalizations.of(context)!.acceptTerms,
-                textAlign: TextAlign.center,
-              ),
+              PhoneVerification(
+                direction: _direction,
+                pageController: _pageController,
+              )
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class PhoneVerification extends StatefulWidget {
+  PhoneVerification({
+    super.key,
+    required String direction,
+    required PageController pageController,
+  })  : _direction = direction,
+        _pageController = pageController;
+
+  final String _direction;
+  final PageController _pageController;
+
+  @override
+  State<PhoneVerification> createState() => _PhoneVerificationState();
+}
+
+class _PhoneVerificationState extends State<PhoneVerification> {
+  final _verificationController = TextEditingController();
+  String? _phoneNumber;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData('phone').then((value) =>
+    _phoneNumber == value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    getData('phone').then((value) =>
+    _phoneNumber == value);
+    return Column(
+      children: [
+        Spacer(),
+        Text(
+          'A verification code has been sent to $_phoneNumber',
+          textAlign: TextAlign.center,
+        ),
+        Spacer(),
+        Text(
+          'Please enter it in the space below',
+          textAlign: TextAlign.center,
+        ),
+        Spacer(),
+        TextButton(
+          child: Text('Change phone number'),
+          onPressed: () {
+            widget._pageController.previousPage(
+                duration: const Duration(milliseconds: 200), curve: Curves
+                .easeInOut);
+          },
+        ),
+        Spacer(),
+        PinCodeTextField(
+            controller: _verificationController,
+            validator: (val) {
+              if (val == null) {
+                return 'Please enter a value';
+              }
+              if (val.length != 6) {
+                return 'Please enter a valid code';
+              }
+              return null;
+            },
+            keyboardType: TextInputType.number,
+            appContext: context,
+            length: 6,
+            onChanged: (val) {}),
+        Spacer(flex: 5),
+        SizedBox(
+          width: width(context),
+          child: ElevatedButton(
+            onPressed: () {
+              isNewUser().then((value) => {
+                if (value == true) {
+
+                } else {
+
+                }
+              });
+              // if (widget._direction == 'patrone') {
+              //   Navigator.pushNamed(context, 'patrone_registration');
+              // } else if (widget._direction == 'igniter') {
+              //   Navigator.pushNamed(context, 'igniter_registration');
+              // } else {
+              //   showSnackbar(context, 'Something went wrong');
+              // }
+            },
+            child: Text('Verify'),
+          ),
+        ),
+        Spacer(flex: 10),
+      ],
+    );
+  }
+}
+
+class PhoneNumberPrompt extends StatefulWidget {
+  const PhoneNumberPrompt({
+    super.key,
+    required GlobalKey<FormState> formKey,
+    required TextEditingController phoneController,
+    required PageController pageController
+  })  : _formKey = formKey,
+        _phoneController = phoneController,
+        _pageController = pageController;
+
+  final GlobalKey<FormState> _formKey;
+  final TextEditingController _phoneController;
+  final PageController _pageController;
+
+  @override
+  State<PhoneNumberPrompt> createState() => _PhoneNumberPromptState();
+}
+
+class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          AppLocalizations.of(context)!.verifyPhone,
+          textAlign: TextAlign.center,
+        ),
+        const Spacer(),
+        Form(
+          key: widget._formKey,
+          child: IntlPhoneField(
+            controller: widget._phoneController,
+            decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.phone,
+                border: InputBorder.none),
+            keyboardType: TextInputType.number,
+            onChanged: (phone) {
+              storeData('phone', phone.completeNumber);
+            },
+            validator: (value) {
+              if (value == null) {
+                return 'Phone number is required';
+              }
+              return null; // Return null if the input is valid
+            },
+          ),
+        ),
+        const Spacer(),
+        SizedBox(
+            width: width(context),
+            child: ElevatedButton(
+              onPressed: () {
+
+                if (widget._formKey.currentState!.validate()) {
+                  getData('phone').then((number) => signInWithPhoneNumber(
+                    number ?? '',
+                    context,
+                    widget._pageController.nextPage(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                    ),
+                  ));
+                }
+              },
+              child: Text(
+                AppLocalizations.of(context)!.proceed,
+              ),
+            )),
+        const Spacer(),
+        Text(
+          AppLocalizations.of(context)!.googleSignIn,
+        ),
+        IconButton(
+          icon: const FaIcon(FontAwesomeIcons.google),
+          onPressed: () {},
+        ),
+        const Spacer(flex: 2),
+        Text(
+          AppLocalizations.of(context)!.acceptTerms,
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
