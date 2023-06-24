@@ -50,7 +50,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                     padding: const EdgeInsets.symmetric(horizontal: 5),
                     child: ChoiceChip(
                       label: Text(chip.display),
-                      selected: _selectedChip == chip,
+                      selected: _selectedChip == chip.display,
                       onSelected: (selected) {
                         setState(() {
                           _selectedChip = selected ? chip.display : '';
@@ -229,7 +229,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(height: 10),
-                            Text(categories[index],
+                            Text(categories[index].display,
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold)),
                             SizedBox(
@@ -258,7 +258,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                                         MaterialPageRoute(
                                             builder: (context) => Place(
                                                 placeName: 'Place $i',
-                                                category: categories[index]))),
+                                                category: categories[index].display))),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
