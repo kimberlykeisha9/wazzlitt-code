@@ -7,8 +7,8 @@ import '../src/registration/interests.dart';
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-var currentUserProfile = firestore.collection('users').doc(auth.currentUser!
-    .uid);
+var currentUserProfile = firestore.collection('users').doc(auth.currentUser
+    ?.uid);
 
 Future<void> updateDisplayName(String? displayName) async {
   try {
