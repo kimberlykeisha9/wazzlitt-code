@@ -36,7 +36,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       Explore(
         tabController: _exploreController!,
       ),
-      const ChatsView(chatType: ChatRoomType.individual),
+      ChatsView(chatType: ChatRoomType.individual),
       const ProfileScreen(),
     ];
   }

@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dashboard/igniter_dashboard.dart';
 import 'dashboard/igniter_profile.dart';
 import 'dashboard/patrone_dashboard.dart';
@@ -51,7 +54,7 @@ class MyApp extends StatelessWidget {
                 centerTitle: true,
                 titleTextStyle:
                     const TextStyle(color: Colors.black, fontSize: 16),
-                toolbarHeight: height(context) * 0.1,
+                toolbarHeight: height(context) * 0.075,
                 iconTheme: IconThemeData(color: Colors.indigo[900]!),
               ),
               chipTheme: ChipThemeData(
@@ -73,13 +76,13 @@ class MyApp extends StatelessWidget {
               colorScheme: ColorScheme.light(
                   primary: Colors.indigo[900]!,
                   secondary: Colors.greenAccent[400]!)),
-          darkTheme: ThemeData.dark(),
+          // darkTheme: ThemeData.dark(),
           themeMode: settingsController.themeMode,
           initialRoute: 'patrone_dashboard',
           routes: {
             'home': (context) => const Home(),
             'signup': (context) => const SignUp(),
-            'patrone_registration': (context) => PatroneRegistration(),
+            'patrone_registration': (context) => const PatroneRegistration(),
             'interests': (context) => const Interests(),
             'igniter_registration': (context) => const IgniterRegistration(),
             'igniter_profile': (context) => const IgniterProfile(),
@@ -94,6 +97,19 @@ class MyApp extends StatelessWidget {
       },
     );
   }
+}
+
+Future<bool> storeData(String key, String value) async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  log('Stored');
+  return pref.setString(key, value);
+}
+
+Future<String?> getData(String key) async {
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  String? val = pref.getString(key);
+  log(val ?? 'Nothing there');
+  return val;
 }
 
 enum OrderType { event, service }
@@ -211,7 +227,7 @@ void showSnackbar(BuildContext context, String message) {
   );
 }
 
-List<String> categories = ['Ratchet', 'Free Spirit', 'Classy', 'Rock', 'Afro'];
+// List<String> categories = ['Ratchet', 'Free Spirit', 'Classy', 'Rock', 'Afro'];
 
 double height(context) {
   return MediaQuery.of(context).size.height;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:wazzlitt/authorization/authorization.dart';
 
 import '../app.dart';
 
@@ -127,7 +128,7 @@ class PatroneDrawer extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             GestureDetector(
-              onTap:() => Navigator.pushNamed(context, 'home'),
+              onTap:() => signOut().then((value) => Navigator.pushNamed(context, 'home')),
               child: const Row(
                 children: [
                   Icon(Icons.logout),

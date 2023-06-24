@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
 class PatroneRegistration extends StatefulWidget {
@@ -10,6 +11,7 @@ class PatroneRegistration extends StatefulWidget {
   State<PatroneRegistration> createState() => _PatroneRegistrationState();
 }
 
+
 class _PatroneRegistrationState extends State<PatroneRegistration> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController firstNameController = TextEditingController();
@@ -18,6 +20,10 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
   TextEditingController emailController = TextEditingController();
   TextEditingController dobController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  DateTime? selectedDOB;
+  bool _isGangMember = false;
+  bool _isHIVPositive = false;
+  String _selectedGender = 'male';
 
   @override
   void initState() {
@@ -51,7 +57,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
               ),
               const Spacer(),
               Expanded(
-                flex: 12,
+                flex: 15,
                 child: SizedBox(
                   width: width(context),
                   height: height(context) * 0.5,
@@ -90,7 +96,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                             controller: lastNameController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'First name is required';
+                                return 'Last name is required';
                               }
                               if (value.length < 3) {
                                 return 'Enter a valid last name';
@@ -135,27 +141,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 15),
                           child: TextFormField(
-                            controller: emailController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Email is required';
-                              }
-                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                  .hasMatch(value)) {
-                                return 'Invalid email address';
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              labelText: AppLocalizations.of(context)!.email,
-                            ),
-                            autofillHints: const [AutofillHints.email],
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15),
-                          child: TextFormField(
                             controller: dobController,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -176,6 +161,9 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                                 lastDate: DateTime.now(),
                               );
                               if (selectedDate != null) {
+                                setState(() {
+                                  selectedDOB = selectedDate;
+                                });
                                 dobController.text = DateFormat.yMMMd().format(selectedDate);
                               }
                             },
@@ -183,27 +171,57 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                             keyboardType: TextInputType.datetime,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 15),
-                          child: TextFormField(
-                            controller: passwordController,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Password is required';
-                              }
-                              if (!RegExp(
-                                      r'^(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$')
-                                  .hasMatch(value)) {
-                                return 'Password must contain at least 8 characters, one capital letter, one number, and one symbol';
-                              }
-                              return null;
-                            },
-                            decoration: InputDecoration(
-                              labelText: AppLocalizations.of(context)!.password,
+                        Text('Select your gender:'),
+                        SizedBox(height: 10),
+                        DropdownButtonFormField<String>(
+                          value: _selectedGender,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedGender = value!;
+                            });
+                          },
+                          items: [
+                            DropdownMenuItem<String>(
+                              value: 'male',
+                              child: Text('Male'),
                             ),
-                            autofillHints: const [AutofillHints.newPassword],
-                          ),
+                            DropdownMenuItem<String>(
+                              value: 'female',
+                              child: Text('Female'),
+                            ),
+                            DropdownMenuItem<String>(
+                              value: 'non_binary',
+                              child: Text('Non-binary'),
+                            ),
+                            DropdownMenuItem<String>(
+                              value: 'not_to_say',
+                              child: Text('Prefer not to say'),
+                            ),
+                            DropdownMenuItem<String>(
+                              value: 'other',
+                              child: Text('Other'),
+                            ),
+                          ],
                         ),
+                        CheckboxListTile(
+                          title: Text('Are you a gang member?'),
+                          value: _isGangMember,
+                          onChanged: (value) {
+                            setState(() {
+                              _isGangMember = value!;
+                            });
+                          },
+                        ),
+                        CheckboxListTile(
+                          title: Text('Are you HIV positive?'),
+                          value: _isHIVPositive,
+                          onChanged: (value) {
+                            setState(() {
+                              _isHIVPositive = value!;
+                            });
+                          },
+                        ),
+
                       ],
                     ),
                   ),
@@ -229,8 +247,18 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                           ),
                           actions: [
                             TextButton(
-                              onPressed: () => Navigator.popAndPushNamed(
-                                  context, 'interests'),
+                              onPressed: () => saveUserPatroneInformation(
+                                firstName: firstNameController.text,
+                                lastName: lastNameController.text,
+                                username: usernameController.text,
+                                dob: selectedDOB,
+                                isGangMember: _isGangMember,
+                                isHIVPositive: _isHIVPositive,
+                                gender: _selectedGender,
+                              ).then((value) => Navigator.popAndPushNamed(
+                                  context, 'interests'), onError: (e) =>
+                              showSnackbar(context, 'An error has occured. '
+                                  'Please try again later.')),
                               child:
                                   Text(AppLocalizations.of(context)!.proceed),
                             ),

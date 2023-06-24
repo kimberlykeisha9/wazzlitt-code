@@ -25,10 +25,13 @@ dependencies:
   intl: ^0.18.0
   location: ^5.0.0-dev.8
   shared_preferences: ^2.1.2
-  google_fonts: ^5.0.0
   intl_phone_field: ^3.1.0
   geolocator: ^9.0.2
   animate_do: ^3.0.2
+  firebase_auth: ^4.6.3
+  firebase_storage: ^11.2.3
+  cloud_firestore: ^4.8.1
+  pin_code_fields: ^7.4.0
 
 dev_dependencies:
   flutter_test:
