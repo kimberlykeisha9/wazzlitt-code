@@ -23,7 +23,6 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   @override
   void initState() {
     super.initState();
-    getLocationInfo();
     _exploreController = TabController(length: 2, vsync: this);
   }
 
@@ -52,7 +51,13 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           trailingIcon() ?? const SizedBox(),
         ],
       ),
-      body: views(context)[_currentIndex],
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(child: views(context)[_currentIndex]),
+          ],
+        ),
+      ),
       bottomNavigationBar: Theme(
         data: ThemeData(
           canvasColor: Theme.of(context).colorScheme.primary,
