@@ -1,11 +1,38 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:intl/intl.dart';
 
 import '../app.dart';
 
+class PostData {
+  String? postImage;
+  String? caption;
+  Timestamp? timeCreated;
+  List? likes;
+  DocumentReference? postCreator;
+  GeoPoint? location;
+
+  PostData({required this.postImage, required this.caption, required this
+      .timeCreated, required this.likes, required this.location, required
+  this.postCreator});
+}
+
+class Creator {
+  String? creatorImage;
+  String? creatorUsername;
+
+  Creator({required this.creatorImage, required this.creatorUsername});
+}
+
 class FeedImage extends StatefulWidget {
-  const FeedImage({
-    super.key,
+  PostData postData;
+
+  FeedImage({
+    super.key, required this.postData
   });
 
   @override
@@ -13,6 +40,45 @@ class FeedImage extends StatefulWidget {
 }
 
 class _FeedImageState extends State<FeedImage> {
+  Creator? creator;
+  String? location;
+  Future<String> getLocationFromGeoPoint(GeoPoint geoPoint) async {
+    try {
+      // Reverse geocode the latitude and longitude
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        geoPoint.latitude,
+        geoPoint.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks.first;
+        String readableLocation = placemark.locality ?? placemark.administrativeArea ?? '';
+
+        return readableLocation;
+      }
+    } catch (e) {
+      log('Error: $e');
+    }
+
+    return '';
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    if (widget.postData.location != null) {
+      getLocationFromGeoPoint(widget.postData.location!).then((value) => location = value);
+    }
+    widget.postData.postCreator?.collection('account_type').doc('patrone').get()
+        .then((data)
+    => {
+      creator = Creator(
+        creatorImage: data.get('profile_picture'),
+        creatorUsername: data.get('username'),
+      )
+    });
+  }
   String? selectedReason;
   @override
   Widget build(BuildContext context) {
@@ -21,18 +87,18 @@ class _FeedImageState extends State<FeedImage> {
         Expanded(
           child: Container(
             width: width(context),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: AssetImage('assets/images/igniter-2.png')),
+                  image: NetworkImage(widget.postData.postImage!)),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
+                Padding(
                   padding: EdgeInsets.all(10),
-                  child: Text('User Caption',
+                  child: Text(widget.postData.caption ?? '',
                       style: TextStyle(color: Colors.white)),
                 ),
                 Container(
@@ -47,27 +113,30 @@ class _FeedImageState extends State<FeedImage> {
                   child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: const BoxDecoration(
-                              color: Colors.grey, shape: BoxShape.circle),
+                        CircleAvatar(
+                          radius: 20,
+                          child: creator?.creatorImage !=
+                              null ? Image.network(creator!.creatorImage!) :
+                          Icon(Icons
+                              .account_circle)
                         ),
-                        const Spacer(),
-                        const Wrap(
+                        SizedBox(width: 10),
+                        Wrap(
                           direction: Axis.vertical,
                           alignment: WrapAlignment.start,
                           children: [
-                            Text('User Name',
+                            Text(creator?.creatorUsername
+                                ?? '@null',
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontWeight: FontWeight.bold)),
-                            Text('0 days ago',
+                            Text(DateFormat('hh:mm, EEE d MMM').format
+                              (widget.postData.timeCreated!.toDate()) ?? '',
                                 style: TextStyle(
                                     color: Colors.white, fontSize: 14)),
                           ],
                         ),
-                        const Spacer(flex: 4),
+                        const Spacer(),
                         IconButton(
                           onPressed: () {},
                           icon: const FaIcon(
@@ -75,18 +144,16 @@ class _FeedImageState extends State<FeedImage> {
                             color: Colors.white,
                           ),
                         ),
-                        const Text('0', style: TextStyle(color: Colors.white)),
+                        Text('${widget.postData.likes?.length ?? '0'}', style:
+                        TextStyle
+                          (color: Colors
+                            .white)),
                         IconButton(
                           onPressed: () {},
                           icon: const FaIcon(FontAwesomeIcons.message,
                               color: Colors.white),
                         ),
                         const Text('0', style: TextStyle(color: Colors.white)),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const FaIcon(FontAwesomeIcons.share,
-                              color: Colors.white),
-                        ),
                         IconButton(
                           icon:
                               const Icon(Icons.more_vert, color: Colors.white),
@@ -105,11 +172,11 @@ class _FeedImageState extends State<FeedImage> {
                         .secondary
                         .withOpacity(0.75),
                   ),
-                  child: const Row(
+                  child:  Row(
                     children: [
                       Icon(Icons.place, color: Colors.white),
                       Spacer(),
-                      Text('Tagged Location',
+                      Text(location ?? '',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.white)),

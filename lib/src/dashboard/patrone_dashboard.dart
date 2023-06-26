@@ -4,6 +4,7 @@ import '../app.dart';
 import '../location/location.dart';
 import 'chats_view.dart';
 import 'explore.dart';
+import 'feed.dart';
 import 'feed_image.dart';
 import 'patrone_drawer.dart';
 import 'upload_image.dart';
@@ -28,11 +29,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
 
   List<Widget> views(BuildContext context) {
     return [
-      PageView.builder(
-        itemBuilder: (context, index) => const FeedImage(),
-        itemCount: 3,
-        scrollDirection: Axis.vertical,
-      ),
+      Feed(),
       Explore(
         tabController: _exploreController!,
       ),
@@ -129,3 +126,4 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     return null;
   }
 }
+
