@@ -66,7 +66,6 @@ class _FeedImageState extends State<FeedImage> {
   @override
   void initState() {
     // TODO: implement initState
-    super.initState();
     if (widget.postData.location != null) {
       getLocationFromGeoPoint(widget.postData.location!).then((value) => location = value);
     }
@@ -78,6 +77,7 @@ class _FeedImageState extends State<FeedImage> {
         creatorUsername: data.get('username'),
       )
     });
+    super.initState();
   }
   String? selectedReason;
   @override
@@ -98,8 +98,38 @@ class _FeedImageState extends State<FeedImage> {
               children: [
                 Padding(
                   padding: EdgeInsets.all(10),
-                  child: Text(widget.postData.caption ?? '',
-                      style: TextStyle(color: Colors.white)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Flexible(
+                        child: Text(widget.postData.caption ?? '', 
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                      SizedBox(width: 10),
+                      Column(
+                        children: [
+                          IconButton(
+                            onPressed: () {},
+                            icon: const FaIcon(
+                              FontAwesomeIcons.heart,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text('${widget.postData.likes?.length ?? '0'}', style:
+                          TextStyle
+                            (color: Colors
+                              .white)),
+                          IconButton(
+                            onPressed: () {},
+                            icon: const FaIcon(FontAwesomeIcons.message,
+                                color: Colors.white),
+                          ),
+                          const Text('0', style: TextStyle(color: Colors.white)),
+                        ]
+                      ),
+                    ],
+                  ),
                 ),
                 Container(
                   width: width(context),
@@ -137,23 +167,7 @@ class _FeedImageState extends State<FeedImage> {
                           ],
                         ),
                         const Spacer(),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const FaIcon(
-                            FontAwesomeIcons.heart,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text('${widget.postData.likes?.length ?? '0'}', style:
-                        TextStyle
-                          (color: Colors
-                            .white)),
-                        IconButton(
-                          onPressed: () {},
-                          icon: const FaIcon(FontAwesomeIcons.message,
-                              color: Colors.white),
-                        ),
-                        const Text('0', style: TextStyle(color: Colors.white)),
+
                         IconButton(
                           icon:
                               const Icon(Icons.more_vert, color: Colors.white),

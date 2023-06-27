@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import '../../user_data/user_data.dart';
@@ -15,7 +17,7 @@ class ChatsView extends StatefulWidget {
 
 class _ChatsViewState extends State<ChatsView> {
   var messagesCollection =
-  firestore.collection('chats').where('participants', arrayContains:
+  firestore.collection('messages').where('participants', arrayContains:
   currentUserProfile);
 
   @override
@@ -29,29 +31,43 @@ class _ChatsViewState extends State<ChatsView> {
           }
 
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
-          List<DocumentSnapshot> messages = snapshot.data!.docs;
+          DocumentReference? senderId;
+          String? content;
+          Timestamp? timestamp;
 
-          return ListView.builder(
-            itemCount: messages.length,
-            itemBuilder: (BuildContext context, int index) {
-              DocumentSnapshot messageSnapshot = messages[index];
-              Map<String, dynamic> messageData = messageSnapshot.data() as Map<String, dynamic>;
+          List<DocumentSnapshot>? messages = snapshot.data?.docs;
 
-              // Extract the message details from the messageData map
-              String senderId = messageData['senderId'];
-              String content = messageData['content'];
-              Timestamp timestamp = messageData['timestamp'];
-
-              // Display the message using a ListTile or any other widget
-              return ListTile(
-                title: Text(content),
-                // subtitle: Text('Sender: $senderId'),
-                // trailing: Text('Time: ${timestamp.toDate().toString()}'),
-              );
-            },
+          log(messages.toString());
+          log(messages?.length.toString() ?? 'null');
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: messages?.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    DocumentReference? messageSnapshot = messages?[index].get
+                      ('last_message');
+                    return FutureBuilder<DocumentSnapshot>(
+                      future: messageSnapshot?.get(),
+                      builder: (context, snapshot) {
+                        return ListTile(
+                          title: Text(snapshot.data?.get('content') ?? 'test'),
+                          subtitle: Text('Sender: ${(snapshot.data?.get
+                            ('senderID') as DocumentReference).id}'),
+                          trailing: Text((snapshot.data?.get('time_sent') as
+                          Timestamp)
+                              .toDate().toString
+                            ()),
+                        );
+                      }
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
