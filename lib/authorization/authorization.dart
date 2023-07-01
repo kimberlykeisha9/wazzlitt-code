@@ -9,6 +9,7 @@ FirebaseAuth auth = FirebaseAuth.instance;
 
 Future<void> signOut() async {
   await auth.signOut();
+  log('Logged user out');
 }
 
 Future<void> signInWithPhoneNumber(
@@ -84,8 +85,7 @@ Future<void> signInWithPhoneNumber(
   }
 }
 
-Future<bool> verifyCode(String smsCode, String verificationId) async {
-  bool? isNew;
+Future<void> verifyCode(String smsCode, String verificationId) async {
   try {
     // Create PhoneAuthCredential with the verification ID and code
     PhoneAuthCredential credential = PhoneAuthProvider.credential(
@@ -100,17 +100,10 @@ Future<bool> verifyCode(String smsCode, String verificationId) async {
     if (user != null) {
       log('Phone number verification successful: $smsCode');
       // Check if the user is new or existing
-      isNew = userCredential.additionalUserInfo?.isNewUser ?? true;
-      if (isNew) {
-        log('New registration for the phone number.');
-      } else {
-        log('Phone number is already registered.');
-      }
     }
   } catch (e) {
     log('Error verifying phone number: ${e.toString()}');
   }
-  return isNew!;
 }
 
 

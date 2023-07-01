@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
 import 'feed_image.dart';
@@ -14,37 +15,40 @@ class Feed extends StatefulWidget {
 }
 
 class _FeedState extends State<Feed> {
-  List<QueryDocumentSnapshot<Object?>>? _feedData = [];
-  List<PostData>? _posts = [];
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<QuerySnapshot>(
-      future: firestore.collection('feed').orderBy('date_created',
-          descending: true).get(),
+    return StreamBuilder<QuerySnapshot>(
+      stream: firestore.collection('feed').orderBy('date_created',
+          descending: true).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-            _feedData = snapshot.data?.docs;
-            _feedData?.forEach((doc) {
-              _posts?.add(PostData(postImage: doc.get('image'), caption: doc
-                  .get('caption'),
-                timeCreated: doc.get('date_created'), likes: doc.get('likes'),
-                location:
-                doc.get('location'),
-                postCreator: doc.get('creator_uid'),),);
-            });
+          Provider.of<Data>(context).updateData(snapshot.data!.docs);
           return PageView.builder(
             scrollDirection: Axis.vertical,
-            physics: BouncingScrollPhysics(),
-            itemCount: _feedData?.length ?? 0,
+            physics: const BouncingScrollPhysics(),
+            itemCount: Provider.of<Data>(context).feedData?.length ?? 0,
             itemBuilder: (context, index) {
-              return FeedImage(postData: _posts![index],);
-            },
+              QueryDocumentSnapshot doc = snapshot.data!.docs[index];
+                  return FeedImage(snapshot: doc);
+                }
           );
         } else {
           return Center(child: Text('Nothing to see here'));
         }
       },
     );
+  }
+}
+
+class Data extends ChangeNotifier {
+
+  List<QueryDocumentSnapshot<Object?>>? _feedData = [];
+
+  List<QueryDocumentSnapshot<Object?>>? get feedData => _feedData;
+
+  void updateData(List<QueryDocumentSnapshot<Object?>> data) {
+    _feedData = data;
+    notifyListeners(); // Notify listeners when the state changes
   }
 }

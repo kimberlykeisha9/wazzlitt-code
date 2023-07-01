@@ -10,6 +10,53 @@ FirebaseFirestore firestore = FirebaseFirestore.instance;
 var currentUserProfile = firestore.collection('users').doc(auth.currentUser
     ?.uid);
 
+var currentUserPatroneProfile = firestore.collection('users').doc(auth
+    .currentUser
+    ?.uid).collection('account_type').doc('patrone');
+
+var currentUserIgniterProfile = firestore.collection('users').doc(auth
+    .currentUser
+    ?.uid).collection('account_type').doc('igniter');
+
+Future<bool?> checkIfPatroneUser() async {
+  bool? isPatrone;
+  if (auth.currentUser != null) {
+    await currentUserProfile.get().then((value) {
+      Map<String, dynamic>? data = value.data();
+      if (data!.keys.contains('is_patrone')) {
+        log('User is patrone: ${data['is_patrone']}');
+        isPatrone = data['is_patrone'] as bool;
+      } else {
+        log('No information found');
+        isPatrone = false;
+      }
+    });
+  } else {
+    log('No active user');
+  }
+  return isPatrone;
+}
+
+Future<bool?> checkIfIgniterUser() async {
+  bool? isIgniter;
+  if (auth.currentUser != null) {
+    await currentUserProfile.get().then((value) {
+      log(value.data().toString());
+      Map<String, dynamic>? data = value.data();
+      if (data!.keys.contains('is_igniter')) {
+        log('User is igniter: ${data['is_igniter']}');
+        isIgniter = data['is_igniter'] as bool;
+      } else {
+        log('No information found');
+        isIgniter = false;
+      }
+    });
+  } else {
+    log('No active user');
+  }
+  return isIgniter;
+}
+
 Future<void> updateDisplayName(String? displayName) async {
   try {
     if (displayName != null && auth.currentUser != null) {

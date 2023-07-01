@@ -2,14 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 
+import '../../user_data/user_data.dart';
 import '../app.dart';
 
-class PatroneDrawer extends StatelessWidget {
+class PatroneDrawer extends StatefulWidget {
   PatroneDrawer({
     super.key,
   });
 
+  @override
+  State<PatroneDrawer> createState() => _PatroneDrawerState();
+}
+
+class _PatroneDrawerState extends State<PatroneDrawer> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  String igniterButtonText = '';
+  bool? isIgniter;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkIfIgniterUser().then((igniter) {
+      if (igniter == true) {
+        setState(() {
+          isIgniter = igniter;
+        });
+      } else if (igniter == false) {
+        setState(() {
+          isIgniter = igniter;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,16 +142,19 @@ class PatroneDrawer extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            GestureDetector(
-              onTap:() => Navigator.popAndPushNamed(context, 'igniter_dashboard'),
-              child: const Row(
-                children: [
-                  Icon(FontAwesomeIcons.bolt),
-                  SizedBox(width: 10),
-                  Text('Create an Igniter Profile'),
-                ],
-              ),
-            ),
+            isIgniter != null ? GestureDetector(
+                onTap:() => isIgniter! ? Navigator.popAndPushNamed(context, ''
+                    'igniter_dashboard') : Navigator.pushNamed(context, 'igni'
+                    'ter_registration'),
+                child: Row(
+                  children: [
+                    Icon(FontAwesomeIcons.bolt),
+                    SizedBox(width: 10),
+                    Text(isIgniter! ? 'Go to Igniter Profile' : 'Create an '
+                        'Igniter profile'),
+                  ],
+                ),
+              ) : const SizedBox(),
             const SizedBox(height: 20),
             GestureDetector(
               onTap:() => signOut().then((value) => Navigator.pushNamed(context, 'home')),

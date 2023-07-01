@@ -5,16 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 
 import '../app.dart';
 
 class PostData {
-  String? postImage;
-  String? caption;
-  Timestamp? timeCreated;
-  List? likes;
-  DocumentReference? postCreator;
-  GeoPoint? location;
+  String postImage;
+  String caption;
+  Timestamp timeCreated;
+  List likes;
+  DocumentReference postCreator;
+  GeoPoint location;
 
   PostData({required this.postImage, required this.caption, required this
       .timeCreated, required this.likes, required this.location, required
@@ -23,16 +24,16 @@ class PostData {
 
 class Creator {
   String? creatorImage;
-  String? creatorUsername;
+  String creatorUsername;
 
   Creator({required this.creatorImage, required this.creatorUsername});
 }
 
 class FeedImage extends StatefulWidget {
-  PostData postData;
+  final DocumentSnapshot snapshot;
 
-  FeedImage({
-    super.key, required this.postData
+  const FeedImage({
+    super.key, required this.snapshot
   });
 
   @override
@@ -40,7 +41,6 @@ class FeedImage extends StatefulWidget {
 }
 
 class _FeedImageState extends State<FeedImage> {
-  Creator? creator;
   String? location;
   Future<String> getLocationFromGeoPoint(GeoPoint geoPoint) async {
     try {
@@ -66,144 +66,180 @@ class _FeedImageState extends State<FeedImage> {
   @override
   void initState() {
     // TODO: implement initState
-    if (widget.postData.location != null) {
-      getLocationFromGeoPoint(widget.postData.location!).then((value) => location = value);
-    }
-    widget.postData.postCreator?.collection('account_type').doc('patrone').get()
-        .then((data)
-    => {
-      creator = Creator(
-        creatorImage: data.get('profile_picture'),
-        creatorUsername: data.get('username'),
-      )
-    });
+      getLocationFromGeoPoint(widget.snapshot.get('location')).then((value) => location = value);
     super.initState();
+  }
+
+  Widget likeIcon() {
+    List<dynamic> likes = widget.snapshot.get('likes');
+    if(likes.contains(currentUserProfile)) {
+      return Icon(Icons.favorite, color: Colors.red);
+    } else {
+      return Icon(Icons.favorite_outline, color: Colors.white);
+    }
   }
   String? selectedReason;
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: Container(
-            width: width(context),
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                  fit: BoxFit.cover,
-                  image: NetworkImage(widget.postData.postImage!)),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Flexible(
-                        child: Text(widget.postData.caption ?? '', 
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                      SizedBox(width: 10),
-                      Column(
-                        children: [
-                          IconButton(
-                            onPressed: () {},
-                            icon: const FaIcon(
-                              FontAwesomeIcons.heart,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text('${widget.postData.likes?.length ?? '0'}', style:
-                          TextStyle
-                            (color: Colors
-                              .white)),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const FaIcon(FontAwesomeIcons.message,
-                                color: Colors.white),
-                          ),
-                          const Text('0', style: TextStyle(color: Colors.white)),
-                        ]
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
+    return StreamBuilder<DocumentSnapshot>(
+      stream: widget.snapshot.reference.snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Column(
+            children: [
+              Expanded(
+                child: Container(
                   width: width(context),
-                  padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withOpacity(0.25),
+                    image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: NetworkImage(snapshot.data!.get('image'))),
                   ),
-                  child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircleAvatar(
-                          radius: 20,
-                          child: creator?.creatorImage !=
-                              null ? Image.network(creator!.creatorImage!) :
-                          Icon(Icons
-                              .account_circle)
-                        ),
-                        SizedBox(width: 10),
-                        Wrap(
-                          direction: Axis.vertical,
-                          alignment: WrapAlignment.start,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text(creator?.creatorUsername
-                                ?? '@null',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold)),
-                            Text(DateFormat('hh:mm, EEE d MMM').format
-                              (widget.postData.timeCreated!.toDate()) ?? '',
-                                style: TextStyle(
-                                    color: Colors.white, fontSize: 14)),
+                            Flexible(
+                              child: Text((widget.snapshot.get('caption') as
+                              String?) ?? '',
+                                  style: const TextStyle(color: Colors.white)),
+                            ),
+                            const SizedBox(width: 10),
+                            Column(
+                              children: [
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: likeIcon(),
+                                ),
+                                Text('${(snapshot.data!.get('likes') as
+                                List<dynamic>)
+              .length ??
+                                    '0'}',
+                                    style:
+                                const TextStyle
+                                  (color: Colors
+                                    .white)),
+                                IconButton(
+                                  onPressed: () {},
+                                  icon: const FaIcon(FontAwesomeIcons.message,
+                                      color: Colors.white),
+                                ),
+                                const Text('0', style: TextStyle(color: Colors.white)),
+                              ]
+                            ),
                           ],
                         ),
-                        const Spacer(),
+                      ),
+                      StreamBuilder<DocumentSnapshot>(
+                        stream: (widget.snapshot.get('creator_uid') as
+                        DocumentReference).collection('account_type').doc
+                          ('patrone')
+                            .snapshots(),
+                        builder: (context, creatorSnapshot) {
+                          if (creatorSnapshot.hasData) {
+                            return Container(
+                              width: width(context),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondary
+                                    .withOpacity(0.25),
+                              ),
+                              child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    CircleAvatar(
+                                      foregroundImage: NetworkImage(
+                                          (creatorSnapshot.data!.get
+                                        ('profile_picture') as
+                                      String)),
+                                      radius: 20,
+                                      child:(creatorSnapshot.data?.get
+                                        ('profile_picture') as
+                                      String?) !=
+                                          null ? null :
+                                      const Icon(Icons
+                                          .account_circle, size: 40,),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Wrap(
+                                      direction: Axis.vertical,
+                                      alignment: WrapAlignment.start,
+                                      children: [
+                                        Text((creatorSnapshot.data!.get
+                                          ('username') as
+                                        String?)
+                                            ?? 'null',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold)),
+                                        Text(DateFormat('hh:mm, EEE d MMM').format
+                                          ((widget.snapshot.get
+                                          ('date_created') as
+                                        Timestamp).toDate()),
+                                            style: const TextStyle(
+                                                color: Colors.white, fontSize: 14)),
+                                      ],
+                                    ),
+                                    const Spacer(),
 
-                        IconButton(
-                          icon:
-                              const Icon(Icons.more_vert, color: Colors.white),
-                          onPressed: () {
-                            showPopupMenu(context);
-                          },
+                                    IconButton(
+                                      icon:
+                                          const Icon(Icons.more_vert, color: Colors.white),
+                                      onPressed: () {
+                                        showPopupMenu(context);
+                                      },
+                                    ),
+                                  ]),
+                            );
+                          } else {
+                            return const SizedBox();
+                          }
+                        }
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        width: width(context),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondary
+                              .withOpacity(0.75),
                         ),
-                      ]),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  width: width(context),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withOpacity(0.75),
-                  ),
-                  child:  Row(
-                    children: [
-                      Icon(Icons.place, color: Colors.white),
-                      Spacer(),
-                      Text(location ?? '',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
-                      Spacer(flex: 16),
-                      Text('0 km away', style: TextStyle(color: Colors.white)),
+                        child:  Row(
+                          children: [
+                            Icon(Icons.place, color: Colors.white),
+                            Spacer(),
+                            Text(location ?? '',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white)),
+                            Spacer(flex: 16),
+                            Text('0 km away', style: TextStyle(color: Colors.white)),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ],
+              ),
+            ],
+          );
+        } else if (
+        snapshot.hasError
+        ) {
+          return Center(child: Text('Something went wrong'));
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      }
     );
   }
 

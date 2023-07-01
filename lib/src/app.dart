@@ -3,7 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wazzlitt/src/dashboard/dashboard.dart';
+import '../authorization/authorization.dart';
+import 'dashboard/feed.dart';
 import 'dashboard/igniter_dashboard.dart';
 import 'dashboard/igniter_profile.dart';
 import 'dashboard/patrone_dashboard.dart';
@@ -19,82 +23,89 @@ import 'registration/sign_up.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
-  const MyApp({
+  MyApp({
     super.key,
     required this.settingsController,
   });
+
+  final bool isLoggedIn = auth.currentUser != null;
 
   final SettingsController settingsController;
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: settingsController,
-      builder: (BuildContext context, Widget? child) {
-        return MaterialApp(
-          restorationScopeId: 'app',
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en', ''), // English, no country code
-          ],
-          onGenerateTitle: (BuildContext context) =>
-              AppLocalizations.of(context)!.appTitle,
-          theme: ThemeData(
-              tabBarTheme: TabBarTheme(labelColor: Colors.indigo[900]),
-              bottomNavigationBarTheme: BottomNavigationBarThemeData(
-                  backgroundColor: Colors.indigo[900]),
-              appBarTheme: AppBarTheme(
-                color: Colors.transparent,
-                elevation: 0,
-                centerTitle: true,
-                titleTextStyle:
-                    const TextStyle(color: Colors.black, fontSize: 16),
-                toolbarHeight: height(context) * 0.075,
-                iconTheme: IconThemeData(color: Colors.indigo[900]!),
-              ),
-              chipTheme: ChipThemeData(
-                  backgroundColor: Colors.greenAccent[100],
-                  selectedColor: Colors.greenAccent[400]),
-              inputDecorationTheme: InputDecorationTheme(
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-              ),
-              textTheme: const TextTheme(
-                labelLarge: TextStyle(fontSize: 16),
-                bodyMedium: TextStyle(fontSize: 16),
-              ),
-              elevatedButtonTheme: ElevatedButtonThemeData(
-                  style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(15),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)))),
-              colorScheme: ColorScheme.light(
-                  primary: Colors.indigo[900]!,
-                  secondary: Colors.greenAccent[400]!)),
-          // darkTheme: ThemeData.dark(),
-          themeMode: settingsController.themeMode,
-          initialRoute: 'patrone_dashboard',
-          routes: {
-            'home': (context) => const Home(),
-            'signup': (context) => const SignUp(),
-            'patrone_registration': (context) => const PatroneRegistration(),
-            'interests': (context) => const Interests(),
-            'igniter_registration': (context) => const IgniterRegistration(),
-            'igniter_profile': (context) => const IgniterProfile(),
-            'patrone_dashboard': (context) => const PatroneDashboard(),
-            'settings': (context) => const Settings(),
-            'orders': (context) => const Orders(),
-            'confirmed': (context) => const ConfirmedOrder(),
-            'igniter_dashboard': (context) => const IgniterDashboard(),
-            // 'place_order': (context) => PlaceOrder(),
-          },
-        );
-      },
+    return MultiProvider(providers: [
+      ChangeNotifierProvider<Data>(create: (_) => Data())
+    ],
+      child: AnimatedBuilder(
+        animation: settingsController,
+        builder: (BuildContext context, Widget? child) {
+          return MaterialApp(
+            restorationScopeId: 'app',
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en', ''), // English, no country code
+            ],
+            onGenerateTitle: (BuildContext context) =>
+                AppLocalizations.of(context)!.appTitle,
+            theme: ThemeData(
+                tabBarTheme: TabBarTheme(labelColor: Colors.indigo[900]),
+                bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                    backgroundColor: Colors.indigo[900]),
+                appBarTheme: AppBarTheme(
+                  color: Colors.transparent,
+                  elevation: 0,
+                  centerTitle: true,
+                  titleTextStyle:
+                      const TextStyle(color: Colors.black, fontSize: 16),
+                  toolbarHeight: height(context) * 0.075,
+                  iconTheme: IconThemeData(color: Colors.indigo[900]!),
+                ),
+                chipTheme: ChipThemeData(
+                    backgroundColor: Colors.greenAccent[100],
+                    selectedColor: Colors.greenAccent[400]),
+                inputDecorationTheme: InputDecorationTheme(
+                  border:
+                      OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+                textTheme: const TextTheme(
+                  labelLarge: TextStyle(fontSize: 16),
+                  bodyMedium: TextStyle(fontSize: 16),
+                ),
+                elevatedButtonTheme: ElevatedButtonThemeData(
+                    style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(15),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)))),
+                colorScheme: ColorScheme.light(
+                    primary: Colors.indigo[900]!,
+                    secondary: Colors.greenAccent[400]!)),
+            // darkTheme: ThemeData.dark(),
+            themeMode: settingsController.themeMode,
+            initialRoute: isLoggedIn ? 'dashboard' : 'home',
+            routes: {
+              'home': (context) => const Home(),
+              'signup': (context) => const SignUp(),
+              'patrone_registration': (context) => const PatroneRegistration(),
+              'interests': (context) => const Interests(),
+              'igniter_registration': (context) => const IgniterRegistration(),
+              'igniter_profile': (context) => const IgniterProfile(),
+              'patrone_dashboard': (context) => const PatroneDashboard(),
+              'settings': (context) => const Settings(),
+              'orders': (context) => const Orders(),
+              'confirmed': (context) => const ConfirmedOrder(),
+              'dashboard': (context) => Dashboard(),
+              'igniter_dashboard': (context) => const IgniterDashboard(),
+              // 'place_order': (context) => PlaceOrder(),
+            },
+          );
+        },
+      ),
     );
   }
 }

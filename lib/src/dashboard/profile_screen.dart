@@ -1,205 +1,367 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:wazzlitt/src/dashboard/feed_image.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen>  with
+    SingleTickerProviderStateMixin {
+
+  TabController? _tabController;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+  @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: width(context),
-      height: height(context),
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: 200,
-              child: Stack(
-                children: [
-                  Container(
-                    width: width(context),
-                    height: 150,
-                    color: Colors.grey,
-                  ),
-                  Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[800],
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                ],
+    return StreamBuilder<DocumentSnapshot>(
+      stream: currentUserPatroneProfile.snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          Map<String, dynamic> data = snapshot.data!.data() as Map<String,
+              dynamic>;
+          print(data);
+          String? coverPhoto = data['cover_photo'];
+          String? profilePhoto = data['profile_picture'];
+          String? firstName = data['first_name'];
+          String? lastName = data['last_name'];
+          String? username = data['username'];
+          String? bio = data['bio'];
+          Timestamp? dob = data['dob'];
+          List<dynamic>? createdPosts = data['created_posts'];
+          List<dynamic>? following = data['following'];
+          List<dynamic>? followers = data['followers'];
+          String? gender = data['gender'];
+          List<dynamic>? interests = data['interests'];
+          bool? isGangMember = data['is_gang_member'];
+          bool? isHivPositive = data['is_hiv_positive'];
+          return Column(
+            children: [
+              TabBar(tabs: const [
+                Tab(text: 'Profile'),
+            Tab(text: 'Activity'),
+              ], controller: _tabController!, indicatorColor: Theme.of
+                (context).colorScheme.primary,),
+              Expanded(
+                child: TabBarView(
+                  controller: _tabController,
+                  children: [
+                    ProfileTab(coverPhoto: coverPhoto, profilePhoto:
+                    profilePhoto, firstName: firstName, lastName: lastName,
+                      bio: bio, username: username, interests: interests,
+                        isHivPositive: isHivPositive, isGangMember:
+                      isGangMember,),
+                    ActivityTab(createdPosts: createdPosts,),
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                children: [
-                  const Text('User Name',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  const Text('@UserName', style: TextStyle(fontSize: 12)),
-                  const SizedBox(height: 10),
-                  const Text('User Bio'),
-                  const SizedBox(height: 10),
-                  const Text('Star Sign', style: TextStyle(fontSize: 12)),
-                  const Text('Capricorn',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 20),
-                  const Row(
+            ],
+          );
+        }
+        else if (snapshot.hasError) {
+          return Center(child: Text('Something went wrong'));
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      }
+    );
+  }
+}
+
+class ProfileTab extends StatelessWidget {
+  const ProfileTab({
+    super.key,
+    required this.coverPhoto,
+    required this.profilePhoto,
+    required this.firstName,
+    required this.lastName,
+    required this.username,
+    required this.bio,
+    required this.interests,
+    required this.isGangMember,
+    required this.isHivPositive,
+  });
+
+  final String? coverPhoto;
+  final String? profilePhoto;
+  final String? firstName;
+  final String? lastName;
+  final String? username;
+  final String? bio;
+  final List? interests;
+  final bool? isGangMember;
+  final bool? isHivPositive;
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(
+          height: 200,
+          child: Stack(
+            children: [
+              Container(
+                width: width(context),
+                height: 150,
+                color: Colors.grey,
+                child: ((coverPhoto == null) ? const Center(child:
+                Text('Upload a cover photo')) :
+                NetworkImage(
+                  coverPhoto!)) as Widget),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Column(
-                        children: [
-                          Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text('Posts', style: TextStyle(fontSize: 14)),
-                        ],
+                      isGangMember != null ? Chip(label: Text(isGangMember! ?
+                          'Gang Member' : 'Not Gang Member')) : SizedBox(),
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          image: profilePhoto != null ? DecorationImage(
+                            image: NetworkImage(profilePhoto!), fit:
+                          BoxFit.cover
+                          ) : null,
+                          // color: Colors.grey[800],
+                          shape: BoxShape.circle,
+                        ),
+                        child: profilePhoto == null ? const Icon(Icons
+                            .account_circle, size: 100) : null,
                       ),
-                      Column(
-                        children: [
-                          Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text('Followers', style: TextStyle(fontSize: 14)),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
-                          Text('Following', style: TextStyle(fontSize: 14)),
-                        ],
-                      ),
+                      isHivPositive != null ? Chip(label: Text(isHivPositive! ?
+                      'HIV Postive' : 'HIV Negative')) :
+                      SizedBox(),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 10,
-                        child: SizedBox(
-                          height: 30,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.all(5)),
-                            onPressed: () {},
-                            child: const Text('Edit Profile',
-                                style: TextStyle(fontSize: 12)),
-                          ),
-                        ),
-                      ),
-                      const Spacer(),
-                      Expanded(
-                        flex: 10,
-                        child: SizedBox(
-                          height: 30,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.all(5)),
-                            onPressed: () {},
-                            child: const Text('Social Links',
-                                style: TextStyle(fontSize: 12)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                const SizedBox(height: 20),
-                ],
+                ),
               ),
-            ),
-            DefaultTabController(
-              length: 3,
-              child: SizedBox(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+            ],
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Text('$firstName $lastName',
+                    style: const TextStyle(fontWeight: FontWeight
+                        .bold)),
+                const SizedBox(height: 5),
+                Text('@$username', style: TextStyle(fontSize:
+                12)),
+                const SizedBox(height: 10),
+                const Text('User Bio'),
+                const SizedBox(height: 10),
+                const Text('Star Sign', style: TextStyle(fontSize: 12)),
+                const Text('Capricorn',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    TabBar(
-                      tabs: const [
-                        Tab(icon: Icon(Icons.place)),
-                        Tab(icon: Icon(Icons.favorite)),
-                        Tab(icon: Icon(Icons.bookmark)),
+                    Column(
+                      children: [
+                        Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Posts', style: TextStyle(fontSize: 14)),
                       ],
-                      labelColor: Theme.of(context).colorScheme.secondary,
-                      unselectedLabelColor: Theme.of(context)
-                          .colorScheme
-                          .secondary
-                          .withOpacity(0.375),
                     ),
-                    Flexible(
+                    Column(
+                      children: [
+                        Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Followers', style: TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('Following', style: TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Flexible(
+                  child: SizedBox(
+                    child: ListView.builder(itemCount: interests?.length ?? 0,
+                      scrollDirection: Axis.horizontal,
+                      shrinkWrap: true,
+                      itemBuilder:
+                    (context, index) {
+                      Map<String, dynamic> interest = interests?[index];
+                      return Padding(
+                        padding: const EdgeInsets.all(5),
+                        child: Chip(label: Text(interest['display'])),
+                      );
+                    }),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 10,
                       child: SizedBox(
-                        height: height(context)*0.5,
-                        width: width(context),
-                        child: TabBarView(
-                          children: [
-                            GridView.builder(
-                              shrinkWrap: true,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                              ),
-                              itemCount: 4,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Container(
-                                  color: Colors.blue,
-                                  child: Center(
-                                    child: Text(
-                                      'Post $index',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 20),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            GridView.builder(
-                              shrinkWrap: true,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                              ),
-                              itemCount: 4,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Container(
-                                  color: Colors.red,
-                                  child: Center(
-                                    child: Text(
-                                      'Liked $index',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 20),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            GridView.builder(
-                              shrinkWrap: true,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                              ),
-                              itemCount: 4,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Container(
-                                  color: Colors.orange,
-                                  child: Center(
-                                    child: Text(
-                                      'Saved $index',
-                                      style: const TextStyle(
-                                          color: Colors.white, fontSize: 20),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
+                        height: 30,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.all(5)),
+                          onPressed: () {},
+                          child: const Text('Edit Profile',
+                              style: TextStyle(fontSize: 12)),
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Expanded(
+                      flex: 10,
+                      child: SizedBox(
+                        height: 30,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.all(5)),
+                          onPressed: () {},
+                          child: const Text('Social Links',
+                              style: TextStyle(fontSize: 12)),
                         ),
                       ),
                     ),
                   ],
                 ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ActivityTab extends StatelessWidget {
+  const ActivityTab({
+    super.key, required this.createdPosts,
+  });
+
+  final List? createdPosts;
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: SizedBox(
+        child: Column(
+          children: [
+            Expanded(
+              child: SizedBox(
+                width: width(context),
+                child: TabBarView(
+                  children: [
+                    GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2, childAspectRatio: 3/4
+                      ),
+                      itemCount: createdPosts?.length ?? 0,
+                      itemBuilder: (BuildContext context, int index) {
+                        DocumentReference post = createdPosts?[index];
+                        return StreamBuilder<DocumentSnapshot>(
+                          stream: post.snapshots(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return GestureDetector(
+                                onTap: () => showDialog(context: 
+                                context, builder: (context) => AlertDialog(
+                                  contentPadding: const EdgeInsets.all(0),
+                                  content: FeedImage(snapshot: snapshot.data!,),
+                                )),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(snapshot.data!.get
+                                        ('image'))
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                            else if (snapshot.hasError) {
+                              return Center(child: Text('Something went '
+                                  'wrong'));
+                            } else {
+                              return Center(child: CircularProgressIndicator());
+                            }
+                          }
+                        );
+                      },
+                    ),
+                    GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                      ),
+                      itemCount: 8,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          color: Colors.red,
+                          child: Center(
+                            child: Text(
+                              'Liked $index',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 20),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                      ),
+                      itemCount: 9,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Container(
+                          color: Colors.orange,
+                          child: Center(
+                            child: Text(
+                              'Saved $index',
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 20),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
+                  ],
+                ),
               ),
+            ),
+            TabBar(
+              tabs: const [
+                Tab(icon: Icon(Icons.place),),
+                Tab(icon: Icon(Icons.favorite)),
+                Tab(icon: Icon(Icons.bookmark)),
+              ],
+              labelColor: Theme.of(context).colorScheme.secondary,
+              unselectedLabelColor: Theme.of(context)
+                  .colorScheme
+                  .secondary
+                  .withOpacity(0.375),
             ),
           ],
         ),
