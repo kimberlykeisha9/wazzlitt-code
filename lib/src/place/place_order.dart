@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../app.dart';
 
 class PlaceOrder extends StatefulWidget {
-  const PlaceOrder({super.key, required this.orderType, required this.orderTitle});
+  const PlaceOrder({super.key, required this.orderType, required this
+      .orderTitle, this.event, this.place});
 
   final OrderType orderType;
   final String orderTitle;
+  final Map<String, dynamic>? event;
+  final Map<String, dynamic>? place;
 
   @override
   State<PlaceOrder> createState() => _PlaceOrderState();
 }
 
 class _PlaceOrderState extends State<PlaceOrder> {
+  List<dynamic>? tickets = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    tickets = widget.event?['tickets'] ?? [];
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,81 +43,120 @@ class _PlaceOrderState extends State<PlaceOrder> {
               ? 'Choose which services you would like to order'
               : 'Choose which tickets you would like to order'),
           const Spacer(),
-          ListView.builder(
+          widget.orderType == OrderType.event ? ListView.builder(
             shrinkWrap: true,
-            itemCount: 4,
+            itemCount: tickets?.length ?? 0,
             itemBuilder: (context, index) {
-              int quantity = 1;
-
-              void increment() {
-                setState(() {
-                  quantity++;
-                });
-              }
-
-              void decrement() {
-                if (quantity > 1) {
-                  setState(() {
-                    quantity--;
-                  });
-                }
-              }
-
+              Selector ticket = Selector(item: tickets![index]);
+              // var ticket = tickets![index];
+              return SizedBox(
+                width: width(context),
+                child: ListTile(
+                        title: Text(ticket.item!['name']),
+                        subtitle: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(ticket.item!.containsKey('price') ? '\$'
+                '${double.parse(ticket.item!['price'].toString())
+                                .toStringAsFixed
+                  (2)}'
+                    : 'Free'),
+                            // Text(ticket.containsKey('description') ?
+                            // ticket['description'] : ''),
+                          ],
+                        ),
+                        leading:
+                        ticket.item!.containsKey('description') ? Tooltip
+                          (message: ticket.item!['description'], child: const
+                        Icon
+                          (Icons.info_outline)) :
+                        const SizedBox(),
+                        trailing: ticket.item!['quantity'] > 0 ? Row(
+                          mainAxisSize: MainAxisSize.min,                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.remove),
+                              onPressed: () {
+                                setState(() {
+                                  ticket.quantity = ticket.quantity - 1;
+                                });
+                              },
+                            ),
+                            Text(
+                              ticket.quantity.toString(),
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.add),
+                              onPressed: () {
+                                setState(() {
+                                  ticket.quantity = ticket.quantity + 1;
+                                });
+                              },
+                            ),
+                          ],
+                        ) : const Text('Sold Out')),
+              );
+            },
+          ) : ListView.builder(
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              int quantity = 0;
               return widget.orderType == OrderType.service
                   ? ListTile(
-                      title: Text('Service $index'),
-                      subtitle: const Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('\$ 0.00'),
-                          Text('Service description'),
-                        ],
+                  title: Text('Service $index'),
+                  subtitle: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('\$ 0.00'),
+                      Text('Service description'),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {},
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove),
-                            onPressed: decrement,
-                          ),
-                          Text(
-                            quantity.toString(),
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: increment,
-                          ),
-                        ],
-                      ))
+                      Text(
+                        quantity.toString(),
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ))
                   : ListTile(
-                      title: Text('Ticket Type $index'),
-                      subtitle: const Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('\$ 0.00'),
-                          Text('Ticket type description'),
-                        ],
+                  title: Text('Ticket Type $index'),
+                  subtitle: const Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('\$ 0.00'),
+                      Text('Ticket type description'),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.remove),
+                        onPressed: () {},
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.remove),
-                            onPressed: decrement,
-                          ),
-                          Text(
-                            quantity.toString(),
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.add),
-                            onPressed: increment,
-                          ),
-                        ],
-                      ));
+                      Text(
+                        quantity.toString(),
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.add),
+                        onPressed: () {},
+                      ),
+                    ],
+                  ));
             },
           ),
           const Spacer(flex: 3),
@@ -128,3 +179,19 @@ class _PlaceOrderState extends State<PlaceOrder> {
     );
   }
 }
+ class Selector extends ChangeNotifier {
+  int quantity = 0;
+  final Map<String, dynamic>? item;
+
+  Selector({this.item});
+
+  increment() {
+    quantity + 1;
+    notifyListeners();
+  }
+
+  decrement() {
+    quantity - 1;
+    notifyListeners();
+  }
+ }

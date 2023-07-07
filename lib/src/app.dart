@@ -20,6 +20,7 @@ import 'registration/interests.dart';
 import 'settings/settings.dart';
 import 'settings/settings_controller.dart';
 import 'registration/sign_up.dart';
+import 'place/place_order.dart' as wazzlitt_place;
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -35,7 +36,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(providers: [
-      ChangeNotifierProvider<Data>(create: (_) => Data())
+      ChangeNotifierProvider<Data>(create: (_) => Data()),
+      ChangeNotifierProvider<wazzlitt_place.Selector>(create: (_)
+      => wazzlitt_place
+          .Selector()),
     ],
       child: AnimatedBuilder(
         animation: settingsController,
@@ -99,7 +103,7 @@ class MyApp extends StatelessWidget {
               'settings': (context) => const Settings(),
               'orders': (context) => const Orders(),
               'confirmed': (context) => const ConfirmedOrder(),
-              'dashboard': (context) => Dashboard(),
+              'dashboard': (context) => const Dashboard(),
               'igniter_dashboard': (context) => const IgniterDashboard(),
               // 'place_order': (context) => PlaceOrder(),
             },

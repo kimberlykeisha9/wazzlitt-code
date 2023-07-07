@@ -1,4 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:wazzlitt/src/event/event.dart';
 
 import '../../user_data/user_data.dart';
 import '../app.dart';
@@ -66,7 +70,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
           child: TabBarView(
             controller: _exploreController,
             children: [
-              LitTab(),
+              const LitTab(),
               PlacesTab(categories: categories),
             ],
           ),
@@ -206,157 +210,133 @@ class LitTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: width(context) * 0.5,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 2,
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Container(
-                  height: width(context) * 0.5,
-                  width: width(context) * 0.5,
-                  color: Colors.indigo,
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Event $index',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+    return FutureBuilder<QuerySnapshot>(
+      future: firestore.collection('events').get(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          List<QueryDocumentSnapshot> docList = snapshot.data!.docs;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: width(context) * 0.5,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 2,
+                  itemBuilder: (context, index) {
+                    print(docList);
+                    Map<String, dynamic> result = docList[index].data() as
+                    Map<String, dynamic>;
+                    return GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => Event(event: result))),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Container(
+                          height: width(context) * 0.5,
+                          width: width(context) * 0.5,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(result['image']),
+                            )
+                          ),
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                result['event_name'],
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                result['category'],
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Description $index',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-        ),
-        const Text('Upcoming Events',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        Expanded(
-          child: SizedBox(
-            child: ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.all(10),
-                child: ListTile(
-                  onTap: () => {
-                    showModalBottomSheet(
-                      useSafeArea: true,
-                      isScrollControlled: true,
-                      context: context,
-                      builder: (context) => Container(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
+              ),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                child: Text('Upcoming Events',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              Expanded(
+                child: SizedBox(
+                  child: ListView.builder(
+                    itemCount: docList.length,
+                    itemBuilder: (context, index) {
+                      Map<String, dynamic> event = docList[index].data() as
+                      Map<String, dynamic>;
+                      return Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: ListTile(
+                        visualDensity: VisualDensity.standard,
+                        onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Event(event: event))),
+                        leading: SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: Hero(
+                            tag: 'event-image',
+                            child: Image.network(event['image'], fit: BoxFit
+                                .cover,),
+                          ),
+                        ),
+                        title: Text(event['event_name'],
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold)),
+                        trailing: Text((event.containsKey('price')) ? '\$'
+                            '${double.parse(event['price'].toString()).toStringAsFixed(2)}'
+                            : 'Free',
+                            style: TextStyle
+                              (fontSize: 14, fontWeight: FontWeight.bold)),
+                        subtitle: Wrap(
+                          direction: Axis.vertical,
                           children: [
-                            const Icon(Icons.park, size: 80),
-                            const SizedBox(height: 10),
-                            Text('Event $index',
-                                style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Event $index location',
-                            ),
-                            const Text('0 km away',
+                            Text((event.containsKey('date')) ?
+                            DateFormat.yMEd().format((event['date'] as Timestamp)
+                                .toDate())
+                          : 'Date TBA',
+                                style: TextStyle(fontSize: 16)),
+                            SizedBox(height: 2),
+                            Text((event.containsKey('location')) ?
+                            event['location']
+                                : 'Location TBA',
                                 style: TextStyle(fontSize: 14)),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Event $index date',
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              'Event $index price',
-                            ),
-                            const Text('Original price',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    decoration:
-                                        TextDecoration.lineThrough)),
-                            const SizedBox(height: 30),
-                            SizedBox(
-                              width: width(context),
-                              child: ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            PlaceOrder(
-                                                orderType:
-                                                    OrderType.event,
-                                                orderTitle:
-                                                    'Event $index'),
-                                      ),
-                                    );
-                                  },
-                                  child: const Text('Buy Tickets')),
-                            ),
-                            const SizedBox(height: 30),
-                            Text('About Event $index',
-                                style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 10),
-                            const Text(
-                                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent porta, libero at ultricies lacinia, diam sapien lacinia mi, quis aliquet diam ex et massa. Sed a tellus ac tortor placerat rutrum in non nunc. Mauris porttitor dapibus neque, at efficitur erat hendrerit nec. Cras mollis volutpat eros, vestibulum accumsan arcu rutrum a.'),
-                            const SizedBox(height: 10),
-                            const Chip(label: Text('Category')),
-                            const SizedBox(height: 10),
-                            const Text('Organizer',
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold)),
-                            ListTile(
-                              leading: const Icon(Icons.park),
-                              title: const Text('Organizer name'),
-                              subtitle: const Text('Category'),
-                              trailing: TextButton(
-                                  onPressed: () {},
-                                  child: const Text('Follow')),
-                            ),
                           ],
                         ),
                       ),
-                    ),
-                  },
-                  leading: const Icon(Icons.park),
-                  title: Text('Event $index',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold)),
-                  subtitle: const Wrap(
-                    direction: Axis.vertical,
-                    children: [
-                      Text('01/01/1980',
-                          style: TextStyle(fontSize: 14)),
-                      Text('\$0.00', style: TextStyle(fontSize: 14)),
-                    ],
+                    );
+                    },
                   ),
                 ),
               ),
-            ),
-          ),
-        ),
-      ],
+            ],
+          );
+        }
+        return Center(
+          child: CircularProgressIndicator()
+        );
+      }
     );
   }
 }

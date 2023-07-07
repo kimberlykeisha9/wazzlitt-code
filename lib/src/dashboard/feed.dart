@@ -23,7 +23,8 @@ class _FeedState extends State<Feed> {
           descending: true).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          Provider.of<Data>(context).updateData(snapshot.data!.docs);
+          Provider.of<Data>(context, listen: false).updateData(snapshot.data!
+              .docs);
           return PageView.builder(
             scrollDirection: Axis.vertical,
             physics: const BouncingScrollPhysics(),
@@ -49,6 +50,6 @@ class Data extends ChangeNotifier {
 
   void updateData(List<QueryDocumentSnapshot<Object?>> data) {
     _feedData = data;
-    notifyListeners(); // Notify listeners when the state changes
+    // notifyListeners(); // Notify listeners when the state changes
   }
 }

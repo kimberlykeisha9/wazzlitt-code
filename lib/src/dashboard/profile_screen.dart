@@ -114,11 +114,15 @@ class ProfileTab extends StatelessWidget {
               Container(
                 width: width(context),
                 height: 150,
-                color: Colors.grey,
-                child: ((coverPhoto == null) ? const Center(child:
-                Text('Upload a cover photo')) :
-                NetworkImage(
-                  coverPhoto!)) as Widget),
+                decoration: BoxDecoration(
+                    color: Colors.grey,
+                  image: coverPhoto != null ? DecorationImage(
+                    fit: BoxFit.cover,
+                    image: NetworkImage(
+                      coverPhoto!
+                    )
+                  ) : null
+                ),),
               Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
@@ -164,36 +168,39 @@ class ProfileTab extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text('@$username', style: TextStyle(fontSize:
                 12)),
-                const SizedBox(height: 10),
-                const Text('User Bio'),
-                const SizedBox(height: 10),
-                const Text('Star Sign', style: TextStyle(fontSize: 12)),
-                const Text('Capricorn',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Column(
                       children: [
-                        Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('0', style: TextStyle(fontWeight: FontWeight
+                            .bold, fontSize: 18)),
                         Text('Posts', style: TextStyle(fontSize: 14)),
                       ],
                     ),
                     Column(
                       children: [
-                        Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('0', style: TextStyle(fontWeight: FontWeight
+                            .bold, fontSize: 18)),
                         Text('Followers', style: TextStyle(fontSize: 14)),
                       ],
                     ),
                     Column(
                       children: [
-                        Text('0', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text('0', style: TextStyle(fontWeight: FontWeight
+                            .bold, fontSize: 18)),
                         Text('Following', style: TextStyle(fontSize: 14)),
                       ],
                     ),
                   ],
                 ),
+                const SizedBox(height: 20),
+                Text(bio ?? 'No Bio', textAlign: TextAlign.center),
+                const SizedBox(height: 20),
+                const Text('Star Sign', style: TextStyle(fontSize: 12)),
+                const Text('Capricorn',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 20),
                 Flexible(
                   child: SizedBox(

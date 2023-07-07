@@ -73,9 +73,22 @@ class _FeedImageState extends State<FeedImage> {
   Widget likeIcon() {
     List<dynamic> likes = widget.snapshot.get('likes');
     if(likes.contains(currentUserProfile)) {
-      return Icon(Icons.favorite, color: Colors.red);
+      return const Icon(Icons.favorite, color: Colors.red);
     } else {
-      return Icon(Icons.favorite_outline, color: Colors.white);
+      return const Icon(Icons.favorite_outline, color: Colors.white);
+    }
+  }
+
+  Future<void> _likeImage() async {
+    List<dynamic> likes = widget.snapshot.get('likes');
+    if(likes.contains(currentUserProfile)) {
+      await widget.snapshot.reference.update({
+        'likes': FieldValue.arrayRemove([currentUserProfile])
+      });
+    } else {
+      await widget.snapshot.reference.update({
+        'likes': FieldValue.arrayUnion([currentUserProfile])
+      });
     }
   }
   String? selectedReason;
@@ -114,7 +127,7 @@ class _FeedImageState extends State<FeedImage> {
                             Column(
                               children: [
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () => _likeImage(),
                                   icon: likeIcon(),
                                 ),
                                 Text('${(snapshot.data!.get('likes') as
@@ -177,7 +190,7 @@ class _FeedImageState extends State<FeedImage> {
                                           ('username') as
                                         String?)
                                             ?? 'null',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold)),
                                         Text(DateFormat('hh:mm, EEE d MMM').format
@@ -215,14 +228,14 @@ class _FeedImageState extends State<FeedImage> {
                         ),
                         child:  Row(
                           children: [
-                            Icon(Icons.place, color: Colors.white),
-                            Spacer(),
+                            const Icon(Icons.place, color: Colors.white),
+                            const Spacer(),
                             Text(location ?? '',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white)),
-                            Spacer(flex: 16),
-                            Text('0 km away', style: TextStyle(color: Colors.white)),
+                            const Spacer(flex: 16),
+                            const Text('0 km away', style: TextStyle(color: Colors.white)),
                           ],
                         ),
                       ),
@@ -235,9 +248,9 @@ class _FeedImageState extends State<FeedImage> {
         } else if (
         snapshot.hasError
         ) {
-          return Center(child: Text('Something went wrong'));
+          return const Center(child: Text('Something went wrong'));
         } else {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
       }
     );
