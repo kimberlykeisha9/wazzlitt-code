@@ -7,20 +7,22 @@ class Dashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-        return Scaffold(
-          body: StreamBuilder<DocumentSnapshot>(
-        stream: currentUserProfile.snapshots(),
-    builder: (context, snapshot) {
-      if (snapshot.hasData) {
-        Map<String, dynamic>? data = snapshot.data!.data() as Map<String,
-            dynamic>;
-        print(data);
-        if (data.containsKey('is_patrone') && data.containsKey('is_igniter')) {
-          print('User is patrone and igniter');
-        }
-      }
-      return Placeholder();
-      }
-          ),);
+    return Scaffold(
+      body: StreamBuilder<DocumentSnapshot>(
+          stream: currentUserProfile.snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              Map<String, dynamic>? data = snapshot.data!.data() as Map<String,
+                  dynamic>;
+              print(data);
+              if (data.containsKey('is_patrone') &&
+                  data.containsKey('is_igniter')) {
+                print('User is patrone and igniter');
+              }
+            }
+            return Placeholder();
+          }
+      ),
+    );
+  }
 }
