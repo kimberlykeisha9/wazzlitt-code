@@ -1,14 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import '../app.dart';
 import 'place_order.dart';
 
 class Place extends StatelessWidget {
-  const Place({super.key, this.placeName, this.category});
+  const Place({super.key, required this.place});
 
-  final String? placeName;
-  final String? category;
+  final Map<String, dynamic> place;
 
   void _shareOnFacebook() {
     Share.share('Shared on Facebook');
@@ -22,7 +23,7 @@ class Place extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(placeName ?? 'Null'),
+        title: Text(place['place_name'] ?? 'Null'),
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
@@ -75,7 +76,16 @@ class Place extends StatelessWidget {
                     Container(
                       width: width(context),
                       height: 150,
-                      color: Colors.grey,
+                      decoration: BoxDecoration(
+                          color: Colors.grey,
+                          image: place.containsKey('cover_image')
+                              ? DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(
+                                    place['cover_image'],
+                                  ),
+                                )
+                              : null),
                     ),
                     Align(
                       alignment: Alignment.bottomCenter,
@@ -85,6 +95,14 @@ class Place extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.grey[800],
                           shape: BoxShape.circle,
+                            image: place.containsKey('image')
+                                ? DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(
+                                place['image'],
+                              ),
+                            )
+                                : null
                         ),
                       ),
                     ),
@@ -95,13 +113,13 @@ class Place extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Text(placeName ?? 'Null',
+                    Text(place['place_name'] ?? 'Null',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         )),
-                    Chip(label: Text(category ?? 'Null')),
-                    const Text('Open - 08:00 AM to 08:00 PM'),
+                    Chip(label: Text(place['category'] ?? 'Null')),
+                    Text('Open - ${DateFormat('hh:mm a').format(((place['opening_time']) as Timestamp).toDate())} to ${DateFormat('hh:mm a').format(((place['closing_time']) as Timestamp).toDate())}'),
                     const SizedBox(height: 5),
                     const Text('Popularity: 95%',
                         style: TextStyle(fontWeight: FontWeight.bold)),
@@ -152,34 +170,41 @@ class Place extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 30),
-                    Text('About ${placeName ?? 'Null'}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                        )),
-                    const SizedBox(height: 10),
-                    const Text(
-                        'Lorem ipsum dolor sit amet, consectetur adipiscing '
-                        'elit. Praesent porta, libero at ultricies '
-                        'lacinia, diam sapien lacinia mi, quis aliquet '
-                        'diam ex et massa. Sed a tellus ac tortor '
-                        'placerat rutrum in non nunc.',
-                        textAlign: TextAlign.center),
-                    const SizedBox(height: 10),
-                    TextButton(
+                    Container(
+                      padding: const EdgeInsets.all(30),
+                      decoration: BoxDecoration(
+                        border: Border.all(),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Column(
+                        children: [
+                          Text('About ${place['place_name'] ?? 'Null'}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              )),
+                          const SizedBox(height: 10),
+                          Text(place['place_description'],
+                              textAlign: TextAlign.center),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    place.containsKey('services') ? TextButton(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => PlaceOrder(
                                 orderType: OrderType.service,
-                                orderTitle: placeName ?? ''),
+                                orderTitle: place['place_name'],
+                                place: place),
                           ),
                         );
                       },
                       child: const Text('Check out our services'),
-                    ),
-                    const SizedBox(height: 10),
+                    ) : const SizedBox(),
+                    place.containsKey('services') ? const SizedBox(height: 10) : const SizedBox(),
                     const Text('Location',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const Text('Street Name', style: TextStyle(fontSize: 12)),
@@ -228,4 +253,3 @@ class Place extends StatelessWidget {
     );
   }
 }
-

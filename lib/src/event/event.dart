@@ -21,7 +21,7 @@ class Event extends StatelessWidget {
           children: [
             SizedBox(height: height(context)*0.5, width: width(context),child:
             Hero(
-              tag: 'event-image',
+              tag: event['event_name'],
               child: Image
                   .network(event['image'], fit: BoxFit
                   .cover),

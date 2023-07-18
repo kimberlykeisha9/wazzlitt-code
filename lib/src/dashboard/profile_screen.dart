@@ -319,7 +319,7 @@ class ActivityTab extends StatelessWidget {
                       stream: firestore.collection('feed').where('likes',
                           arrayContains: currentUserProfile).snapshots(),
                       builder: (context, likedPosts) {
-                        List<QueryDocumentSnapshot<Object?>> liked = likedPosts
+                        List<QueryDocumentSnapshot<Object?>>? liked = likedPosts
                             .data?.docs;
                         return GridView.builder(
                           gridDelegate:

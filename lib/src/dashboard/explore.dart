@@ -40,6 +40,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
       });
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -90,110 +91,107 @@ class PlacesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      Expanded(
-        flex: 2,
-        child: SizedBox(
-          child: ListView.builder(
-            itemCount: categories.length,
-            itemBuilder: (BuildContext context, int index) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 10),
-                  Text(categories[index].display,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold)),
-                  SizedBox(
-                    height: 20,
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                          padding: const EdgeInsets.all(0)),
-                      onPressed: () {},
-                      child: const Text('See more',
-                          style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 14)),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: width(context),
-                    height: 190,
-                    child: ListView.builder(
-                      itemCount: 3,
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, i) {
-                        return GestureDetector(
-                          onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => Place(
-                                      placeName: 'Place $i',
-                                      category: categories[index].display))),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                height: width(context) / 3,
-                                width: width(context) / 3,
-                                color: Colors.indigo,
-                              ),
-                              Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.center,
-                                children: [
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    'Place $i',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  // SizedBox(height: ),
-                                  const Text(
-                                    '0 km away',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                ],
-              );
-            },
-          ),
-        ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+      const Padding(
+        padding: EdgeInsets.all(20),
+        child: Text('Featured Places',
+            style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      const SizedBox(height: 10),
-      const Text('Nearby Places',
-          style: TextStyle(fontWeight: FontWeight.bold)),
-      const SizedBox(height: 10),
-      Flexible(
-        child: SizedBox(
-          child: ListView.builder(
-            itemCount: 2,
-            itemBuilder: (context, index) => Padding(
-              padding: const EdgeInsets.all(10),
-              child: ListTile(
-                leading: const Icon(Icons.place),
-                title: Text('Place $index',
-                    style:
-                        const TextStyle(fontWeight: FontWeight.bold)),
-                subtitle: const Wrap(
-                  direction: Axis.vertical,
-                  children: [
-                    Text('Location', style: TextStyle(fontSize: 14)),
-                    Text('0 km away', style: TextStyle(fontSize: 14)),
-                  ],
+      FutureBuilder<QuerySnapshot>(
+          future: firestore.collection('places').get(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              List<QueryDocumentSnapshot> placesList = snapshot.data!.docs;
+              return GridView.builder(
+                shrinkWrap: true,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1,
                 ),
+                itemCount: 4,
+                itemBuilder: (BuildContext context, int index) {
+                  print(placesList);
+                  Map<String, dynamic> place =
+                      placesList[index].data() as Map<String, dynamic>;
+                  return GestureDetector(
+                    onTap: () => Navigator.push(
+                        context,
+                        CupertinoPageRoute(
+                            builder: (context) => Place(place: place))),
+                    child: Container(
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(place['image']),
+                          )),
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.white),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: const EdgeInsets.all(5),
+                              child: Text(place['category'], style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                              ),),
+                            ),
+                          ),
+                          Spacer(),
+                          Text(
+                            place['place_name'],
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            '0 km away',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+            return Center(child: CircularProgressIndicator());
+          }),
+          const Padding(
+            padding: EdgeInsets.all(20),
+            child: Text('Nearby Places',
+                style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+      SizedBox(
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: 2,
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.all(10),
+            child: ListTile(
+              leading: const Icon(Icons.place),
+              title: Text('Place $index',
+                  style: const TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Wrap(
+                direction: Axis.vertical,
+                children: [
+                  Text('Location', style: TextStyle(fontSize: 14)),
+                  Text('0 km away', style: TextStyle(fontSize: 14)),
+                ],
               ),
             ),
           ),
@@ -211,132 +209,135 @@ class LitTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<QuerySnapshot>(
-      future: firestore.collection('events').get(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          List<QueryDocumentSnapshot> docList = snapshot.data!.docs;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: width(context) * 0.5,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 2,
-                  itemBuilder: (context, index) {
-                    print(docList);
-                    Map<String, dynamic> result = docList[index].data() as
-                    Map<String, dynamic>;
-                    return GestureDetector(
-                      onTap: () => Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (context) => Event(event: result))),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Container(
-                          height: width(context) * 0.5,
-                          width: width(context) * 0.5,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(result['image']),
-                            )
-                          ),
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                result['event_name'],
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                result['category'],
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                child: Text('Upcoming Events',
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-              Expanded(
-                child: SizedBox(
+        future: firestore.collection('events').get(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<QueryDocumentSnapshot> docList = snapshot.data!.docs;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: width(context) * 0.5,
                   child: ListView.builder(
-                    itemCount: docList.length,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 2,
                     itemBuilder: (context, index) {
-                      Map<String, dynamic> event = docList[index].data() as
-                      Map<String, dynamic>;
-                      return Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: ListTile(
-                        visualDensity: VisualDensity.standard,
+                      print(docList);
+                      Map<String, dynamic> result =
+                          docList[index].data() as Map<String, dynamic>;
+                      return GestureDetector(
                         onTap: () => Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => Event(event: event))),
-                        leading: SizedBox(
-                          width: 80,
-                          height: 80,
-                          child: Hero(
-                            tag: 'event-image',
-                            child: Image.network(event['image'], fit: BoxFit
-                                .cover,),
+                            CupertinoPageRoute(
+                                builder: (context) => Event(event: result))),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Container(
+                            height: width(context) * 0.5,
+                            width: width(context) * 0.5,
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(result['image']),
+                            )),
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  result['event_name'],
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  result['category'],
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                        title: Text(event['event_name'],
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold)),
-                        trailing: Text((event.containsKey('price')) ? '\$'
-                            '${double.parse(event['price'].toString()).toStringAsFixed(2)}'
-                            : 'Free',
-                            style: TextStyle
-                              (fontSize: 14, fontWeight: FontWeight.bold)),
-                        subtitle: Wrap(
-                          direction: Axis.vertical,
-                          children: [
-                            Text((event.containsKey('date')) ?
-                            DateFormat.yMEd().format((event['date'] as Timestamp)
-                                .toDate())
-                          : 'Date TBA',
-                                style: TextStyle(fontSize: 16)),
-                            SizedBox(height: 2),
-                            Text((event.containsKey('location')) ?
-                            event['location']
-                                : 'Location TBA',
-                                style: TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                      ),
-                    );
+                      );
                     },
                   ),
                 ),
-              ),
-            ],
-          );
-        }
-        return Center(
-          child: CircularProgressIndicator()
-        );
-      }
-    );
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                  child: Text('Upcoming Events',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                Expanded(
+                  child: SizedBox(
+                    child: ListView.builder(
+                      itemCount: docList.length,
+                      itemBuilder: (context, index) {
+                        Map<String, dynamic> event =
+                            docList[index].data() as Map<String, dynamic>;
+                        return Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: ListTile(
+                            visualDensity: VisualDensity.standard,
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Event(event: event))),
+                            leading: SizedBox(
+                              width: 80,
+                              height: 80,
+                              child: Hero(
+                                tag: event['event_name'],
+                                child: Image.network(
+                                  event['image'],
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            title: Text(event['event_name'],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold)),
+                            trailing: Text(
+                                (event.containsKey('price'))
+                                    ? '\$'
+                                        '${double.parse(event['price'].toString()).toStringAsFixed(2)}'
+                                    : 'Free',
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold)),
+                            subtitle: Wrap(
+                              direction: Axis.vertical,
+                              children: [
+                                Text(
+                                    (event.containsKey('date'))
+                                        ? DateFormat.yMEd().format(
+                                            (event['date'] as Timestamp)
+                                                .toDate())
+                                        : 'Date TBA',
+                                    style: TextStyle(fontSize: 16)),
+                                SizedBox(height: 2),
+                                Text(
+                                    (event.containsKey('location'))
+                                        ? event['location']
+                                        : 'Location TBA',
+                                    style: TextStyle(fontSize: 14)),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+          return Center(child: CircularProgressIndicator());
+        });
   }
 }

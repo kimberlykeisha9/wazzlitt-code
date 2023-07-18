@@ -31,7 +31,7 @@ class PhoneVerification extends StatefulWidget {
   final String _direction;
 
   final PageController _pageController;
-  PhoneVerification({
+  const PhoneVerification({
     super.key,
     required String direction,
     required PageController pageController,

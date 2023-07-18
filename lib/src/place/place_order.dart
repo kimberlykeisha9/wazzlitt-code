@@ -17,12 +17,14 @@ class PlaceOrder extends StatefulWidget {
 
 class _PlaceOrderState extends State<PlaceOrder> {
   List<dynamic>? tickets = [];
+  List<dynamic>? services = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     tickets = widget.event?['tickets'] ?? [];
+    services = widget.place?['services'] ?? [];
   }
   @override
   Widget build(BuildContext context) {
@@ -100,6 +102,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
             },
           ) : ListView.builder(
             shrinkWrap: true,
+            itemCount: 2,
             itemBuilder: (context, index) {
               int quantity = 0;
               return widget.orderType == OrderType.service

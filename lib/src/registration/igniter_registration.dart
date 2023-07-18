@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../app.dart';
 
-class IgniterRegistration extends StatelessWidget {
+class IgniterRegistration extends StatefulWidget {
   const IgniterRegistration({super.key});
 
+  @override
+  State<IgniterRegistration> createState() => _IgniterRegistrationState();
+}
+
+class _IgniterRegistrationState extends State<IgniterRegistration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +30,7 @@ class IgniterRegistration extends StatelessWidget {
             Expanded(
               flex: 5,
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
+                onTap: () => Navigator.pushNamed(context, 'igniter_profile', arguments: 'event_organizer'),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
@@ -58,7 +63,7 @@ class IgniterRegistration extends StatelessWidget {
             Expanded(
               flex: 5,
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
+                onTap: () => Navigator.pushNamed(context, 'igniter_profile', arguments: 'business_owner'),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
@@ -91,7 +96,7 @@ class IgniterRegistration extends StatelessWidget {
             Expanded(
               flex: 5,
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, 'igniter_profile'),
+                onTap: () => Navigator.pushNamed(context, 'igniter_profile', arguments: 'individual'),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),

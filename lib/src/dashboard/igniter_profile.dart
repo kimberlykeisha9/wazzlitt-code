@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -21,15 +22,33 @@ class _IgniterProfileState extends State<IgniterProfile> {
   TextEditingController _websiteController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
+  TextEditingController _locationController = TextEditingController();
+
+  final List<String> dropdownOptions = [
+    'Restaurant',
+    'Club',
+    'Bar',
+    'Lounge',
+    'Outdoor',
+    'Family Friendly',
+  ];
+  String? selectedOption;
 
   File? _coverPhoto;
   File? _profilePicture;
-  String _selectedChip = '';
+  String? _selectedChip;
+  String? igniterType = '';
 
   List<Category> categories = [];
 
   @override
   void initState() {
+      WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
+        setState(() {
+          igniterType = ModalRoute.of(context)!.settings.arguments as String;
+          print(igniterType);
+        });
+      });
     super.initState();
     _formKey = GlobalKey<FormState>();
     _nameController = TextEditingController();
@@ -37,6 +56,13 @@ class _IgniterProfileState extends State<IgniterProfile> {
     _websiteController = TextEditingController();
     _descriptionController = TextEditingController();
     _emailController = TextEditingController();
+    _locationController = TextEditingController();
+      WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
+        setState(() {
+          igniterType = ModalRoute.of(context)!.settings.arguments as String;
+          print(igniterType);
+        });
+      });
     firestore.collection('app_data').doc('categories').get().then((value) {
       var data = value.data() as Map<String, dynamic>;
       data.forEach((key, value) {
@@ -118,12 +144,13 @@ class _IgniterProfileState extends State<IgniterProfile> {
                         decoration: BoxDecoration(
                           color: Colors.grey[350],
                           shape: BoxShape.circle,
+                          image:  _profilePicture != null ? DecorationImage(
+                            fit: BoxFit.cover,
+                            image: FileImage(_profilePicture!)
+                          ) : null,
                         ),
                         child: _profilePicture != null
-                            ? Image.file(
-                                _profilePicture!,
-                                fit: BoxFit.cover,
-                              )
+                            ? SizedBox()
                             : const Icon(Icons.person),
                       ),
                     ),
@@ -157,6 +184,34 @@ class _IgniterProfileState extends State<IgniterProfile> {
                         textCapitalization: TextCapitalization.words,
                       ),
                       const Padding(padding: EdgeInsets.only(top: 15)),
+                  Container(
+                    width: width(context),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    decoration: BoxDecoration(
+                      border: Border.all(),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      underline: SizedBox(),
+                      hint: Text('Select your business type'),
+                      value: selectedOption,
+                      onChanged: (newValue) {
+                        setState(() {
+                          selectedOption = newValue;
+                        });
+                        // Perform any desired action when the option is selected
+                        print(selectedOption);
+                      },
+                      items: dropdownOptions.map((String option) {
+                        return DropdownMenuItem<String>(
+                          value: option,
+                          child: Text(option),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                      const Padding(padding: EdgeInsets.only(top: 15)),
                       Text(AppLocalizations.of(context)!.selectCategory,
                           style: const TextStyle(fontSize: 12)),
                       const Padding(padding: EdgeInsets.only(top: 15)),
@@ -184,21 +239,21 @@ class _IgniterProfileState extends State<IgniterProfile> {
                         ),
                       ),
                       const Padding(padding: EdgeInsets.only(top: 15)),
-                      TextFormField(
+                      IntlPhoneField(
                         controller: _phoneController,
+                        decoration: InputDecoration(
+                            labelText: AppLocalizations.of(context)!.phone,
+                            ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (phone) {
+                          storeData('phone', phone.completeNumber);
+                        },
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if (value == null) {
                             return 'Phone number is required';
                           }
-                          if (value.length != 9) {
-                            return 'Please enter a valid phone number';
-                          }
-                          return null;
+                          return null; // Return null if the input is valid
                         },
-                        maxLength: 9,
-                        decoration: InputDecoration(
-                            labelText: AppLocalizations.of(context)!.phone),
-                        keyboardType: TextInputType.phone,
                       ),
                       const Padding(padding: EdgeInsets.only(top: 15)),
                       TextFormField(
@@ -213,6 +268,19 @@ class _IgniterProfileState extends State<IgniterProfile> {
                             labelText: AppLocalizations.of(context)!.website),
                         keyboardType: TextInputType.url,
                       ),
+                      igniterType == 'business_owner' ? const Padding(padding: EdgeInsets.only(top: 15)) : SizedBox(),
+                      igniterType == 'business_owner' ? TextFormField(
+                        controller: _locationController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Location is required';
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                            labelText: 'Location'),
+                        keyboardType: TextInputType.streetAddress,
+                      ) : SizedBox(),
                       const Padding(padding: EdgeInsets.only(top: 15)),
                       TextFormField(
                         controller: _descriptionController,
@@ -258,7 +326,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_profilePicture != null && _coverPhoto != null) {
-                    if (categories.contains(_selectedChip)) {
+                    if (_selectedChip != null) {
                       if (_formKey.currentState!.validate()) {
                         showDialog(
                           context: context,
