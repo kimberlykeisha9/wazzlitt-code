@@ -183,13 +183,13 @@ class _IgniterProfileState extends State<IgniterProfile> {
                         keyboardType: TextInputType.text,
                         textCapitalization: TextCapitalization.words,
                       ),
-                      const Padding(padding: EdgeInsets.only(top: 15)),
-                  Container(
+                      igniterType == 'business_owner' ? const Padding(padding: EdgeInsets.only(top: 15)) : SizedBox(),
+                      igniterType == 'business_owner' ? Container(
                     width: width(context),
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
                     decoration: BoxDecoration(
                       border: Border.all(),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                     child: DropdownButton<String>(
                       isExpanded: true,
@@ -210,7 +210,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                         );
                       }).toList(),
                     ),
-                  ),
+                  ) : const SizedBox(),
                       const Padding(padding: EdgeInsets.only(top: 15)),
                       Text(AppLocalizations.of(context)!.selectCategory,
                           style: const TextStyle(fontSize: 12)),
@@ -326,32 +326,41 @@ class _IgniterProfileState extends State<IgniterProfile> {
               child: ElevatedButton(
                 onPressed: () {
                   if (_profilePicture != null && _coverPhoto != null) {
-                    if (_selectedChip != null) {
-                      if (_formKey.currentState!.validate()) {
-                        showDialog(
-                          context: context,
-                          builder: (_) => AlertDialog(
-                            title: Text(
-                              AppLocalizations.of(context)!.createIgniter,
-                              textAlign: TextAlign.center,
-                            ),
-                            content: Text(
-                              AppLocalizations.of(context)!.igniterTrial,
-                              textAlign: TextAlign.center,
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pushNamed(
-                                    context, 'igniter_dashboard'),
-                                child:
-                                    Text(AppLocalizations.of(context)!.proceed),
+                    if (selectedOption != null) {
+                      if (_selectedChip != null) {
+                        if (_formKey.currentState!.validate()) {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: Text(
+                                AppLocalizations.of(context)!.createIgniter,
+                                textAlign: TextAlign.center,
                               ),
-                            ],
-                          ),
-                        );
+                              content: Text(
+                                AppLocalizations.of(context)!.igniterTrial,
+                                textAlign: TextAlign.center,
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => {
+                                    saveUserIgniterInformation(
+                                      businessName: _nameController.text, location: _locationController.text, igniterType: igniterType, website: _websiteController.text,
+                                      category: _selectedChip, description: _descriptionController.text, emailAddress: _emailController.text,
+                                      phoneNumber: _phoneController.text,).then((value) => Navigator.popAndPushNamed(context, 'igniter_dashboard')),
+                                  },
+                                  child:
+                                      Text(AppLocalizations.of(context)!.proceed),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      } else {
+                        showSnackbar(context, 'Please select a category');
                       }
-                    } else {
-                      showSnackbar(context, 'Please select a category');
+                    }
+                    else {
+                      showSnackbar(context, 'Please select a business type');
                     }
                   } else {
                     showSnackbar(context,

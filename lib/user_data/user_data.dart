@@ -93,7 +93,7 @@ Future<void> saveUserPatroneInformation({String? firstName, String? lastName,
 username, DateTime? dob, bool? isGangMember, bool? isHIVPositive, String?
 gender}) async {
   try {
-    await currentUserProfile.set({
+    await currentUserProfile.update({
       'is_patrone': true
     }).then((value) =>
     currentUserProfile.collection('account_type').doc('patrone').set({
@@ -105,6 +105,34 @@ gender}) async {
       'is_hiv_positive': isHIVPositive,
       'gender': gender,
     }).then((value) => updateDisplayName(username?.trim())));
+  } on FirebaseException catch (e) {
+    log(e.code);
+    log(e.message ?? 'No message');
+  } catch (e) {
+    log(e.toString());
+  }
+}
+
+Future<void> saveUserIgniterInformation({String? businessName, String? location,
+  String?
+  igniterType, String? website, String? category, String?
+  description, String? emailAddress, String? phoneNumber, String? profilePhoto, String? coverPhoto}) async {
+  try {
+    await currentUserProfile.update({
+      'is_igniter': true
+    }).then((value) =>
+        currentUserProfile.collection('account_type').doc('igniter').set({
+          'title': businessName?.trim(),
+          'location': location?.trim(),
+          'igniter_type': igniterType?.trim(),
+          'website': website,
+          'category' : category,
+          'description': description,
+          'email_address': emailAddress,
+          'phone_number': phoneNumber,
+          'profile_photo': profilePhoto,
+          'cover_photo': coverPhoto,
+        }));
   } on FirebaseException catch (e) {
     log(e.code);
     log(e.message ?? 'No message');
