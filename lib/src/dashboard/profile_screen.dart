@@ -328,7 +328,7 @@ class ActivityTab extends StatelessWidget {
                           ),
                           itemCount: liked?.length ?? 0,
                           itemBuilder: (BuildContext context, int index) {
-                            var like = liked[index];
+                            var like = liked![index];
                             return Container(
                               color: Colors.red,
                               child: Center(
