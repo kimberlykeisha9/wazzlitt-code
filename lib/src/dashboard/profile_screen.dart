@@ -315,24 +315,33 @@ class ActivityTab extends StatelessWidget {
                         );
                       },
                     ),
-                    GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                      ),
-                      itemCount: 8,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Container(
-                          color: Colors.red,
-                          child: Center(
-                            child: Text(
-                              'Liked $index',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 20),
-                            ),
+                    StreamBuilder<QuerySnapshot>(
+                      stream: firestore.collection('feed').where('likes',
+                          arrayContains: currentUserProfile).snapshots(),
+                      builder: (context, likedPosts) {
+                        List<QueryDocumentSnapshot<Object?>> liked = likedPosts
+                            .data?.docs;
+                        return GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
                           ),
+                          itemCount: liked?.length ?? 0,
+                          itemBuilder: (BuildContext context, int index) {
+                            var like = liked[index];
+                            return Container(
+                              color: Colors.red,
+                              child: Center(
+                                child: Text(
+                                  'Liked $index',
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 20),
+                                ),
+                              ),
+                            );
+                          },
                         );
-                      },
+                      }
                     ),
                     GridView.builder(
                       gridDelegate:
