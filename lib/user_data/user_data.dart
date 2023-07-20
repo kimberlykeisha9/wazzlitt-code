@@ -1,9 +1,98 @@
 import 'dart:developer';
 
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 
 import '../src/registration/interests.dart';
+
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
+
+Future<String?> uploadImageToFirebase(File imageFile, String path) async {
+  try {
+    // Create a reference to the Firebase Storage location
+    Reference storageReference =
+    FirebaseStorage.instance.ref().child(path);
+
+    // Upload the file to Firebase Storage
+    TaskSnapshot uploadTask = await storageReference.putFile(imageFile);
+
+    // Get the download URL of the uploaded image
+    String downloadURL = await uploadTask.ref.getDownloadURL();
+
+    // Return the download URL
+    return downloadURL;
+  } catch (e) {
+    print('Error uploading image: $e');
+    return null;
+  }
+}
+
+Future<void> topUpAccount(double topUp) async {
+  try {
+    await currentUserPatroneProfile.update({
+      'balance' : FieldValue.increment(topUp),
+    }).then((value) => log('Topped up'));
+  } catch (e) {
+    print(e);
+  }
+}
+
+Future<void> uploadPost(File toBeUploaded, String? caption, String category, double latitude, double longitude) async {
+  try {
+    await uploadImageToFirebase(toBeUploaded, 'feed/${auth.currentUser!.uid}/').then((value) => firestore.collection('feed').add({
+      'caption': caption,
+      'creator_uid': currentUserProfile,
+      'image': value,
+      'likes': [],
+      'date_created': DateTime.now(),
+      'category': category,
+      'location': GeoPoint(latitude, longitude),
+    }).then((doc) => currentUserPatroneProfile.update({
+      'created_posts': FieldValue.arrayUnion([doc])
+    }).then((value) => log('Uploaded post: ${doc.id}'))));
+    log('Uploaded');
+  } catch (e) {
+    log(e.toString());
+  }
+}
+
+Future<void> deleteService(Map<String, dynamic> service) async {
+  try {
+    await currentUserIgniterProfile.update({
+      'services': FieldValue.arrayRemove([service]),
+    });
+  } on Exception catch (e) {
+    print(e);
+  }
+}
+
+Future<void> addNewService({String? serviceName, String? description, String? image, double? price, int? available}) async {
+  bool? isAvailable() {
+    if(available == 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  try {
+    await currentUserIgniterProfile.update({
+      'services': FieldValue.arrayUnion([
+        {
+          'service_name': serviceName,
+          'service_description': description,
+          'image': image,
+          'price': price,
+          'available': isAvailable()
+        }
+      ]),
+    });
+  } catch (e) {
+    print(e);
+  }
+}
+
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 

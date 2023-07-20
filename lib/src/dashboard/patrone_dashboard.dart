@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import '../app.dart';
+import 'dart:io';
 import '../location/location.dart';
 import 'chats_view.dart';
 import 'explore.dart';
@@ -83,17 +85,31 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     );
   }
 
+  File? _toBeUploaded;
+
+  Future<void> _getImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _toBeUploaded = File(pickedFile.path);
+      });
+      print("Image Path: ${pickedFile.path}");
+    }
+  }
+
   Widget? trailingIcon() {
     switch (_currentIndex) {
       case 0:
         return IconButton(
           onPressed: () {
-            Navigator.push(
+            _getImage().then((value) => _toBeUploaded != null ? Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const UploadImage(),
+                builder: (context) => UploadImage(uploadedImage: _toBeUploaded!),
               ),
-            );
+            ) : null);
           },
           icon: const Icon(Icons.photo_camera),
         );

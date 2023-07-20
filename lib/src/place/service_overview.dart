@@ -3,9 +3,9 @@ import 'package:intl/intl.dart';
 import '../app.dart';
 
 class ServiceOverview extends StatefulWidget {
-  const ServiceOverview({super.key, required this.serviceTitle});
+  const ServiceOverview({super.key, required this.service});
 
-  final String serviceTitle;
+  final Map<String, dynamic> service;
 
   @override
   State<ServiceOverview> createState() => _ServiceOverviewState();
@@ -33,7 +33,7 @@ class _ServiceOverviewState extends State<ServiceOverview> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.serviceTitle),
+        title: Text(widget.service['service_name']),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -42,17 +42,22 @@ class _ServiceOverviewState extends State<ServiceOverview> {
             child: Column(
               children: [
                 Container(
-                  color: Colors.grey,
                   width: 100,
                   height: 100,
+                  decoration: BoxDecoration(
+                      color: Colors.grey,
+                      image: widget.service['image'] == null ? null : DecorationImage(image: NetworkImage(
+                          widget.service['image']
+                      ), fit: BoxFit.cover)
+                  ),
                 ),
                 const SizedBox(height: 20),
-                Text(widget.serviceTitle, style: const TextStyle(fontWeight: FontWeight
+                Text(widget.service['service_name'], style: const TextStyle(fontWeight: FontWeight
                     .bold, fontSize: 20)),
                 const SizedBox(height: 10),
-                const Text('Product Brief Description'),
+                Text(widget.service['service_description']),
                 const SizedBox(height: 10),
-                const Text('\$0.00'),
+                Text('\$${(widget.service['price'] as double).toStringAsFixed(2)}'),
                 const SizedBox(height: 20),
                     const Text('Overview',
                         style: TextStyle(fontWeight: FontWeight.bold)),

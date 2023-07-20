@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
 import 'package:wazzlitt/src/event/event.dart';
 
@@ -23,6 +26,28 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   String _selectedChip = '';
 
   List<Category> categories = [];
+
+  String? location;
+  Future<String> getLocationFromGeoPoint(GeoPoint geoPoint) async {
+    try {
+      // Reverse geocode the latitude and longitude
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        geoPoint.latitude,
+        geoPoint.longitude,
+      );
+
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks.first;
+        String readableLocation = '${placemark.street}, ${placemark.country}';
+
+        return readableLocation;
+      }
+    } catch (e) {
+      log('Error: $e');
+    }
+
+    return '';
+  }
   @override
   void initState() {
     super.initState();

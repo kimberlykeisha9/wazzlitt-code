@@ -325,19 +325,17 @@ class ActivityTab extends StatelessWidget {
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
+                                childAspectRatio: 2/3,
                           ),
                           itemCount: liked?.length ?? 0,
                           itemBuilder: (BuildContext context, int index) {
-                            var like = liked![index];
+                            Map<String, dynamic> like = liked![index].data() as Map<String, dynamic>;
                             return Container(
-                              color: Colors.red,
-                              child: Center(
-                                child: Text(
-                                  'Liked $index',
-                                  style: const TextStyle(
-                                      color: Colors.white, fontSize: 20),
-                                ),
-                              ),
+                                decoration: BoxDecoration(
+                                image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(like['image'])
+                            )),
                             );
                           },
                         );

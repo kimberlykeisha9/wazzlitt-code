@@ -52,7 +52,7 @@ class _FeedImageState extends State<FeedImage> {
 
       if (placemarks.isNotEmpty) {
         Placemark placemark = placemarks.first;
-        String readableLocation = placemark.locality ?? placemark.administrativeArea ?? '';
+        String readableLocation = '${placemark.street}, ${placemark.country}';
 
         return readableLocation;
       }
