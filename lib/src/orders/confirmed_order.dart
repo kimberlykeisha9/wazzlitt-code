@@ -12,8 +12,18 @@ class ConfirmedOrder extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(40),
         child: Column(children: [
-          const Spacer(flex: 4),
-          const Icon(FontAwesomeIcons.champagneGlasses, size: 60),
+          const Spacer(flex: 2),
+          Container(
+            width: 250,
+            height: 250,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: NetworkImage('https://i.pinimg.com/236x/91/0e/08/910e08a5ce36f96097423af6f8af99dd.jpg'),
+                fit: BoxFit.cover,
+              )
+            )
+          ),
           const Spacer(),
           const Text('It\'s Litt!!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),

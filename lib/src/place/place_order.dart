@@ -1,179 +1,219 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../user_data/user_data.dart';
 import '../app.dart';
 
 class PlaceOrder extends StatefulWidget {
-  const PlaceOrder({super.key, required this.orderType, required this
-      .orderTitle, this.event, this.place});
+  const PlaceOrder({super.key, required this.place});
 
-  final OrderType orderType;
-  final String orderTitle;
-  final Map<String, dynamic>? event;
-  final Map<String, dynamic>? place;
+  final Map<String, dynamic> place;
 
   @override
   State<PlaceOrder> createState() => _PlaceOrderState();
 }
 
 class _PlaceOrderState extends State<PlaceOrder> {
-  List<dynamic>? tickets = [];
   List<dynamic>? services = [];
+  int? _selected;
+  bool? _isChecked;
+
+  Map<String, dynamic>? _selectedService;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    tickets = widget.event?['tickets'] ?? [];
     services = widget.place?['services'] ?? [];
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.orderType == OrderType.service
-            ? 'Services for ${widget.orderTitle}'
-            : 'Tickets for ${widget.orderTitle}'),
-      ),
+      appBar: AppBar(title: Text('Services for ${widget.place['place_name']}')),
       body: SafeArea(
           child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(children: [
-          Text(widget.orderTitle,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(widget.place['place_name'],
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const Spacer(),
-          Text(widget.orderType == OrderType.service
-              ? 'Choose which services you would like to order'
-              : 'Choose which tickets you would like to order'),
+          Text('Choose which services you would like to order'),
           const Spacer(),
-          widget.orderType == OrderType.event ? ListView.builder(
+          ListView.builder(
             shrinkWrap: true,
-            itemCount: tickets?.length ?? 0,
+            itemCount: services?.length,
             itemBuilder: (context, index) {
-              Selector ticket = Selector(item: tickets![index]);
-              // var ticket = tickets![index];
-              return SizedBox(
-                width: width(context),
-                child: ListTile(
-                        title: Text(ticket.item!['name']),
-                        subtitle: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(ticket.item!.containsKey('price') ? '\$'
-                '${double.parse(ticket.item!['price'].toString())
-                                .toStringAsFixed
-                  (2)}'
-                    : 'Free'),
-                            // Text(ticket.containsKey('description') ?
-                            // ticket['description'] : ''),
-                          ],
-                        ),
-                        leading:
-                        ticket.item!.containsKey('description') ? Tooltip
-                          (message: ticket.item!['description'], child: const
-                        Icon
-                          (Icons.info_outline)) :
-                        const SizedBox(),
-                        trailing: ticket.item!['quantity'] > 0 ? Row(
-                          mainAxisSize: MainAxisSize.min,                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove),
-                              onPressed: () {
-                                setState(() {
-                                  ticket.quantity = ticket.quantity - 1;
-                                });
-                              },
-                            ),
-                            Text(
-                              ticket.quantity.toString(),
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                            IconButton(
-                              icon: const Icon(Icons.add),
-                              onPressed: () {
-                                setState(() {
-                                  ticket.quantity = ticket.quantity + 1;
-                                });
-                              },
-                            ),
-                          ],
-                        ) : const Text('Sold Out')),
-              );
-            },
-          ) : ListView.builder(
-            shrinkWrap: true,
-            itemCount: 2,
-            itemBuilder: (context, index) {
-              int quantity = 0;
-              return widget.orderType == OrderType.service
-                  ? ListTile(
-                  title: Text('Service $index'),
-                  subtitle: const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('\$ 0.00'),
-                      Text('Service description'),
-                    ],
+              var service = services![index];
+              return ListTile(
+                  leading: Radio<int>(
+                    value: index,
+                    groupValue: _selected,
+                    onChanged: (val) {
+                      setState(() {
+                        _selected = val;
+                        _selectedService = service;
+                      });
+                    },
                   ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () {},
-                      ),
-                      Text(
-                        quantity.toString(),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ))
-                  : ListTile(
-                  title: Text('Ticket Type $index'),
-                  subtitle: const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('\$ 0.00'),
-                      Text('Ticket type description'),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () {},
-                      ),
-                      Text(
-                        quantity.toString(),
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () {},
-                      ),
-                    ],
-                  ));
+                  title: Text(service['service_name']),
+                  subtitle: Text(
+                      '\$ ${double.parse(service['price'].toString()).toStringAsFixed(2)}'),
+                  trailing: service.containsKey('service_description')
+                      ? Tooltip(
+                          message: service['service_description'],
+                          child: const Icon(Icons.info_outline))
+                      : const SizedBox());
             },
           ),
           const Spacer(flex: 3),
           CheckboxListTile(
-              value: true,
-              onChanged: (val) {},
-              subtitle: const Text('I confirm that I am liable to the Terms and '
+              value: _isChecked ?? false,
+              onChanged: (val) {
+                setState(() {
+                  _isChecked = val;
+                });
+              },
+              subtitle: const Text(
+                  'I confirm that I am liable to the Terms and '
                   'Conditions of this purchase and all other regulations set.')),
           const Spacer(flex: 3),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Total', style: TextStyle(fontSize: 20)),
+              Text(
+                  _selectedService == null
+                      ? '\$ 0.00'
+                      : '\$ ${double.parse(_selectedService!['price'].toString()).toStringAsFixed(2)}',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          SizedBox(height: 40),
           SizedBox(
               width: width(context),
               child: ElevatedButton(
                   onPressed: () {
-                    Navigator.popAndPushNamed(context, 'confirmed');
+                    if (_selectedService != null &&
+                        _selected != null &&
+                        _isChecked == true) {
+                      showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                                title: Text(
+                                  'I would like to pay by',
+                                  textAlign: TextAlign.center,
+                                ),
+                                content: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            Navigator.of(context).pop();
+                                            showSnackbar(
+                                                context, 'Not configured');
+                                          },
+                                          child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(Icons.credit_card_outlined,
+                                                    size: 40),
+                                                SizedBox(height: 10),
+                                                Text(
+                                                  'Personal Wallet',
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ]),
+                                        ),
+                                      ),
+                                      SizedBox(width: 30),
+                                      Text('OR'),
+                                      SizedBox(width: 30),
+                                      Expanded(
+                                          child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                          showModalBottomSheet(
+                                              context: context,
+                                              builder: (_) => Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            30),
+                                                    child: Wrap(
+                                                      children: [
+                                                        Text(
+                                                            'Deduct \$${double.parse(_selectedService!['price'].toString()).toStringAsFixed(2)} from your WazzLitt account',
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                fontSize: 20)),
+                                                        SizedBox(height: 60),
+                                                        Text(
+                                                            'Confirm that you would like to deduct this amount from your balance.'),
+                                                        SizedBox(height: 60),
+                                                        Row(
+                                                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                          children: [
+                                                            SizedBox(
+                                                                width: width(
+                                                                        context) *
+                                                                    0.4,
+                                                                child:
+                                                                    ElevatedButton(
+                                                                  child: Text('Pay \$' +
+                                                                      double.parse(_selectedService!['price']
+                                                                              .toString())
+                                                                          .toStringAsFixed(
+                                                                              2)),
+                                                                  onPressed:
+                                                                      () {
+                                                                    payFromBalance(double.parse(_selectedService!['price'].toString())).then((paymentStatus) {
+                                                                      print(paymentStatus ?? 'No payment info found');
+                                                                      if (paymentStatus == 'paid') {
+                                                                        uploadPlaceOrder(_selectedService!, widget.place, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(context, 'confirmed'));
+                                                                      } else {
+                                                                        Navigator.pop(context);
+                                                                        showSnackbar(context, 'Something went wrong with your payment. Please check your balance or try again later');
+                                                                      }
+                                                                    });
+                                                                      },
+                                                                )),
+                                                            TextButton(
+                                                                child: Text(
+                                                                    'Cancel'),
+                                                                onPressed: () =>
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop()),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ));
+                                        },
+                                        child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                  Icons
+                                                      .monetization_on_outlined,
+                                                  size: 40),
+                                              SizedBox(height: 10),
+                                              Text(
+                                                'WazzLitt Wallet',
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ]),
+                                      )),
+                                    ]),
+                              ));
+                    } else {
+                      showSnackbar(context,
+                          'Please select a service and agree to the terms');
+                    }
                   },
                   child: const Text('Checkout'))),
           const Spacer(flex: 5),
@@ -182,19 +222,3 @@ class _PlaceOrderState extends State<PlaceOrder> {
     );
   }
 }
- class Selector extends ChangeNotifier {
-  int quantity = 0;
-  final Map<String, dynamic>? item;
-
-  Selector({this.item});
-
-  increment() {
-    quantity + 1;
-    notifyListeners();
-  }
-
-  decrement() {
-    quantity - 1;
-    notifyListeners();
-  }
- }

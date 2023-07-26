@@ -55,9 +55,9 @@ class _ServiceOverviewState extends State<ServiceOverview> {
                 Text(widget.service['service_name'], style: const TextStyle(fontWeight: FontWeight
                     .bold, fontSize: 20)),
                 const SizedBox(height: 10),
-                Text(widget.service['service_description']),
+                Text(widget.service['service_description'], textAlign: TextAlign.center,),
                 const SizedBox(height: 10),
-                Text('\$${(widget.service['price'] as double).toStringAsFixed(2)}'),
+                Text('\$${(double.parse(widget.service['price'].toString())).toStringAsFixed(2)}'),
                 const SizedBox(height: 20),
                     const Text('Overview',
                         style: TextStyle(fontWeight: FontWeight.bold)),

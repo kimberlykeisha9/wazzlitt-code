@@ -68,7 +68,18 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
             if (snapshot.hasData) {
               Map<String, dynamic> igniterData =
                   snapshot.data!.data() as Map<String, dynamic>;
-              return view(context, igniterData)[_currentIndex];
+              DocumentReference place = igniterData['listing'];
+              return FutureBuilder<DocumentSnapshot>(
+                future: place.get(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    Map<String, dynamic> listingData =
+                    snapshot.data!.data() as Map<String, dynamic>;
+                    return view(context, listingData)[_currentIndex];
+                  }
+                  return Center(child: CircularProgressIndicator());
+                }
+              );
             }
             return Center(child: CircularProgressIndicator());
           }),
@@ -98,7 +109,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
     );
   }
 
-  SafeArea dashboard(BuildContext context, Map<String, dynamic> igniterData) {
+  SafeArea dashboard(BuildContext context, Map<String, dynamic> listingData) {
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
@@ -109,21 +120,21 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                   height: 60,
                   width: 60,
                   decoration: BoxDecoration(
-                      image: igniterData['profile_photo'] == null
+                      image: listingData['image'] == null
                           ? null
                           : DecorationImage(
-                              image: NetworkImage(igniterData['profile_photo'])),
+                              image: NetworkImage(listingData['image'])),
                       color: Colors.grey,
                       shape: BoxShape.circle)),
             ),
             const SizedBox(height: 20),
-            Text(igniterData['title'] ?? 'null',
+            Text(listingData['place_name'] ?? 'null',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 )),
             const SizedBox(height: 20),
-            const Card(
+            Card(
                 elevation: 10,
                 child: Padding(
                   padding: EdgeInsets.all(20),
@@ -140,7 +151,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                             children: [
                               Text('Services Sold',
                                   style: TextStyle(fontSize: 12)),
-                              Text('0',
+                              Text((listingData['orders']as List).length.toString(),
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
                               SizedBox(height: 20),
@@ -194,7 +205,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                         fontWeight: FontWeight.bold,
                       )),
                   const SizedBox(height: 10),
-                  igniterData.containsKey('services') || (igniterData['services'] as List<dynamic>).isNotEmpty
+                  listingData.containsKey('services') || (listingData['services'] as List<dynamic>).isNotEmpty
                       ? Wrap(
                           children: [
                             Row(
@@ -212,11 +223,11 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                             ListView.builder(
                               shrinkWrap: true,
                               itemCount:
-                                  (igniterData['services'] as List<dynamic>)
+                                  (listingData['services'] as List<dynamic>)
                                       .length,
                               itemBuilder: (context, index) {
                                 Map<String, dynamic> service =
-                                    (igniterData['services']
+                                    (listingData['services']
                                         as List<dynamic>)[index];
                                 return Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -225,20 +236,20 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                                         style: const TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     const SizedBox(height: 5),
-                                    const Row(
+                                    Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text('Sales'),
-                                          Text('\$0.00')
+                                          Text('\$' + double.parse((service['price'] * (listingData['orders']as List).length).toString()).toStringAsFixed(2))
                                         ]),
                                     const SizedBox(height: 5),
-                                    const Row(
+                                    Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
                                           Text('Units Sold'),
-                                          Text('0')
+                                          Text((listingData['orders']as List).length.toString())
                                         ]),
                                     const SizedBox(height: 10),
                                   ],
@@ -295,18 +306,18 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
     );
   }
 
-  SafeArea profile(BuildContext context, Map<String, dynamic> igniterData) {
+  SafeArea profile(BuildContext context, Map<String, dynamic> listingData) {
     String? openingTime() {
-      if(igniterData.containsKey('opening_time')) {
-        Timestamp openingTime = igniterData['opening_time'];
+      if(listingData.containsKey('opening_time')) {
+        Timestamp openingTime = listingData['opening_time'];
         return DateFormat('hh:mm a').format(openingTime.toDate());
       } else {
         return null;
       }
     }
     String? closingTime() {
-      if(igniterData.containsKey('closing_time')) {
-        Timestamp openingTime = igniterData['closing_time'];
+      if(listingData.containsKey('closing_time')) {
+        Timestamp openingTime = listingData['closing_time'];
         return DateFormat('hh:mm a').format(openingTime.toDate());
       } else {
         return null;
@@ -325,10 +336,11 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                     height: 150,
                     decoration: BoxDecoration(
                       color: Colors.grey,
-                      image: igniterData['cover_photo'] == null
+                      image: listingData['cover_image'] == null
                           ? null
                           : DecorationImage(
-                              image: NetworkImage(igniterData['cover_photo'])),
+                        fit: BoxFit.cover,
+                              image: NetworkImage(listingData['cover_image'])),
                     ),
                   ),
                   Align(
@@ -341,11 +353,11 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                         decoration: BoxDecoration(
                           color: Colors.grey[800],
                           shape: BoxShape.circle,
-                          image: igniterData['profile_photo'] == null
+                          image: listingData['image'] == null
                               ? null
                               : DecorationImage(
                                   image:
-                                      NetworkImage(igniterData['profile_photo'])),
+                                      NetworkImage(listingData['image'])),
                         ),
                       ),
                     ),
@@ -357,7 +369,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  Text(igniterData['title'] ?? 'null',
+                  Text(listingData['place_name'] ?? 'null',
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
                   const SizedBox(height: 20),
@@ -365,7 +377,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                   const SizedBox(height: 10),
                   const Text('97% Popularity'),
                   const SizedBox(height: 10),
-                  Text(igniterData['location'] ?? 'null',
+                  Text(listingData['location'] ?? 'You have not set your location',
                       style: TextStyle(fontSize: 14)),
                   const SizedBox(height: 20),
                   Row(
@@ -377,7 +389,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.all(5)),
-                            onPressed: () => Navigator.pushNamed(context, 'igniter_profile', arguments: igniterData['igniter_type']),
+                            onPressed: () => Navigator.pushNamed(context, 'igniter_profile', arguments: listingData['igniter_type']),
                             child: const Text('Edit Profile',
                                 style: TextStyle(fontSize: 12)),
                           ),
@@ -422,7 +434,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                   Align(
                     alignment: Alignment.topLeft,
                     child: Text(
-                      igniterData['description'] ?? 'null',
+                      listingData['place_description'] ?? 'null',
                     ),
                   ),
                   Row(
@@ -435,13 +447,13 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                           onPressed: () {},
                         )
                       ]),
-                  igniterData.containsKey('services') || (igniterData['services'] as List<dynamic>).isNotEmpty
+                  listingData.containsKey('services') || (listingData['services'] as List<dynamic>).isNotEmpty
                       ? ListView.builder(
                           shrinkWrap: true,
                           itemCount:
-                              (igniterData['services'] as List<dynamic>).length,
+                              (listingData['services'] as List<dynamic>).length,
                           itemBuilder: (context, index) {
-                            Map<String, dynamic> service = (igniterData['services'] as List<dynamic>)[index];
+                            Map<String, dynamic> service = (listingData['services'] as List<dynamic>)[index];
                             return ListTile(
                             onTap: () {
                               Navigator.push(
@@ -468,8 +480,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(service['service_description'] ?? 'null'),
-                                Text('\$${(service['price'] as double).toStringAsFixed(2)}'),
+                                Text('\$${(double.parse(service['price'].toString())).toStringAsFixed(2)}'),
                               ],
                             ),
                           );

@@ -37,9 +37,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(providers: [
       ChangeNotifierProvider<Data>(create: (_) => Data()),
-      ChangeNotifierProvider<wazzlitt_place.Selector>(create: (_)
-      => wazzlitt_place
-          .Selector()),
     ],
       child: AnimatedBuilder(
         animation: settingsController,

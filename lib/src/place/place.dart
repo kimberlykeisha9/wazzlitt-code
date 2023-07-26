@@ -1,13 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import '../app.dart';
 import 'place_order.dart';
 
 class Place extends StatelessWidget {
-  const Place({super.key, required this.place});
+  Place({super.key, required this.place});
+
+  late GoogleMapController mapController;
+
+  // Initial map camera position.
+  static const LatLng _initialPosition = LatLng(37.7749, -122.4194);
+
+  // Set your Google Maps API key here.
+  final String apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
 
   final Map<String, dynamic> place;
 
@@ -196,8 +205,6 @@ class Place extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) => PlaceOrder(
-                                orderType: OrderType.service,
-                                orderTitle: place['place_name'],
                                 place: place),
                           ),
                         );
@@ -215,6 +222,12 @@ class Place extends StatelessWidget {
                 width: width(context),
                 height: 100,
                 color: Colors.grey,
+                child: GoogleMap(
+                  initialCameraPosition: const CameraPosition(target: _initialPosition, zoom: 12),
+                  onMapCreated: (controller) {
+                    mapController = controller;
+                  },
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(20),

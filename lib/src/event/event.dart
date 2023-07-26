@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../app.dart';
 import '../place/place_order.dart';
+import 'event_order.dart';
 
 class Event extends StatelessWidget {
   const Event({super.key, required this.event});
@@ -74,12 +75,8 @@ class Event extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        PlaceOrder(
-                                            orderType:
-                                            OrderType.event,
-                                            event: event,
-                                            orderTitle:
-                                            event['event_name']),
+                                        EventOrder(
+                                            event: event),
                                   ),
                                 );
                               },
