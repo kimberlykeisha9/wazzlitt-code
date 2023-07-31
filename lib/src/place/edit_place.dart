@@ -113,10 +113,10 @@ class _EditPlaceState extends State<EditPlace> {
             future: widget.place?.get(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                Map<String, dynamic>? placeData;
                 if (widget.place != null) {
                   widget.place!.get().then((data) {
-                    Map<String, dynamic>? placeData =
-                        data.data() as Map<String, dynamic>?;
+                    placeData = data.data() as Map<String, dynamic>?;
                     setState(() {
                       _name = placeData?['place_name'];
                       _phone = placeData?['phone_number'];
@@ -124,8 +124,6 @@ class _EditPlaceState extends State<EditPlace> {
                       _location = placeData?['location'];
                       _description = placeData?['place_description'];
                       _email = placeData?['email_address'];
-                      _selectedChip = placeData?['category'];
-                      selectedOption = placeData?['place_type'];
                       networkCoverPhoto = placeData?['cover_image'];
                       networkProfile = placeData?['image'];
                       _openingTime = placeData?['opening_time'];
@@ -254,7 +252,7 @@ class _EditPlaceState extends State<EditPlace> {
                                     isExpanded: true,
                                     underline: const SizedBox(),
                                     hint: const Text('Select your business type'),
-                                    value: selectedOption,
+                                    value:  placeData?['place_type'] ?? selectedOption,
                                     onChanged: (newValue) {
                                       setState(() {
                                         selectedOption = newValue;
@@ -289,7 +287,7 @@ class _EditPlaceState extends State<EditPlace> {
                                             child: ChoiceChip(
                                               label: Text(chip.display),
                                               selected:
-                                                  _selectedChip == chip.display,
+                                              _selectedChip == chip.display || placeData?['category'] == chip.display,
                                               onSelected: (selected) {
                                                 setState(() {
                                                   _selectedChip = selected

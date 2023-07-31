@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
+import '../../authorization/authorization.dart';
 import '../app.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -95,17 +96,16 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
             future: currentUserIgniterProfile.get(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                Map<String, dynamic>? placeData =
+                Map<String, dynamic>? organizerData =
                     snapshot.data?.data() as Map<String, dynamic>?;
-                _name = placeData?['place_name'];
-                _phone = placeData?['phone_number'];
-                _website = placeData?['website'];
-                _location = placeData?['location'];
-                _description = placeData?['place_description'];
-                _email = placeData?['email_address'];
-                _selectedChip = placeData?['category'];
-                networkCoverPhoto = placeData?['cover_image'];
-                networkProfile = placeData?['image'];
+                _name = organizerData?['organizer_name'];
+                _phone = organizerData?['phone_number'];
+                _website = organizerData?['website'];
+                _location = organizerData?['location'];
+                _description = organizerData?['organizer_description'];
+                _email = organizerData?['email_address'];
+                networkCoverPhoto = organizerData?['cover_image'];
+                networkProfile = organizerData?['image'];
                 return SafeArea(
                   child: Column(
                     children: [
@@ -131,6 +131,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                       : _coverPhoto == null
                                           ? null
                                           : DecorationImage(
+                                      fit: BoxFit.cover,
                                               image: FileImage(_coverPhoto!)),
                                 ),
                                 child: (_coverPhoto != null ||
@@ -226,7 +227,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                             child: ChoiceChip(
                                               label: Text(chip.display),
                                               selected:
-                                                  _selectedChip == chip.display,
+                                                  _selectedChip == chip.display || organizerData?['category'] == chip.display,
                                               onSelected: (selected) {
                                                 setState(() {
                                                   _selectedChip = selected
@@ -243,6 +244,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                 const Padding(
                                     padding: EdgeInsets.only(top: 15)),
                                 IntlPhoneField(
+
                                   onChanged: (val) {
                                     setState(() {
                                       _phone = val.completeNumber;
@@ -281,25 +283,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                           .website),
                                   keyboardType: TextInputType.url,
                                 ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _location = val;
-                                    });
-                                  },
-                                  initialValue: _location,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Location is required';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: const InputDecoration(
-                                      labelText: 'Location'),
-                                  keyboardType: TextInputType.streetAddress,
-                                ),
+
                                 const Padding(
                                     padding: EdgeInsets.only(top: 15)),
                                 TextFormField(
@@ -363,42 +347,27 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                 _coverPhoto != null) {
                               if (_selectedChip != null) {
                                 if (_formKey.currentState!.validate()) {
-                                  showDialog(
-                                    context: context,
-                                    builder: (_) => AlertDialog(
-                                      title: Text(
-                                        AppLocalizations.of(context)!
-                                            .createIgniter,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      content: Text(
-                                        AppLocalizations.of(context)!
-                                            .igniterTrial,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => {
-                                            savePlaceProfile(
-                                              businessName: _name,
-                                              location: _location,
-                                              website: _website,
-                                              category: _selectedChip,
-                                              description: _description,
-                                              emailAddress: _email,
-                                              phoneNumber: _phone,
-                                            ).then((value) =>
-                                                Navigator.pushReplacementNamed(
-                                                    context,
-                                                    'igniter_dashboard')),
-                                          },
-                                          child: Text(
-                                              AppLocalizations.of(context)!
-                                                  .proceed),
-                                        ),
-                                      ],
-                                    ),
-                                  );
+                                  if(organizerData == null) {
+                                    paymentPrompt(context);
+                                  } else {
+                                    uploadImageToFirebase(_coverPhoto, 'users/${auth.currentUser!.uid}/igniter/cover_photo').then((coverPic) {
+                                      uploadImageToFirebase(_profilePicture, 'users/${auth.currentUser!.uid}/igniter/profile_photo').then((profilePic) {
+                                        saveEventOrganizerProfile(
+                                          organizerName: _name,
+                                          website: _website,
+                                          category: _selectedChip,
+                                          description: _description,
+                                          emailAddress: _email,
+                                          phoneNumber: _phone,
+                                          coverPhoto: coverPic ?? networkCoverPhoto,
+                                          profilePhoto: profilePic ?? networkProfile,
+                                        ).then((value) =>
+                                            Navigator.pushReplacementNamed(
+                                                context,
+                                                'igniter_dashboard'));
+                                      });
+                                    });
+                                  }
                                 }
                               } else {
                                 showSnackbar(
@@ -419,5 +388,49 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
               }
               return const Center(child: CircularProgressIndicator());
             }));
+  }
+
+  void paymentPrompt(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          AppLocalizations.of(context)!
+              .createIgniter,
+          textAlign: TextAlign.center,
+        ),
+        content: Text(
+          AppLocalizations.of(context)!
+              .igniterTrial,
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              uploadImageToFirebase(_coverPhoto, 'users/${auth.currentUser!.uid}/igniter/cover_photo').then((coverPic) {
+                uploadImageToFirebase(_profilePicture, 'users/${auth.currentUser!.uid}/igniter/profile_photo').then((profilePic) {
+                  saveEventOrganizerProfile(
+                      organizerName: _name,
+                      website: _website,
+                      category: _selectedChip,
+                      description: _description,
+                      emailAddress: _email,
+                      phoneNumber: _phone,
+                      coverPhoto: coverPic ?? networkCoverPhoto,
+                    profilePhoto: profilePic ?? networkProfile,
+                  ).then((value) =>
+                      Navigator.pushReplacementNamed(
+                          context,
+                          'igniter_dashboard'));
+                });
+              });
+            },
+            child: Text(
+                AppLocalizations.of(context)!
+                    .proceed),
+          ),
+        ],
+      ),
+    );
   }
 }
