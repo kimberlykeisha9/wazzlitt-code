@@ -388,8 +388,8 @@ class _IgniterProfileState extends State<IgniterProfile> {
                                   actions: [
                                     TextButton(
                                       onPressed: () => {
-                                        saveUserIgniterInformation(
-                                          businessName: _nameController.text, location: _locationController.text, igniterType: igniterType, website: _websiteController.text,
+                                        savePlaceProfile(
+                                          businessName: _nameController.text, location: _locationController.text, website: _websiteController.text,
                                           category: _selectedChip, description: _descriptionController.text, emailAddress: _emailController.text,
                                           phoneNumber: _phoneController.text,).then((value) => Navigator.popAndPushNamed(context, 'igniter_dashboard')),
                                       },

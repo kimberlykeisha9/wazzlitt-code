@@ -8,22 +8,24 @@ import '../src/registration/interests.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
-Future<String?> uploadImageToFirebase(File imageFile, String path) async {
-  try {
-    // Create a reference to the Firebase Storage location
-    Reference storageReference = FirebaseStorage.instance.ref().child(path);
+Future<String?> uploadImageToFirebase(File? imageFile, String path) async {
+  if (imageFile != null) {
+    try {
+      // Create a reference to the Firebase Storage location
+      Reference storageReference = FirebaseStorage.instance.ref().child(path);
 
-    // Upload the file to Firebase Storage
-    TaskSnapshot uploadTask = await storageReference.putFile(imageFile);
+      // Upload the file to Firebase Storage
+      TaskSnapshot uploadTask = await storageReference.putFile(imageFile);
 
-    // Get the download URL of the uploaded image
-    String downloadURL = await uploadTask.ref.getDownloadURL();
+      // Get the download URL of the uploaded image
+      String downloadURL = await uploadTask.ref.getDownloadURL();
 
-    // Return the download URL
-    return downloadURL;
-  } catch (e) {
-    print('Error uploading image: $e');
-    return null;
+      // Return the download URL
+      return downloadURL;
+    } catch (e) {
+      print('Error uploading image: $e');
+      return null;
+    }
   }
 }
 
@@ -79,7 +81,7 @@ Future<void> uploadPlaceOrder(Map<String, dynamic> service,
         .limit(1)
         .get()
         .then((query) {
-          // Update businesses orders
+      // Update businesses orders
       DocumentReference place = query.docs[0].reference;
       order.update({'place': place});
       place.update({
@@ -89,7 +91,8 @@ Future<void> uploadPlaceOrder(Map<String, dynamic> service,
         log('Added order to business');
         currentUserPatroneProfile.update({
           'orders': FieldValue.arrayUnion([order]),
-        }).then((val) => log('Completed uploading place order to user profile'));
+        }).then(
+            (val) => log('Completed uploading place order to user profile'));
       });
     });
   });
@@ -126,7 +129,8 @@ Future<void> uploadEventOrder(Map<String, dynamic> ticket, int index,
         log('Added order to business');
         currentUserPatroneProfile.update({
           'orders': FieldValue.arrayUnion([order]),
-        }).then((val) => log('Completed uploading event order to user profile'));
+        }).then(
+            (val) => log('Completed uploading event order to user profile'));
       });
     });
   });
@@ -163,9 +167,10 @@ Future<void> uploadPost(File toBeUploaded, String? caption, String category,
   }
 }
 
-Future<void> deleteService(Map<String, dynamic> service) async {
+Future<void> deleteService(
+    Map<String, dynamic> service, DocumentReference place) async {
   try {
-    await currentUserIgniterProfile.update({
+    await place.update({
       'services': FieldValue.arrayRemove([service]),
     });
   } on Exception catch (e) {
@@ -174,7 +179,8 @@ Future<void> deleteService(Map<String, dynamic> service) async {
 }
 
 Future<void> addNewService(
-    {String? serviceName,
+    {required DocumentReference place,
+    String? serviceName,
     String? description,
     String? image,
     double? price,
@@ -188,7 +194,7 @@ Future<void> addNewService(
   }
 
   try {
-    await currentUserIgniterProfile.update({
+    await place.update({
       'services': FieldValue.arrayUnion([
         {
           'service_name': serviceName,
@@ -199,6 +205,41 @@ Future<void> addNewService(
         }
       ]),
     });
+  } catch (e) {
+    print(e);
+  }
+}
+
+Future<void> updateService(
+    {required DocumentReference place,
+    required Map<String, dynamic> service,
+    required String serviceName,
+    required String description,
+    String? image,
+    required double price,
+    required int available}) async {
+  bool? isAvailable() {
+    if (available == 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  try {
+    await place.update({
+      'services': FieldValue.arrayRemove([service]),
+    }).then((value) => place.update({
+          'services': FieldValue.arrayUnion([
+            {
+              'service_name': serviceName,
+              'service_description': description,
+              'image': image,
+              'price': price,
+              'available': isAvailable()
+            }
+          ]),
+        }));
   } catch (e) {
     print(e);
   }
@@ -225,12 +266,18 @@ Future<bool?> checkIfPatroneUser() async {
   bool? isPatrone;
   if (auth.currentUser != null) {
     await currentUserProfile.get().then((value) {
-      Map<String, dynamic>? data = value.data();
-      if (data!.keys.contains('is_patrone')) {
-        log('User is patrone: ${data['is_patrone']}');
-        isPatrone = data['is_patrone'] as bool;
+      if (value.exists) {
+        log('User has data in profile');
+        Map<String, dynamic>? data = value.data();
+        if (data!.keys.contains('is_patrone')) {
+          log('User is patrone: ${data['is_patrone']}');
+          isPatrone = data['is_patrone'] as bool;
+        } else {
+          log('No information found');
+          isPatrone = false;
+        }
       } else {
-        log('No information found');
+        log('User is completely new');
         isPatrone = false;
       }
     });
@@ -245,12 +292,18 @@ Future<bool?> checkIfIgniterUser() async {
   if (auth.currentUser != null) {
     await currentUserProfile.get().then((value) {
       log(value.data().toString());
-      Map<String, dynamic>? data = value.data();
-      if (data!.keys.contains('is_igniter')) {
-        log('User is igniter: ${data['is_igniter']}');
-        isIgniter = data['is_igniter'] as bool;
+      if (value.exists) {
+        log('User has data in profile');
+        Map<String, dynamic>? data = value.data();
+        if (data!.keys.contains('is_igniter')) {
+          log('User is igniter: ${data['is_igniter']}');
+          isIgniter = data['is_igniter'] as bool;
+        } else {
+          log('No information found');
+          isIgniter = false;
+        }
       } else {
-        log('No information found');
+        log('User is completely new');
         isIgniter = false;
       }
     });
@@ -316,31 +369,78 @@ Future<void> saveUserPatroneInformation(
   }
 }
 
-Future<void> saveUserIgniterInformation(
-    {String? businessName,
+Future<void> savePlaceProfile(
+    {DocumentReference? place,
+    String? businessName,
     String? location,
-    String? igniterType,
     String? website,
     String? category,
     String? description,
     String? emailAddress,
     String? phoneNumber,
     String? profilePhoto,
-    String? coverPhoto}) async {
+    String? coverPhoto,
+    Timestamp? openingTime,
+    Timestamp? closingTime,
+    String? placeType}) async {
   try {
-    await currentUserProfile.update({'is_igniter': true}).then((value) =>
-        currentUserProfile.collection('account_type').doc('igniter').set({
-          'title': businessName?.trim(),
-          'location': location?.trim(),
-          'igniter_type': igniterType?.trim(),
-          'website': website,
-          'category': category,
-          'description': description,
-          'email_address': emailAddress,
-          'phone_number': phoneNumber,
-          'profile_photo': profilePhoto,
-          'cover_photo': coverPhoto,
-        }));
+    var placeData = {
+      'place_name': businessName?.trim(),
+      'location': location?.trim(),
+      'website': website,
+      'category': category,
+      'place_description': description,
+      'email_address': emailAddress,
+      'phone_number': phoneNumber,
+      'image': profilePhoto,
+      'cover_image': coverPhoto,
+      'opening_time': openingTime,
+      'closing_time': closingTime,
+      'lister': currentUserProfile,
+      'place_type': placeType,
+    };
+    if (place != null) {
+      await place.update(placeData);
+    } else {
+      await firestore.collection('places').add(placeData).then((newPlace) => currentUserIgniterProfile.update({
+            'listings': FieldValue.arrayUnion([newPlace]),
+          }));
+    }
+  } on FirebaseException catch (e) {
+    log(e.code);
+    log(e.message ?? 'No message');
+  } catch (e) {
+    log(e.toString());
+  }
+}
+
+Future<void> saveEventOrganizerProfile(
+    {String? organizerName,
+    String? website,
+    String? category,
+    String? description,
+    String? emailAddress,
+    String? phoneNumber,
+    String? profilePhoto,
+    String? coverPhoto,
+    String? placeType}) async {
+  try {
+    var organizerData = {
+      'organizer_name': organizerName?.trim(),
+      'website': website,
+      'category': category,
+      'organizer_description': description,
+      'email_address': emailAddress,
+      'phone_number': phoneNumber,
+      'image': profilePhoto,
+      'cover_image': coverPhoto,
+      'place_type': placeType,
+    };
+    if (currentUserIgniterProfile != null) {
+      await currentUserIgniterProfile.update(organizerData);
+    } else {
+      await currentUserIgniterProfile.set(organizerData);
+    }
   } on FirebaseException catch (e) {
     log(e.code);
     log(e.message ?? 'No message');

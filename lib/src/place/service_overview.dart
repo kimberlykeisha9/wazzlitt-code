@@ -1,11 +1,14 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../app.dart';
+import 'edit_service.dart';
 
 class ServiceOverview extends StatefulWidget {
-  const ServiceOverview({super.key, required this.service});
+  const ServiceOverview({super.key, required this.service, required this.place});
 
   final Map<String, dynamic> service;
+  final DocumentReference place;
 
   @override
   State<ServiceOverview> createState() => _ServiceOverviewState();
@@ -34,6 +37,13 @@ class _ServiceOverviewState extends State<ServiceOverview> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.service['service_name']),
+        actions: [
+          TextButton(
+            onPressed: () {Navigator.push(context,
+            MaterialPageRoute(builder: (context) => EditService(service: widget.service, place: widget.place,)));},
+            child: Text('Edit'),
+          )
+        ]
       ),
       body: SafeArea(
         child: SingleChildScrollView(
