@@ -20,9 +20,9 @@ class BusinessOwnerProfile extends StatelessWidget {
           width: width(context),
           height: height(context),
           child: PageView.builder(itemBuilder: (context, index) {
-            DocumentReference data = listings[index];
+            DocumentReference placeData = listings[index];
             return FutureBuilder<DocumentSnapshot>(
-                future: data.get(),
+                future: placeData.get(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     Map<String, dynamic> listingData =
@@ -119,7 +119,7 @@ class BusinessOwnerProfile extends StatelessWidget {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) =>
-                                                EditPlace(place: data),
+                                                EditPlace(place: placeData),
                                           ),
                                         ),
                                         child: const Text('Edit Profile',
@@ -207,13 +207,13 @@ class BusinessOwnerProfile extends StatelessWidget {
                                                 builder: (context) =>
                                                     ServiceOverview(
                                                         service: service,
-                                                        place: data),
+                                                        place: placeData),
                                               ),
                                             );
                                           },
                                           trailing: IconButton(
                                             onPressed: () =>
-                                                deleteService(service, data),
+                                                deleteService(service, placeData),
                                             icon: Icon(Icons.delete,
                                                 color: Colors.red),
                                           ),

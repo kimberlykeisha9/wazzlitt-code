@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/src/event/edit_event.dart';
 
 import '../../../user_data/user_data.dart';
 import '../../app.dart';
@@ -60,6 +61,7 @@ class EventOrganizerProfile extends StatelessWidget {
                                                   null
                                               ? null
                                               : DecorationImage(
+                                            fit: BoxFit.cover,
                                                   image: NetworkImage(
                                                       eventOrganizerData[
                                                           'image'])),
@@ -145,30 +147,55 @@ class EventOrganizerProfile extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  const Text('Tagged Photos',
+                                  const Text('Posted Events',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 20)),
                                   TextButton(
-                                    child: const Text('Tap to review'),
-                                    onPressed: () {},
+                                    child: const Text('Create new event'),
+                                    onPressed: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent()));
+                                    },
                                   ),
                                 ],
                               ),
                             ),
-                            SizedBox(
-                              height: 150,
-                              width: width(context),
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                scrollDirection: Axis.horizontal,
-                                itemCount: 4,
-                                itemBuilder: (context, index) => Container(
-                                  height: 150,
-                                  width: width(context) * 0.25,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                            GridView.builder(
+                              shrinkWrap: true,
+                              itemCount: eventOrganizerData['events'].length,
+                              itemBuilder: (context, index) {
+                                DocumentReference event = eventOrganizerData['events'][index];
+                                return FutureBuilder<DocumentSnapshot>(
+                                  future: event.get(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      Map<String, dynamic>? eventData = snapshot.data?.data() as Map<String, dynamic>;
+                                      return GestureDetector(
+                                        onTap: () {
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent(event: event)));
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey,
+                                            image: DecorationImage(
+                                              colorFilter: (eventData['date'] as Timestamp?)!.toDate().isBefore(DateTime.now())
+                                                  ? const ColorFilter.mode(
+                                                Colors.white,
+                                                BlendMode.saturation,
+                                              ) : null,
+                                              fit: BoxFit.cover,
+                                              image: NetworkImage(eventData['image']),
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.all(20),
+                                          child: Center(child: Text(eventData['event_name'], style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),),
+                                        ),
+                                      );
+                                    }
+                                    return Center(child: CircularProgressIndicator());
+                                  }
+                                );
+                              }, gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                             ),
                           ],
                         );

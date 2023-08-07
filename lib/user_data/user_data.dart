@@ -210,6 +210,38 @@ Future<void> addNewService(
   }
 }
 
+Future<void> addNewTicket(
+    {required DocumentReference event,
+      String? ticketName,
+      String? description,
+      DateTime? expiry,
+      double? price,
+      int? available}) async {
+  bool? isAvailable() {
+    if (available == 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  try {
+    await event.update({
+      'tickets': FieldValue.arrayUnion([
+        {
+          'ticket_name': ticketName,
+          'ticket_description': description,
+          'expiry_date': expiry,
+          'price': price,
+          'available': isAvailable(),
+        }
+      ]),
+    });
+  } catch (e) {
+    print(e);
+  }
+}
+
 Future<void> updateService(
     {required DocumentReference place,
     required Map<String, dynamic> service,
@@ -240,6 +272,41 @@ Future<void> updateService(
             }
           ]),
         }));
+  } catch (e) {
+    print(e);
+  }
+}
+
+Future<void> updateTicket(
+    {required DocumentReference event,
+      required Map<String, dynamic> ticket,
+      String? ticketName,
+      String? description,
+      Timestamp? expiry,
+      double? price,
+      int? available}) async {
+  bool? isAvailable() {
+    if (available == 1) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  try {
+    await event.update({
+      'tickets': FieldValue.arrayRemove([ticket]),
+    }).then((value) => event.update({
+      'tickets': FieldValue.arrayUnion([
+        {
+          'ticket_name': ticketName,
+          'ticket_description': description,
+          'expiry_date': expiry,
+          'price': price,
+          'available': isAvailable(),
+        }
+      ]),
+    }));
   } catch (e) {
     print(e);
   }
@@ -311,6 +378,18 @@ Future<bool?> checkIfIgniterUser() async {
     log('No active user');
   }
   return isIgniter;
+}
+
+Future<void>sendMessage(CollectionReference chats, String messageContent) async {
+  try {
+    await chats.add({
+      'senderID': currentUserProfile,
+      'content': messageContent,
+      'time_sent': DateTime.now(),
+    });
+  } catch (e) {
+    log(e.toString());
+  }
 }
 
 Future<void> updateDisplayName(String? displayName) async {
@@ -404,7 +483,42 @@ Future<void> savePlaceProfile(
     } else {
       await firestore.collection('places').add(placeData).then((newPlace) => currentUserIgniterProfile.update({
             'listings': FieldValue.arrayUnion([newPlace]),
+        'igniter_type': 'business_owner'
           }));
+    }
+  } on FirebaseException catch (e) {
+    log(e.code);
+    log(e.message ?? 'No message');
+  } catch (e) {
+    log(e.toString());
+  }
+}
+
+Future<void> saveEvent(
+    {DocumentReference? event,
+      String? eventName,
+      String? location,
+      String? category,
+      String? description,
+      String? eventPhoto,
+      Timestamp? date}) async {
+  try {
+    var eventData = {
+      'event_name': eventName?.trim(),
+      'location': location?.trim(),
+      'category': category,
+      'date': date,
+      'event_description': description,
+      'image': eventPhoto,
+      'lister': currentUserProfile,
+    };
+    if (event != null) {
+      await event.update(eventData);
+    } else {
+      await firestore.collection('events').add(eventData).then((newEvent) => currentUserIgniterProfile.update({
+        'events': FieldValue.arrayUnion([newEvent]),
+        'igniter_type': 'event_organizer',
+      }));
     }
   } on FirebaseException catch (e) {
     log(e.code);

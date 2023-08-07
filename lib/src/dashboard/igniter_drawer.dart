@@ -14,7 +14,7 @@ class IgniterDrawer extends StatelessWidget {
           height: height(context),
           width: width(context) * 0.75,
           padding: const EdgeInsets.all(20),
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           child: Column(children: [
             Container(
               width: width(context),

@@ -20,17 +20,20 @@ class EditEventOrganizer extends StatefulWidget {
   State<EditEventOrganizer> createState() => _EditEventOrganizerState();
 }
 
-class _EditEventOrganizerState extends State<EditEventOrganizer> {
+class _EditEventOrganizerState extends State<EditEventOrganizer>
+    with AutomaticKeepAliveClientMixin<EditEventOrganizer> {
+  @override
+  bool get wantKeepAlive => true;
+
   // Form Controller
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Text Controllers
-  String? _name;
-  String? _phone;
-  String? _website;
-  String? _description;
-  String? _email;
-  String? _location;
+  TextEditingController? _nameController = TextEditingController();
+  TextEditingController? _phoneController = TextEditingController();
+  TextEditingController? _websiteController = TextEditingController();
+  TextEditingController? _descriptionController = TextEditingController();
+  TextEditingController? _emailController = TextEditingController();
 
   // Images from Network
   String? networkProfile;
@@ -50,6 +53,20 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
     _formKey = GlobalKey<FormState>();
     // Fill in the text controller values
     WidgetsFlutterBinding.ensureInitialized();
+    currentUserIgniterProfile.get().then((value) {
+      if (value.exists) {
+        Map<String, dynamic>? organizerData =
+        value.data();
+        _nameController?.text = organizerData?['organizer_name'] ?? '';
+        _phoneController?.text = organizerData?['phone_number'] ?? '';
+        _websiteController?.text = organizerData?['website'] ?? '';
+        _descriptionController?.text = organizerData?['organizer_description'] ?? '';
+        _emailController?.text = organizerData?['email_address'] ?? '';
+        networkCoverPhoto = organizerData?['cover_image'] ?? '';
+        networkProfile = organizerData?['image'];
+        _selectedChip = organizerData?['category'];
+      }
+    });
     firestore.collection('app_data').doc('categories').get().then((value) {
       var data = value.data() as Map<String, dynamic>;
       data.forEach((key, value) {
@@ -97,15 +114,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 Map<String, dynamic>? organizerData =
-                    snapshot.data?.data() as Map<String, dynamic>?;
-                _name = organizerData?['organizer_name'];
-                _phone = organizerData?['phone_number'];
-                _website = organizerData?['website'];
-                _location = organizerData?['location'];
-                _description = organizerData?['organizer_description'];
-                _email = organizerData?['email_address'];
-                networkCoverPhoto = organizerData?['cover_image'];
-                networkProfile = organizerData?['image'];
+                snapshot.data?.data() as Map<String, dynamic>?;
                 return SafeArea(
                   child: Column(
                     children: [
@@ -131,7 +140,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                       : _coverPhoto == null
                                           ? null
                                           : DecorationImage(
-                                      fit: BoxFit.cover,
+                                              fit: BoxFit.cover,
                                               image: FileImage(_coverPhoto!)),
                                 ),
                                 child: (_coverPhoto != null ||
@@ -184,156 +193,133 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                           width: width(context),
                           child: Form(
                             key: _formKey,
-                            child: ListView(
-                              physics: const BouncingScrollPhysics(),
-                              children: [
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _name = val;
-                                    });
-                                  },
-                                  initialValue: _name,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Business name is required';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                      labelText:
-                                          AppLocalizations.of(context)!.name),
-                                  keyboardType: TextInputType.text,
-                                  textCapitalization: TextCapitalization.words,
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                Text(
-                                    AppLocalizations.of(context)!
-                                        .selectCategory,
-                                    style: const TextStyle(fontSize: 12)),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: categories
-                                        .map(
-                                          (chip) => Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            child: ChoiceChip(
-                                              label: Text(chip.display),
-                                              selected:
-                                                  _selectedChip == chip.display || organizerData?['category'] == chip.display,
-                                              onSelected: (selected) {
-                                                setState(() {
-                                                  _selectedChip = selected
-                                                      ? chip.display
-                                                      : '';
-                                                });
-                                              },
+                            child: SingleChildScrollView(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TextFormField(
+                                    controller: _nameController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Organizer name is required';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(context)!.name),
+                                    keyboardType: TextInputType.text,
+                                    textCapitalization: TextCapitalization.words,
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  Text(
+                                      AppLocalizations.of(context)!
+                                          .selectCategory,
+                                      style: const TextStyle(fontSize: 12)),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: categories
+                                          .map(
+                                            (chip) => Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              child: ChoiceChip(
+                                                label: Text(chip.display),
+                                                selected: _selectedChip ==
+                                                        chip.display /*  ||
+                                                    organizerData?['category'] ==
+                                                        chip.display */,
+                                                onSelected: (selected) {
+                                                  setState(() {
+                                                    _selectedChip = selected
+                                                        ? chip.display
+                                                        : '';
+                                                  });
+                                                },
+                                              ),
                                             ),
-                                          ),
-                                        )
-                                        .toList(),
+                                          )
+                                          .toList(),
+                                    ),
                                   ),
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                IntlPhoneField(
-
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _phone = val.completeNumber;
-                                    });
-                                  },
-                                  initialValue: _phone,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        AppLocalizations.of(context)!.phone,
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return 'Phone number is required';
-                                    }
-                                    return null; // Return null if the input is valid
-                                  },
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _website = val;
-                                    });
-                                  },
-                                  initialValue: _website,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Website is required';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                      labelText: AppLocalizations.of(context)!
-                                          .website),
-                                  keyboardType: TextInputType.url,
-                                ),
-
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _description = val;
-                                    });
-                                  },
-                                  initialValue: _description,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Description is required';
-                                    }
-                                    return null;
-                                  },
-                                  maxLines: 5,
-                                  minLines: 1,
-                                  decoration: InputDecoration(
-                                      labelText: AppLocalizations.of(context)!
-                                          .description),
-                                  keyboardType: TextInputType.text,
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _email = val;
-                                    });
-                                  },
-                                  initialValue: _email,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Email is required';
-                                    }
-                                    if (!RegExp(
-                                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                        .hasMatch(value)) {
-                                      return 'Invalid email address';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  IntlPhoneField(
+                                    controller: _phoneController,
+                                    decoration: InputDecoration(
                                       labelText:
-                                          AppLocalizations.of(context)!.email),
-                                  keyboardType: TextInputType.emailAddress,
-                                ),
-                              ],
+                                          AppLocalizations.of(context)!.phone,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    validator: (value) {
+                                      if (value == null) {
+                                        return 'Phone number is required';
+                                      }
+                                      return null; // Return null if the input is valid
+                                    },
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  TextFormField(
+                                    controller: _websiteController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Website is required';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                        labelText: AppLocalizations.of(context)!
+                                            .website),
+                                    keyboardType: TextInputType.url,
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  TextFormField(
+                                    controller: _descriptionController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Description is required';
+                                      }
+                                      return null;
+                                    },
+                                    maxLines: 5,
+                                    minLines: 1,
+                                    decoration: InputDecoration(
+                                        labelText: AppLocalizations.of(context)!
+                                            .description),
+                                    keyboardType: TextInputType.text,
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  TextFormField(
+                                    controller: _emailController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Email is required';
+                                      }
+                                      if (!RegExp(
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                          .hasMatch(value)) {
+                                        return 'Invalid email address';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(context)!.email),
+                                    keyboardType: TextInputType.emailAddress,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -343,28 +329,33 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                         width: width(context) * 0.8,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_profilePicture != null &&
-                                _coverPhoto != null) {
+                            if ((_profilePicture != null &&
+                                _coverPhoto != null) || (networkProfile != null &&  networkCoverPhoto != null)) {
                               if (_selectedChip != null) {
                                 if (_formKey.currentState!.validate()) {
-                                  if(organizerData == null) {
+                                  if (organizerData == null) {
                                     paymentPrompt(context);
                                   } else {
-                                    uploadImageToFirebase(_coverPhoto, 'users/${auth.currentUser!.uid}/igniter/cover_photo').then((coverPic) {
-                                      uploadImageToFirebase(_profilePicture, 'users/${auth.currentUser!.uid}/igniter/profile_photo').then((profilePic) {
+                                    uploadImageToFirebase(_coverPhoto,
+                                            'users/${auth.currentUser!.uid}/igniter/cover_photo')
+                                        .then((coverPic) {
+                                      uploadImageToFirebase(_profilePicture,
+                                              'users/${auth.currentUser!.uid}/igniter/profile_photo')
+                                          .then((profilePic) {
                                         saveEventOrganizerProfile(
-                                          organizerName: _name,
-                                          website: _website,
+                                          organizerName: _nameController?.text,
+                                          website: _websiteController?.text,
                                           category: _selectedChip,
-                                          description: _description,
-                                          emailAddress: _email,
-                                          phoneNumber: _phone,
-                                          coverPhoto: coverPic ?? networkCoverPhoto,
-                                          profilePhoto: profilePic ?? networkProfile,
+                                          description: _descriptionController?.text,
+                                          emailAddress: _emailController?.text,
+                                          phoneNumber: _phoneController?.text,
+                                          coverPhoto:
+                                              coverPic ?? networkCoverPhoto,
+                                          profilePhoto:
+                                              profilePic ?? networkProfile,
                                         ).then((value) =>
                                             Navigator.pushReplacementNamed(
-                                                context,
-                                                'igniter_dashboard'));
+                                                context, 'igniter_dashboard'));
                                       });
                                     });
                                   }
@@ -395,39 +386,37 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
       context: context,
       builder: (_) => AlertDialog(
         title: Text(
-          AppLocalizations.of(context)!
-              .createIgniter,
+          AppLocalizations.of(context)!.createIgniter,
           textAlign: TextAlign.center,
         ),
         content: Text(
-          AppLocalizations.of(context)!
-              .igniterTrial,
+          AppLocalizations.of(context)!.igniterTrial,
           textAlign: TextAlign.center,
         ),
         actions: [
           TextButton(
             onPressed: () {
-              uploadImageToFirebase(_coverPhoto, 'users/${auth.currentUser!.uid}/igniter/cover_photo').then((coverPic) {
-                uploadImageToFirebase(_profilePicture, 'users/${auth.currentUser!.uid}/igniter/profile_photo').then((profilePic) {
+              uploadImageToFirebase(_coverPhoto,
+                      'users/${auth.currentUser!.uid}/igniter/cover_photo')
+                  .then((coverPic) {
+                uploadImageToFirebase(_profilePicture,
+                        'users/${auth.currentUser!.uid}/igniter/profile_photo')
+                    .then((profilePic) {
                   saveEventOrganizerProfile(
-                      organizerName: _name,
-                      website: _website,
-                      category: _selectedChip,
-                      description: _description,
-                      emailAddress: _email,
-                      phoneNumber: _phone,
-                      coverPhoto: coverPic ?? networkCoverPhoto,
+                    organizerName: _nameController?.text,
+                    website: _websiteController?.text,
+                    category: _selectedChip,
+                    description: _descriptionController?.text,
+                    emailAddress: _emailController?.text,
+                    phoneNumber: _phoneController?.text,
+                    coverPhoto: coverPic ?? networkCoverPhoto,
                     profilePhoto: profilePic ?? networkProfile,
-                  ).then((value) =>
-                      Navigator.pushReplacementNamed(
-                          context,
-                          'igniter_dashboard'));
+                  ).then((value) => Navigator.pushReplacementNamed(
+                      context, 'igniter_dashboard'));
                 });
               });
             },
-            child: Text(
-                AppLocalizations.of(context)!
-                    .proceed),
+            child: Text(AppLocalizations.of(context)!.proceed),
           ),
         ],
       ),

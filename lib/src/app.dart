@@ -9,7 +9,6 @@ import 'package:wazzlitt/src/dashboard/dashboard.dart';
 import '../authorization/authorization.dart';
 import 'dashboard/feed.dart';
 import 'dashboard/igniter_dashboard.dart';
-import 'dashboard/igniter_profile.dart';
 import 'dashboard/patrone_dashboard.dart';
 import 'orders/confirmed_order.dart';
 import 'orders/orders.dart';
@@ -54,6 +53,42 @@ class MyApp extends StatelessWidget {
             ],
             onGenerateTitle: (BuildContext context) =>
                 AppLocalizations.of(context)!.appTitle,
+            darkTheme: ThemeData(
+                colorScheme: ColorScheme.dark(
+                  onPrimary: Colors.white,
+                    primary: Colors.indigo[900]!,
+                    secondary: Colors.greenAccent[400]!),
+              chipTheme: ChipThemeData(
+                  backgroundColor: Colors.greenAccent[700],
+                  selectedColor: Colors.greenAccent[400]),
+              inputDecorationTheme: InputDecorationTheme(
+                border:
+                OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+              ),
+              appBarTheme: AppBarTheme(
+                color: Colors.transparent,
+                elevation: 0,
+                centerTitle: true,
+                titleTextStyle:
+                const TextStyle(color: Colors.white, fontSize: 16),
+                toolbarHeight: height(context) * 0.075,
+                iconTheme: IconThemeData(color: Colors.white!),
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(15),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)))),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.indigo[600],
+                )
+              ),
+              textTheme: const TextTheme(
+                labelLarge: TextStyle(fontSize: 16),
+                bodyMedium: TextStyle(fontSize: 16),
+              ),
+            ),
             theme: ThemeData(
                 tabBarTheme: TabBarTheme(labelColor: Colors.indigo[900]),
                 bottomNavigationBarTheme: BottomNavigationBarThemeData(
@@ -86,7 +121,6 @@ class MyApp extends StatelessWidget {
                 colorScheme: ColorScheme.light(
                     primary: Colors.indigo[900]!,
                     secondary: Colors.greenAccent[400]!)),
-            // darkTheme: ThemeData.dark(),
             themeMode: settingsController.themeMode,
             initialRoute: isLoggedIn ? 'dashboard' : 'home',
             routes: {
@@ -95,7 +129,6 @@ class MyApp extends StatelessWidget {
               'patrone_registration': (context) => const PatroneRegistration(),
               'interests': (context) => const Interests(),
               'igniter_registration': (context) => const IgniterRegistration(),
-              'igniter_profile': (context) => const IgniterProfile(),
               'patrone_dashboard': (context) => const PatroneDashboard(),
               'settings': (context) => const Settings(),
               'orders': (context) => const Orders(),

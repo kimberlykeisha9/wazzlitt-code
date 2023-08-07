@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
+import 'package:animate_do/animate_do.dart';
 
 import '../../user_data/user_data.dart';
 import '../app.dart';
@@ -54,61 +55,79 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          AppLocalizations.of(context)!.verifyPhone,
-          textAlign: TextAlign.center,
+        ZoomIn(
+          duration: Duration(milliseconds: 200),
+          child: Text(
+            AppLocalizations.of(context)!.verifyPhone,
+            textAlign: TextAlign.center,
+          ),
         ),
         const Spacer(),
         Form(
           key: widget._formKey,
-          child: IntlPhoneField(
-            controller: widget._phoneController,
-            decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.phone,
-                border: InputBorder.none),
-            keyboardType: TextInputType.number,
-            onChanged: (phone) {
-              storeData('phone', phone.completeNumber);
-            },
-            validator: (value) {
-              if (value == null) {
-                return 'Phone number is required';
-              }
-              return null; // Return null if the input is valid
-            },
+          child: ZoomIn(
+            duration: Duration(milliseconds: 300),
+            child: IntlPhoneField(
+              controller: widget._phoneController,
+              decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.phone,
+                  border: InputBorder.none),
+              keyboardType: TextInputType.number,
+              onChanged: (phone) {
+                storeData('phone', phone.completeNumber);
+              },
+              validator: (value) {
+                if (value == null) {
+                  return 'Phone number is required';
+                }
+                return null; // Return null if the input is valid
+              },
+            ),
           ),
         ),
         const Spacer(),
-        SizedBox(
-            width: width(context),
-            child: ElevatedButton(
-              onPressed: () {
-                if (widget._formKey.currentState!.validate()) {
-                  getData('phone').then((number) => signInWithPhoneNumber(
-                      number ?? '',
-                      context,
-                      widget._pageController.nextPage(
-                        duration: const Duration(milliseconds: 200),
-                        curve: Curves.easeInOut,
-                      )));
-                }
-              },
-              child: Text(
-                AppLocalizations.of(context)!.proceed,
-              ),
-            )),
-        const Spacer(),
-        Text(
-          AppLocalizations.of(context)!.googleSignIn,
+        ZoomIn(
+          duration: Duration(milliseconds: 400),
+          child: SizedBox(
+              width: width(context),
+              child: ElevatedButton(
+                onPressed: () {
+                  if (widget._formKey.currentState!.validate()) {
+                    getData('phone').then((number) => signInWithPhoneNumber(
+                        number ?? '',
+                        context,
+                        widget._pageController.nextPage(
+                          duration: const Duration(milliseconds: 200),
+                          curve: Curves.easeInOut,
+                        )));
+                  }
+                },
+                child: Text(
+                  AppLocalizations.of(context)!.proceed,
+                ),
+              )),
         ),
-        IconButton(
-          icon: const FaIcon(FontAwesomeIcons.google),
-          onPressed: () {},
+        const Spacer(),
+        ZoomIn(
+          duration: Duration(milliseconds: 500),
+          child: Text(
+            AppLocalizations.of(context)!.googleSignIn,
+          ),
+        ),
+        ZoomIn(
+          duration: Duration(milliseconds: 600),
+          child: IconButton(
+            icon: const FaIcon(FontAwesomeIcons.google),
+            onPressed: () {},
+          ),
         ),
         const Spacer(flex: 2),
-        Text(
-          AppLocalizations.of(context)!.acceptTerms,
-          textAlign: TextAlign.center,
+        ZoomIn(
+          duration: Duration(milliseconds: 700),
+          child: Text(
+            AppLocalizations.of(context)!.acceptTerms,
+            textAlign: TextAlign.center,
+          ),
         ),
       ],
     );
@@ -121,89 +140,108 @@ class _PhoneVerificationState extends State<PhoneVerification> {
 
   @override
   Widget build(BuildContext context) {
-    getData('phone').then((value) => _phoneNumber == value);
+    getData('phone').then((value) {
+      setState(() {
+        _phoneNumber = value;
+      });
+    });
     return Column(
       children: [
         Spacer(),
-        Text(
-          'A verification code will be sent to $_phoneNumber',
-          textAlign: TextAlign.center,
+        ZoomIn(
+        duration: Duration(milliseconds: 200),
+          child: Text(
+            'A verification code will be sent to $_phoneNumber',
+            textAlign: TextAlign.center,
+          ),
         ),
         Spacer(),
-        Text(
-          'Please enter it in the space below',
-          textAlign: TextAlign.center,
+        ZoomIn(
+    duration: Duration(milliseconds: 300),
+          child: Text(
+            'Please enter it in the space below',
+            textAlign: TextAlign.center,
+          ),
         ),
         Spacer(),
-        TextButton(
-          child: Text('Change phone number'),
-          onPressed: () {
-            widget._pageController.previousPage(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut);
-          },
-        ),
-        Spacer(),
-        PinCodeTextField(
-            controller: _verificationController,
-            validator: (val) {
-              if (val == null) {
-                return 'Please enter a value';
-              }
-              if (val.length != 6) {
-                return 'Please enter a valid code';
-              }
-              return null;
-            },
-            keyboardType: TextInputType.number,
-            appContext: context,
-            length: 6,
-            onChanged: (val) {}),
-        Spacer(flex: 5),
-        SizedBox(
-          width: width(context),
-          child: ElevatedButton(
+        ZoomIn(
+    duration: Duration(milliseconds: 400),
+          child: TextButton(
+            child: Text('Change phone number'),
             onPressed: () {
-              getData('verificationID')
-                  .then((value) =>
-                      verifyCode(_verificationController.text, value!))
-                  .then((value) => {
-                        if (widget._direction == 'patrone')
-                          {
-                            checkIfPatroneUser().then((isPatrone) {
-                              if (isPatrone == true) {
-                                Navigator.popAndPushNamed(
-                                    context, 'patrone_dashboard');
-                              } else if (isPatrone == false) {
-                                Navigator.pushNamed(
-                                    context, 'patrone_registration');
-                              } else {
-                                showSnackbar(context,
-                                    'Something went wrong. Please try again  later');
-                              }
-                            })
-                          }
-                        else if (widget._direction == 'igniter') {
-                            checkIfIgniterUser().then((isIgniter) {
-                              if (isIgniter == true) {
-                                Navigator.popAndPushNamed(
-                                    context, 'igniter_dashboard');
-                              } else if (isIgniter == false) {
-                                Navigator.pushNamed(
-                                    context, 'igniter_registration');
-                              } else {
-                                showSnackbar(
-                                    context,
-                                    'Something went '
-                                    'wrong. Please try again  later');
-                              }
-                            }),
-                          }
-                        else
-                          {showSnackbar(context, 'Something went wrong.')}
-                      });
+              widget._pageController.previousPage(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut);
             },
-            child: Text('Verify'),
+          ),
+        ),
+        Spacer(),
+        ZoomIn(
+    duration: Duration(milliseconds: 500),
+          child: PinCodeTextField(
+              controller: _verificationController,
+              validator: (val) {
+                if (val == null) {
+                  return 'Please enter a value';
+                }
+                if (val.length != 6) {
+                  return 'Please enter a valid code';
+                }
+                return null;
+              },
+              keyboardType: TextInputType.number,
+              appContext: context,
+              length: 6,
+              onChanged: (val) {}),
+        ),
+        Spacer(flex: 5),
+        ZoomIn(
+    duration: Duration(milliseconds: 600),
+          child: SizedBox(
+            width: width(context),
+            child: ElevatedButton(
+              onPressed: () {
+                getData('verificationID')
+                    .then((value) =>
+                        verifyCode(_verificationController.text, value!))
+                    .then((value) => {
+                          if (widget._direction == 'patrone')
+                            {
+                              checkIfPatroneUser().then((isPatrone) {
+                                if (isPatrone == true) {
+                                  Navigator.popAndPushNamed(
+                                      context, 'patrone_dashboard');
+                                } else if (isPatrone == false) {
+                                  Navigator.pushNamed(
+                                      context, 'patrone_registration');
+                                } else {
+                                  showSnackbar(context,
+                                      'Something went wrong. Please try again  later');
+                                }
+                              })
+                            }
+                          else if (widget._direction == 'igniter') {
+                              checkIfIgniterUser().then((isIgniter) {
+                                if (isIgniter == true) {
+                                  Navigator.popAndPushNamed(
+                                      context, 'igniter_dashboard');
+                                } else if (isIgniter == false) {
+                                  Navigator.pushNamed(
+                                      context, 'igniter_registration');
+                                } else {
+                                  showSnackbar(
+                                      context,
+                                      'Something went '
+                                      'wrong. Please try again  later');
+                                }
+                              }),
+                            }
+                          else
+                            {showSnackbar(context, 'Something went wrong.')}
+                        });
+              },
+              child: Text('Verify'),
+            ),
           ),
         ),
         Spacer(flex: 10),

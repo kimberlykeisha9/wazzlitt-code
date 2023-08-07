@@ -25,14 +25,14 @@ class _EditPlaceState extends State<EditPlace> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Text Controllers
-  String? _name;
-  String? _phone;
-  String? _website;
-  String? _description;
-  String? _email;
-  String? _location;
-  String? _openingTimeText;
-  String? _closingTimeText;
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _websiteController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _locationController = TextEditingController();
+  TextEditingController _openingTimeTextController = TextEditingController();
+  TextEditingController _closingTimeTextController = TextEditingController();
 
   // Time
   Timestamp? _openingTime;
@@ -67,6 +67,31 @@ class _EditPlaceState extends State<EditPlace> {
     _formKey = GlobalKey<FormState>();
     // Fill in the text controller values
     WidgetsFlutterBinding.ensureInitialized();
+    widget.place?.get().then((value) {
+      if (value.exists) {
+        Map<String, dynamic>? placeData = value?.data() as Map<String, dynamic>?;
+        _nameController.text = placeData?['place_name'] ?? '';
+        _phoneController.text = placeData?['phone_number'] ?? '';
+        _websiteController.text = placeData?['website'] ?? '';
+        _locationController.text = placeData?['location'] ?? '';
+        _descriptionController.text = placeData?['place_description'] ?? '';
+        _emailController.text = placeData?['email_address'] ?? '';
+        networkCoverPhoto = placeData?['cover_image'] ?? '';
+        networkProfile = placeData?['image'] ?? '';
+        _openingTime = placeData?['opening_time'];
+        _closingTime = placeData?['closing_time'];
+        _selectedChip = placeData?['category'];
+        selectedOption = placeData?['place_type'];
+        _openingTime != null
+            ? _openingTimeTextController.text =
+                DateFormat.Hm().format(_openingTime!.toDate())
+            : '';
+        _closingTime != null
+            ? _closingTimeTextController.text =
+                DateFormat.Hm().format(_closingTime!.toDate())
+            : '';
+      }
+    });
     firestore.collection('app_data').doc('categories').get().then((value) {
       var data = value.data() as Map<String, dynamic>;
       data.forEach((key, value) {
@@ -110,35 +135,17 @@ class _EditPlaceState extends State<EditPlace> {
           title: const Text('Edit Igniter Profile'),
         ),
         body: FutureBuilder<DocumentSnapshot>(
-            future: widget.place?.get(),
+            future: widget.place?.get(GetOptions(source: Source.server)),
             builder: (context, snapshot) {
-              if (snapshot.hasData) {
+              if (snapshot.hasData || snapshot.connectionState == ConnectionState.none) {
                 Map<String, dynamic>? placeData;
                 if (widget.place != null) {
                   widget.place!.get().then((data) {
                     placeData = data.data() as Map<String, dynamic>?;
-                    setState(() {
-                      _name = placeData?['place_name'];
-                      _phone = placeData?['phone_number'];
-                      _website = placeData?['website'];
-                      _location = placeData?['location'];
-                      _description = placeData?['place_description'];
-                      _email = placeData?['email_address'];
-                      networkCoverPhoto = placeData?['cover_image'];
-                      networkProfile = placeData?['image'];
-                      _openingTime = placeData?['opening_time'];
-                      _closingTime = placeData?['closing_time'];
-                      _openingTime != null
-                          ? _openingTimeText =
-                              DateFormat.Hm().format(_openingTime!.toDate())
-                          : null;
-                      _closingTime != null
-                          ? _closingTimeText =
-                              DateFormat.Hm().format(_closingTime!.toDate())
-                          : null;
-                    });
+                    print(placeData);
                   });
                 }
+                print(placeData);
                 return SafeArea(
                   child: Column(
                     children: [
@@ -216,288 +223,264 @@ class _EditPlaceState extends State<EditPlace> {
                           width: width(context),
                           child: Form(
                             key: _formKey,
-                            child: ListView(
-                              physics: const BouncingScrollPhysics(),
-                              children: [
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _name = val;
-                                    });
-                                  },
-                                  initialValue: _name,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Business name is required';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                      labelText:
-                                          AppLocalizations.of(context)!.name),
-                                  keyboardType: TextInputType.text,
-                                  textCapitalization: TextCapitalization.words,
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                Container(
-                                  width: width(context),
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 5),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(),
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                  child: DropdownButton<String>(
-                                    isExpanded: true,
-                                    underline: const SizedBox(),
-                                    hint: const Text('Select your business type'),
-                                    value:  placeData?['place_type'] ?? selectedOption,
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        selectedOption = newValue;
-                                      });
-                                      // Perform any desired action when the option is selected
-                                      print(selectedOption);
+                            child: SingleChildScrollView(
+                              child: Column(
+                                children: [
+                                  TextFormField(
+                                    controller: _nameController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Business name is required';
+                                      }
+                                      return null;
                                     },
-                                    items: dropdownOptions.map((String option) {
-                                      return DropdownMenuItem<String>(
-                                        value: option,
-                                        child: Text(option),
-                                      );
-                                    }).toList(),
+                                    decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(context)!.name),
+                                    keyboardType: TextInputType.text,
+                                    textCapitalization: TextCapitalization.words,
                                   ),
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                Text(
-                                    AppLocalizations.of(context)!
-                                        .selectCategory,
-                                    style: const TextStyle(fontSize: 12)),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    children: categories
-                                        .map(
-                                          (chip) => Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            child: ChoiceChip(
-                                              label: Text(chip.display),
-                                              selected:
-                                              _selectedChip == chip.display || placeData?['category'] == chip.display,
-                                              onSelected: (selected) {
-                                                setState(() {
-                                                  _selectedChip = selected
-                                                      ? chip.display
-                                                      : '';
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  Container(
+                                    width: width(context),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: DropdownButton<String>(
+                                      isExpanded: true,
+                                      underline: const SizedBox(),
+                                      hint:
+                                          const Text('Select your business type'),
+                                      value: selectedOption,
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          selectedOption = newValue;
+                                        });
+                                        // Perform any desired action when the option is selected
+                                        print(selectedOption);
+                                      },
+                                      items: dropdownOptions.map((String option) {
+                                        return DropdownMenuItem<String>(
+                                          value: option,
+                                          child: Text(option),
+                                        );
+                                      }).toList(),
+                                    ),
                                   ),
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                Row(children: [
-                                  Expanded(
-                                    flex: 8,
-                                    child: TextFormField(
-                                        onChanged: (val) {
-                                          setState(() {
-                                            _openingTimeText = DateFormat.Hm()
-                                                .format(_openingTime!.toDate());
-                                          });
-                                        },
-                                        initialValue: _openingTimeText,
-                                        readOnly: true,
-                                        onTap: () => showTimePicker(
-                                                    context: context,
-                                                    initialTime:
-                                                        const TimeOfDay(
-                                                            hour: 0, minute: 0))
-                                                .then(
-                                              (pickedTime) {
-                                                if (pickedTime != null) {
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  Text(
+                                      AppLocalizations.of(context)!
+                                          .selectCategory,
+                                      style: const TextStyle(fontSize: 12)),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Row(
+                                      children: categories
+                                          .map(
+                                            (chip) => Padding(
+                                              padding: const EdgeInsets.symmetric(
+                                                  horizontal: 5),
+                                              child: ChoiceChip(
+                                                label: Text(chip.display),
+                                                selected:
+                                                    _selectedChip == chip.display,
+                                                onSelected: (selected) {
                                                   setState(() {
-                                                    _openingTime =
-                                                        Timestamp.fromDate(
-                                                            DateTime(
-                                                                2000,
-                                                                1,
-                                                                1,
-                                                                pickedTime.hour,
-                                                                pickedTime
-                                                                    .minute));
-                                                    _openingTimeText =
-                                                        DateFormat.Hm().format(
-                                                            _openingTime!
-                                                                .toDate());
+                                                    _selectedChip = selected
+                                                        ? chip.display
+                                                        : '';
                                                   });
-                                                }
-                                              },
+                                                },
+                                              ),
                                             ),
-                                        decoration: const InputDecoration(
-                                          labelText: 'Opening Time',
-                                        )),
+                                          )
+                                          .toList(),
+                                    ),
                                   ),
-                                  const Spacer(),
-                                  Expanded(
-                                    flex: 8,
-                                    child: TextFormField(
-                                        onChanged: (val) {
-                                          setState(() {
-                                            _closingTimeText = DateFormat.Hm()
-                                                .format(_closingTime!.toDate());
-                                          });
-                                        },
-                                        initialValue: _closingTimeText,
-                                        readOnly: true,
-                                        onTap: () => showTimePicker(
-                                                    context: context,
-                                                    initialTime:
-                                                        const TimeOfDay(
-                                                            hour: 0, minute: 0))
-                                                .then(
-                                              (pickedTime) {
-                                                if (pickedTime != null) {
-                                                  setState(() {
-                                                    _closingTime =
-                                                        Timestamp.fromDate(
-                                                            DateTime(
-                                                                2000,
-                                                                1,
-                                                                1,
-                                                                pickedTime.hour,
-                                                                pickedTime
-                                                                    .minute));
-                                                    _closingTimeText =
-                                                        DateFormat.Hm().format(
-                                                            _closingTime!
-                                                                .toDate());
-                                                  });
-                                                }
-                                              },
-                                            ),
-                                        decoration: const InputDecoration(
-                                          labelText: 'Closing Time',
-                                        )),
-                                  ),
-                                ]),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                IntlPhoneField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _phone = val.completeNumber;
-                                    });
-                                  },
-                                  initialValue: _phone,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        AppLocalizations.of(context)!.phone,
-                                  ),
-                                  keyboardType: TextInputType.number,
-                                  validator: (value) {
-                                    if (value == null) {
-                                      return 'Phone number is required';
-                                    }
-                                    return null; // Return null if the input is valid
-                                  },
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _website = val;
-                                    });
-                                  },
-                                  initialValue: _website,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Website is required';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                      labelText: AppLocalizations.of(context)!
-                                          .website),
-                                  keyboardType: TextInputType.url,
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _location = val;
-                                    });
-                                  },
-                                  initialValue: _location,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Location is required';
-                                    }
-                                    return null;
-                                  },
-                                  decoration:
-                                      const InputDecoration(labelText: 'Location'),
-                                  keyboardType: TextInputType.streetAddress,
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _description = val;
-                                    });
-                                  },
-                                  initialValue: _description,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Description is required';
-                                    }
-                                    return null;
-                                  },
-                                  maxLines: 5,
-                                  minLines: 1,
-                                  decoration: InputDecoration(
-                                      labelText: AppLocalizations.of(context)!
-                                          .description),
-                                  keyboardType: TextInputType.text,
-                                  textCapitalization:
-                                      TextCapitalization.sentences,
-                                ),
-                                const Padding(
-                                    padding: EdgeInsets.only(top: 15)),
-                                TextFormField(
-                                  onChanged: (val) {
-                                    setState(() {
-                                      _email = val;
-                                    });
-                                  },
-                                  initialValue: _email,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Email is required';
-                                    }
-                                    if (!RegExp(
-                                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                        .hasMatch(value)) {
-                                      return 'Invalid email address';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  Row(children: [
+                                    Expanded(
+                                      flex: 8,
+                                      child: TextFormField(
+                                          onChanged: (val) {
+                                            setState(() {
+                                              _openingTimeTextController.text =
+                                                  DateFormat.Hm().format(
+                                                      _openingTime!.toDate());
+                                            });
+                                          },
+                                          controller: _openingTimeTextController,
+                                          readOnly: true,
+                                          onTap: () => showTimePicker(
+                                                      context: context,
+                                                      initialTime:
+                                                          const TimeOfDay(
+                                                              hour: 0, minute: 0))
+                                                  .then(
+                                                (pickedTime) {
+                                                  if (pickedTime != null) {
+                                                    setState(() {
+                                                      _openingTime =
+                                                          Timestamp.fromDate(
+                                                              DateTime(
+                                                                  2000,
+                                                                  1,
+                                                                  1,
+                                                                  pickedTime.hour,
+                                                                  pickedTime
+                                                                      .minute));
+                                                      _openingTimeTextController
+                                                              .text =
+                                                          DateFormat.Hm().format(
+                                                              _openingTime!
+                                                                  .toDate());
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                          decoration: const InputDecoration(
+                                            labelText: 'Opening Time',
+                                          )),
+                                    ),
+                                    const Spacer(),
+                                    Expanded(
+                                      flex: 8,
+                                      child: TextFormField(
+                                          onChanged: (val) {
+                                            setState(() {
+                                              _closingTimeTextController.text =
+                                                  DateFormat.Hm().format(
+                                                      _closingTime!.toDate());
+                                            });
+                                          },
+                                          controller: _closingTimeTextController,
+                                          readOnly: true,
+                                          onTap: () => showTimePicker(
+                                                      context: context,
+                                                      initialTime:
+                                                          const TimeOfDay(
+                                                              hour: 0, minute: 0))
+                                                  .then(
+                                                (pickedTime) {
+                                                  if (pickedTime != null) {
+                                                    setState(() {
+                                                      _closingTime =
+                                                          Timestamp.fromDate(
+                                                              DateTime(
+                                                                  2000,
+                                                                  1,
+                                                                  1,
+                                                                  pickedTime.hour,
+                                                                  pickedTime
+                                                                      .minute));
+                                                      _closingTimeTextController
+                                                              .text =
+                                                          DateFormat.Hm().format(
+                                                              _closingTime!
+                                                                  .toDate());
+                                                    });
+                                                  }
+                                                },
+                                              ),
+                                          decoration: const InputDecoration(
+                                            labelText: 'Closing Time',
+                                          )),
+                                    ),
+                                  ]),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  IntlPhoneField(
+                                    controller: _phoneController,
+                                    decoration: InputDecoration(
                                       labelText:
-                                          AppLocalizations.of(context)!.email),
-                                  keyboardType: TextInputType.emailAddress,
-                                ),
-                              ],
+                                          AppLocalizations.of(context)!.phone,
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    validator: (value) {
+                                      if (value == null) {
+                                        return 'Phone number is required';
+                                      }
+                                      return null; // Return null if the input is valid
+                                    },
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  TextFormField(
+                                    controller: _websiteController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Website is required';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                        labelText: AppLocalizations.of(context)!
+                                            .website),
+                                    keyboardType: TextInputType.url,
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  TextFormField(
+                                    controller: _locationController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Location is required';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: const InputDecoration(
+                                        labelText: 'Location'),
+                                    keyboardType: TextInputType.streetAddress,
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  TextFormField(
+                                    controller: _descriptionController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Description is required';
+                                      }
+                                      return null;
+                                    },
+                                    maxLines: 5,
+                                    minLines: 1,
+                                    decoration: InputDecoration(
+                                        labelText: AppLocalizations.of(context)!
+                                            .description),
+                                    keyboardType: TextInputType.text,
+                                    textCapitalization:
+                                        TextCapitalization.sentences,
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.only(top: 15)),
+                                  TextFormField(
+                                    controller: _emailController,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Email is required';
+                                      }
+                                      if (!RegExp(
+                                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                          .hasMatch(value)) {
+                                        return 'Invalid email address';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                        labelText:
+                                            AppLocalizations.of(context)!.email),
+                                    keyboardType: TextInputType.emailAddress,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -507,46 +490,87 @@ class _EditPlaceState extends State<EditPlace> {
                         width: width(context) * 0.8,
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_profilePicture != null &&
-                                _coverPhoto != null) {
+                            if ((_profilePicture != null &&
+                                    _coverPhoto != null) ||
+                                (networkProfile != null &&
+                                    networkCoverPhoto != null)) {
                               if (selectedOption != null) {
                                 if (_selectedChip != null) {
                                   if (_formKey.currentState!.validate()) {
-                                    showDialog(
-                                      context: context,
-                                      builder: (_) => AlertDialog(
-                                        title: Text(
-                                          AppLocalizations.of(context)!
-                                              .createIgniter,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        content: Text(
-                                          AppLocalizations.of(context)!
-                                              .igniterTrial,
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        actions: [
-                                          TextButton(
-                                            onPressed: () => {
-                                              savePlaceProfile(
-                                                businessName: _name,
-                                                location: _location,
-                                                website: _website,
-                                                category: _selectedChip,
-                                                description: _description,
-                                                emailAddress: _email,
-                                                phoneNumber: _phone,
-                                              ).then((value) => Navigator
-                                                  .pushReplacementNamed(context,
-                                                      'igniter_dashboard')),
-                                            },
-                                            child: Text(
+                                    placeData == null
+                                        ? showDialog(
+                                            context: context,
+                                            builder: (_) => AlertDialog(
+                                              title: Text(
                                                 AppLocalizations.of(context)!
-                                                    .proceed),
-                                          ),
-                                        ],
-                                      ),
-                                    );
+                                                    .createIgniter,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              content: Text(
+                                                AppLocalizations.of(context)!
+                                                    .igniterTrial,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => {
+                                                    savePlaceProfile(
+                                                      businessName:
+                                                          _nameController.text,
+                                                      location:
+                                                          _locationController
+                                                              .text,
+                                                      website:
+                                                          _websiteController
+                                                              .text,
+                                                      category: _selectedChip,
+                                                      description:
+                                                          _descriptionController
+                                                              .text,
+                                                      emailAddress:
+                                                          _emailController.text,
+                                                      phoneNumber:
+                                                          _phoneController.text,
+                                                    ).then((value) => Navigator
+                                                        .pushReplacementNamed(
+                                                            context,
+                                                            'igniter_dashboard')),
+                                                  },
+                                                  child: Text(
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .proceed),
+                                                ),
+                                              ],
+                                            ),
+                                          )
+                                        : uploadImageToFirebase(_coverPhoto,
+                                                'places/${widget.place!.id}/coverPhoto')
+                                            .then((coverPic) {
+                                            uploadImageToFirebase(
+                                                    _profilePicture,
+                                                    'places/${widget.place?.id}/profile_photo')
+                                                .then((profilePic) {
+                                              savePlaceProfile(
+                                                businessName:
+                                                    _nameController.text,
+                                                location:
+                                                    _locationController.text,
+                                                website:
+                                                    _websiteController.text,
+                                                category: _selectedChip,
+                                                description:
+                                                    _descriptionController.text,
+                                                emailAddress:
+                                                    _emailController.text,
+                                                phoneNumber:
+                                                    _phoneController.text,
+                                              ).then((value) =>
+                                                  Navigator.popAndPushNamed(
+                                                      context,
+                                                      'ignitier_dashboard'));
+                                            });
+                                          });
                                   }
                                 } else {
                                   showSnackbar(

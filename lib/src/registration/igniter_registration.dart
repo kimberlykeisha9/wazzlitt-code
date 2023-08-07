@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:wazzlitt/src/event/edit_event_organizer.dart';
+import 'package:wazzlitt/src/place/edit_place.dart';
 import '../app.dart';
 
 class IgniterRegistration extends StatefulWidget {
@@ -30,7 +32,7 @@ class _IgniterRegistrationState extends State<IgniterRegistration> {
             Expanded(
               flex: 5,
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, 'igniter_profile', arguments: 'event_organizer'),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EditEventOrganizer())),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
@@ -63,7 +65,7 @@ class _IgniterRegistrationState extends State<IgniterRegistration> {
             Expanded(
               flex: 5,
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, 'igniter_profile', arguments: 'business_owner'),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EditPlace())),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
@@ -96,7 +98,7 @@ class _IgniterRegistrationState extends State<IgniterRegistration> {
             Expanded(
               flex: 5,
               child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, 'igniter_profile', arguments: 'individual'),
+                // onTap: () => Navigator.pushNamed(context, 'igniter_profile', arguments: 'individual'),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),

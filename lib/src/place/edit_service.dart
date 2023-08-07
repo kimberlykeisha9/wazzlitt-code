@@ -25,6 +25,7 @@ class _EditServiceState extends State<EditService> {
 
   void initState() {
     super.initState();
+    widget.service['available'] ? available = 1 : available = 2;
     _name = widget.service['service_name'];
     _networkServicePhoto = widget.service['image'];
     _description = widget.service['service_description'];
@@ -78,7 +79,9 @@ class _EditServiceState extends State<EditService> {
                         height: 150,
                         decoration: BoxDecoration(
                           color: Colors.grey,
-                          image: _servicePhoto == null ? null : DecorationImage(image:
+                          image: _networkServicePhoto != null ? DecorationImage(image:
+                          NetworkImage(_networkServicePhoto!), fit: BoxFit.cover,
+                          ) : _servicePhoto == null ? null : DecorationImage(image:
                           FileImage(_servicePhoto!), fit: BoxFit.cover,
                           ),
                         ),

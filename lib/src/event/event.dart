@@ -111,13 +111,21 @@ class Event extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold)),
-                  ListTile(
-                    leading: const Icon(Icons.park),
-                    title: const Text('Organizer name'),
-                    subtitle: const Text('Category'),
-                    trailing: TextButton(
-                        onPressed: () {},
-                        child: const Text('Follow')),
+                  FutureBuilder<DocumentSnapshot>(
+                    future: (event['lister'] as DocumentReference?)?.collection('account_type').doc('igniter')?.get(),
+                    builder: (context, snapshot) {
+                      Map<String, dynamic>? organizerData = snapshot.data?.data() as Map<String, dynamic>?;
+                      if (snapshot.hasData) {
+                        return ListTile(
+                          leading: CircleAvatar(foregroundImage: NetworkImage(organizerData?['image']),),
+                          title: Text(organizerData?['organizer_name'] ?? 'null'),
+                          subtitle: Text(organizerData?['category'] ?? 'null'),
+                          trailing: TextButton(
+                              onPressed: () {},
+                              child: const Text('Follow')),
+                        );
+                      } return Center(child: CircularProgressIndicator());
+                    }
                   ),
                 ],
               ),
