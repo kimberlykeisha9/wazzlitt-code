@@ -36,6 +36,8 @@ dependencies:
   http: ^1.1.0
   cached_network_image: ^3.2.3
   uuid: ^3.0.7
+  flutter_stripe: ^9.3.0
+  cloud_functions: ^4.3.4
 
 dev_dependencies:
   flutter_test:

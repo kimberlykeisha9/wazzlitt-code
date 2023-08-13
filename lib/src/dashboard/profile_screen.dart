@@ -20,6 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen>  with
   void initState() {
     // TODO: implement initState
     super.initState();
+    getCurrentLocation();
     _tabController = TabController(length: 2, vsync: this);
   }
   @override
@@ -60,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen>  with
                     profilePhoto, firstName: firstName, lastName: lastName,
                       bio: bio, username: username, interests: interests,
                         isHivPositive: isHivPositive, isGangMember:
-                      isGangMember,),
+                      isGangMember, dob: dob?.toDate(), posts: createdPosts!),
                     ActivityTab(createdPosts: createdPosts,),
                   ],
                 ),
@@ -90,6 +91,8 @@ class ProfileTab extends StatelessWidget {
     required this.interests,
     required this.isGangMember,
     required this.isHivPositive,
+    required this.dob,
+    required this.posts,
   });
 
   final String? coverPhoto;
@@ -101,6 +104,8 @@ class ProfileTab extends StatelessWidget {
   final List? interests;
   final bool? isGangMember;
   final bool? isHivPositive;
+  final DateTime? dob;
+  final List<dynamic> posts;
 
 
   @override
@@ -169,12 +174,12 @@ class ProfileTab extends StatelessWidget {
                 Text('@$username', style: TextStyle(fontSize:
                 12)),
                 const SizedBox(height: 20),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Column(
                       children: [
-                        Text('0', style: TextStyle(fontWeight: FontWeight
+                        Text(posts.length.toString(), style: TextStyle(fontWeight: FontWeight
                             .bold, fontSize: 18)),
                         Text('Posts', style: TextStyle(fontSize: 14)),
                       ],
@@ -199,8 +204,31 @@ class ProfileTab extends StatelessWidget {
                 Text(bio ?? 'No Bio', textAlign: TextAlign.center),
                 const SizedBox(height: 20),
                 const Text('Star Sign', style: TextStyle(fontSize: 12)),
-                const Text('Capricorn',
+                Text(getStarSign(dob!),
                     style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                const Text('Currently at', style: TextStyle(fontSize: 12)),
+                FutureBuilder<String>(
+                  future: getCurrentLocation(),
+                  builder: (context, snapshot) {
+                    print(snapshot.connectionState);
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Text('Loading...',
+                          style: TextStyle(fontWeight: FontWeight.bold));
+                    }
+                    if (snapshot.hasData) {
+                     return Text(snapshot.data!,
+                          style: TextStyle(fontWeight: FontWeight.bold));
+                    }
+                    if (snapshot.hasError) {
+                      return Text('An error occured',
+                          style: TextStyle(fontWeight: FontWeight.bold));
+                    }
+
+                    return CircularProgressIndicator();
+                  },
+                ),
+                const SizedBox(height: 20),
                 SizedBox(height: 20),
                 Flexible(
                   child: SizedBox(
@@ -226,7 +254,8 @@ class ProfileTab extends StatelessWidget {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.all(5)),
-                          onPressed: () {},
+                          onPressed: () => Navigator.pushNamed(context, 'patrone_registration'
+                          ),
                           child: const Text('Edit Profile',
                               style: TextStyle(fontSize: 12)),
                         ),
