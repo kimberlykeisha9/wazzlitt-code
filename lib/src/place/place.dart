@@ -13,9 +13,9 @@ class Place extends StatelessWidget {
 
   late GoogleMapController mapController;
 
-  Future<int> inRadius() {
-    firestore.collection('users').
-  }
+  // Future<int> inRadius() {
+  //   firestore.collection('users').
+  // }
 
   // Initial map camera position.
   static const LatLng _initialPosition = LatLng(37.7749, -122.4194);
