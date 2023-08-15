@@ -22,6 +22,7 @@ class _NewServiceState extends State<NewService> {
   TextEditingController? _nameController, _descriptionController, _priceController;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  @override
   void initState() {
     super.initState();
     _nameController = TextEditingController();

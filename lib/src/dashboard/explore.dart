@@ -10,7 +10,6 @@ import 'package:wazzlitt/src/event/event.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 import '../place/place.dart';
-import '../place/place_order.dart';
 import '../registration/interests.dart';
 
 class Explore extends StatefulWidget {
@@ -133,7 +132,7 @@ class PlacesTab extends StatelessWidget {
                 shrinkWrap: true,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 1,
+                  childAspectRatio: 2/3,
                 ),
                 itemCount: 4,
                 itemBuilder: (BuildContext context, int index) {
@@ -170,7 +169,7 @@ class PlacesTab extends StatelessWidget {
                               ),),
                             ),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Text(
                             place['place_name'],
                             style: const TextStyle(
@@ -180,9 +179,9 @@ class PlacesTab extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 5),
-                          Text(
+                          const Text(
                             '0 km away',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
                               color: Colors.white,
                             ),
@@ -194,34 +193,8 @@ class PlacesTab extends StatelessWidget {
                 },
               );
             }
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }),
-          const Padding(
-            padding: EdgeInsets.all(20),
-            child: Text('Nearby Places',
-                style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-      SizedBox(
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: 2,
-          itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.all(10),
-            child: ListTile(
-              leading: const Icon(Icons.place),
-              title: Text('Place $index',
-                  style: const TextStyle(fontWeight: FontWeight.bold)),
-              subtitle: const Wrap(
-                direction: Axis.vertical,
-                children: [
-                  Text('Location', style: TextStyle(fontSize: 14)),
-                  Text('0 km away', style: TextStyle(fontSize: 14)),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
     ]);
   }
 }
@@ -241,117 +214,76 @@ class LitTab extends StatelessWidget {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: width(context) * 0.5,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 2,
-                    itemBuilder: (context, index) {
-                      print(docList);
-                      Map<String, dynamic> result =
-                          docList[index].data() as Map<String, dynamic>;
-                      return GestureDetector(
-                        onTap: () => Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                builder: (context) => Event(event: result))),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Container(
-                            height: width(context) * 0.5,
-                            width: width(context) * 0.5,
-                            decoration: BoxDecoration(
-                                image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(result['image']),
-                            )),
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  result['event_name'],
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  result['category'],
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                  child: Text('Upcoming Events',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
                 Expanded(
                   child: SizedBox(
-                    child: ListView.builder(
+                    child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 2/3,
+                      ),
                       itemCount: docList.length,
                       itemBuilder: (context, index) {
-                        Map<String, dynamic> event =
+                        print(docList);
+                        Map<String, dynamic> result =
                             docList[index].data() as Map<String, dynamic>;
-                        return Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: ListTile(
-                            visualDensity: VisualDensity.standard,
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Event(event: event))),
-                            leading: SizedBox(
-                              width: 80,
-                              height: 80,
-                              child: Hero(
-                                tag: event['event_name'],
-                                child: Image.network(
-                                  event['image'],
-                                  fit: BoxFit.cover,
-                                ),
+                        return GestureDetector(
+                          onTap: () => Navigator.push(
+                              context,
+                              CupertinoPageRoute(
+                                  builder: (context) => Event(event: result))),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical:0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(result['image']),
+                              )),
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: Container(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      child: Text(
+                                        DateFormat.yMMMd().format((result['date'] ?? Timestamp.now()).toDate()),
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Container(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    child: Text(
+                                      result['event_name'],
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    color: Theme.of(context).colorScheme.secondary,
+                                    child: Text(
+                                      result['category'],
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                            title: Text(event['event_name'],
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            trailing: Text(
-                                (event.containsKey('price'))
-                                    ? '\$'
-                                        '${double.parse(event['price'].toString()).toStringAsFixed(2)}'
-                                    : 'Free',
-                                style: TextStyle(
-                                    fontSize: 14, fontWeight: FontWeight.bold)),
-                            subtitle: Wrap(
-                              direction: Axis.vertical,
-                              children: [
-                                Text(
-                                    (event.containsKey('date'))
-                                        ? DateFormat.yMEd().format(
-                                            (event['date'] as Timestamp)
-                                                .toDate())
-                                        : 'Date TBA',
-                                    style: TextStyle(fontSize: 16)),
-                                SizedBox(height: 2),
-                                Text(
-                                    (event.containsKey('location'))
-                                        ? event['location']
-                                        : 'Location TBA',
-                                    style: TextStyle(fontSize: 14)),
-                              ],
                             ),
                           ),
                         );
@@ -362,7 +294,7 @@ class LitTab extends StatelessWidget {
               ],
             );
           }
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         });
   }
 }

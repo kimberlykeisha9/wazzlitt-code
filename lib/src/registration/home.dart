@@ -26,7 +26,7 @@ class Home extends StatelessWidget {
               flex: 20,
             ),
             ZoomIn(
-              duration: Duration(milliseconds: 300),
+              duration: const Duration(milliseconds: 300),
               child: Text(
                 AppLocalizations.of(context)!.homeTitle,
                 style: const TextStyle(
@@ -37,7 +37,7 @@ class Home extends StatelessWidget {
             ),
             const Spacer(),
             ZoomIn(
-              duration: Duration(milliseconds: 400),
+              duration: const Duration(milliseconds: 400),
               child: SizedBox(
                 width: width(context),
                 child: ElevatedButton(
@@ -50,7 +50,7 @@ class Home extends StatelessWidget {
             ),
             const Spacer(),
             ZoomIn(
-              duration: Duration(milliseconds: 500),
+              duration: const Duration(milliseconds: 500),
               child: SizedBox(
                 width: width(context),
                 child: ElevatedButton(

@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../authorization/authorization.dart';
+import '../../user_data/payments.dart';
 import '../app.dart';
 
 class PatroneRegistration extends StatefulWidget {
@@ -66,6 +67,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
     super.initState();
     currentUserPatroneProfile.get().then((profile) {
       if (profile.exists) {
+        auth.currentUser!.reload();
         Map<String, dynamic>? data = profile.data();
         setState(() {
           firstNameController = TextEditingController(text: data?['first_name']);
@@ -74,11 +76,11 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
           emailController = TextEditingController(text: auth.currentUser!.email);
           dobController = TextEditingController(text: DateFormat.yMMMMd().format((data?['dob'] as Timestamp).toDate()));
           selectedDOB = (data?['dob'] as Timestamp).toDate();
-          _selectedGender = data!['gender'];
-          networkProfile = data!['profile_picture'];
-          networkCoverPhoto = data!['cover_photo'];
-          _isHIVPositive = data!['is_hiv_positive'];
-          _isGangMember = data!['is_gang_member'];
+          _selectedGender = data?['gender'];
+          networkProfile = data?['profile_picture'];
+          networkCoverPhoto = data?['cover_photo'];
+          _isHIVPositive = data?['is_hiv_positive'];
+          _isGangMember = data?['is_gang_member'];
           passwordController = TextEditingController();
           _isExistingUser = true;
         });
@@ -96,10 +98,10 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
           padding: const EdgeInsets.all(30),
           child: Column(
             children: [
-              Text(
+              const Text(
                 'Patrone Account',
                 style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               Text(
@@ -260,6 +262,29 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                           Padding(
                             padding: const EdgeInsets.only(bottom: 15),
                             child: TextFormField(
+                              controller: emailController,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Email is required';
+                                }
+                                final emailRegex = RegExp(
+                                  r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,7}$',
+                                );
+                                if (!(emailRegex.hasMatch(value))) {
+                                  return 'Enter a valid email address';
+                                }
+                                return null;
+                              },
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context)!.email,
+                              ),
+                              autofillHints: const [AutofillHints.email],
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 15),
+                            child: TextFormField(
                               controller: dobController,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
@@ -290,8 +315,8 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                               keyboardType: TextInputType.datetime,
                             ),
                           ),
-                          Text('Select your gender:'),
-                          SizedBox(height: 10),
+                          const Text('Select your gender:'),
+                          const SizedBox(height: 10),
                           DropdownButtonFormField<String>(
                             value: _selectedGender,
                             onChanged: (value) {
@@ -299,7 +324,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                                 _selectedGender = value!;
                               });
                             },
-                            items: [
+                            items: const [
                               DropdownMenuItem<String>(
                                 value: 'male',
                                 child: Text('Male'),
@@ -323,7 +348,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                             ],
                           ),
                           CheckboxListTile(
-                            title: Text('Are you a gang member?'),
+                            title: const Text('Are you a gang member?'),
                             value: _isGangMember,
                             onChanged: (value) {
                               setState(() {
@@ -332,7 +357,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                             },
                           ),
                           CheckboxListTile(
-                            title: Text('Are you HIV positive?'),
+                            title: const Text('Are you HIV positive?'),
                             value: _isHIVPositive,
                             onChanged: (value) {
                               setState(() {
@@ -351,7 +376,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
               SizedBox(
                 width: width(context),
                 child: ElevatedButton(
-                  child: Text('Continue'),
+                  child: const Text('Continue'),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       showDialog(
@@ -367,18 +392,21 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                           ),
                           actions: [
                             TextButton(
-                              onPressed: () => saveUserPatroneInformation(
-                                firstName: firstNameController.text,
-                                lastName: lastNameController.text,
-                                username: usernameController.text,
-                                dob: selectedDOB,
-                                isGangMember: _isGangMember,
-                                isHIVPositive: _isHIVPositive,
-                                gender: _selectedGender,
-                              ).then((value) => Navigator.popAndPushNamed(
-                                  context, 'interests'), onError: (e) =>
-                              showSnackbar(context, 'An error has occured. '
-                                  'Please try again later.')),
+                              onPressed: () {
+                              //   saveUserPatroneInformation(
+                              //   firstName: firstNameController.text,
+                              //   lastName: lastNameController.text,
+                              //   username: usernameController.text,
+                              //   dob: selectedDOB,
+                              //   isGangMember: _isGangMember,
+                              //   isHIVPositive: _isHIVPositive,
+                              //   gender: _selectedGender,
+                              // ).then((value) => Navigator.popAndPushNamed(
+                              //     context, 'interests'), onError: (e) =>
+                              // showSnackbar(context, 'An error has occured. '
+                              //     'Please try again later.'));
+                                payForPatrone(context);
+                              },
                               child:
                                   Text(AppLocalizations.of(context)!.proceed),
                             ),

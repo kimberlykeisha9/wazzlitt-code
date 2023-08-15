@@ -53,13 +53,13 @@ Future<void> signInWithPhoneNumber(
             signInWithPhoneNumber(phoneNumber, context, onCodeSent);
             ScaffoldMessenger.of(context).clearMaterialBanners();
           },
-          child: Text('Resend Code')),
+          child: const Text('Resend Code')),
       TextButton(
           onPressed: () {
             ScaffoldMessenger.of(context).clearMaterialBanners();
           },
-          child: Text('Dismiss')),
-    ], content: Text('Your verification code has timed out.')));
+          child: const Text('Dismiss')),
+    ], content: const Text('Your verification code has timed out.')));
   }
 
   try {

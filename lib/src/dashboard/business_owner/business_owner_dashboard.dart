@@ -6,9 +6,9 @@ import '../../app.dart';
 import '../../place/new_service.dart';
 
 class BusinessOwnerDashboard extends StatefulWidget {
-  BusinessOwnerDashboard({super.key, required this.listings});
+  const BusinessOwnerDashboard({super.key, required this.listings});
 
-  List<dynamic> listings;
+  final List<dynamic> listings;
 
   @override
   State<BusinessOwnerDashboard> createState() => _BusinessOwnerDashboardState();
@@ -81,7 +81,7 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
                           ),
                           const SizedBox(height: 20),
                           Text(listingData['place_name'] ?? 'null',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               )),
@@ -89,36 +89,36 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
                           Card(
                               elevation: 10,
                               child: Padding(
-                                padding: EdgeInsets.all(20),
+                                padding: const EdgeInsets.all(20),
                                 child: Column(children: [
-                                  Text('Daily Stats Overview',
+                                  const Text('Daily Stats Overview',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                       )),
-                                  SizedBox(height: 20),
+                                  const SizedBox(height: 20),
                                   Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Column(
                                           children: [
-                                            Text('Services Sold',
+                                            const Text('Services Sold',
                                                 style: TextStyle(fontSize: 12)),
                                             Text(
                                                 '${(listingData['orders'] != null || listingData.containsKey('orders')) ? (listingData['orders'] as List).length : 0}',
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontWeight:
                                                         FontWeight.bold)),
-                                            SizedBox(height: 20),
-                                            Text('Revenue Earned',
+                                            const SizedBox(height: 20),
+                                            const Text('Revenue Earned',
                                                 style: TextStyle(fontSize: 12)),
-                                            Text('\$0.00',
+                                            const Text('\$0.00',
                                                 style: TextStyle(
                                                     fontWeight:
                                                         FontWeight.bold)),
                                           ],
                                         ),
-                                        Column(
+                                        const Column(
                                           children: [
                                             Text('Daily Chats',
                                                 style: TextStyle(fontSize: 12)),
@@ -135,7 +135,7 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
                                                         FontWeight.bold)),
                                           ],
                                         ),
-                                        Column(
+                                        const Column(
                                           children: [
                                             Text('Daily Impressions',
                                                 style: TextStyle(fontSize: 12)),
@@ -210,16 +210,15 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
                                                           MainAxisAlignment
                                                               .spaceBetween,
                                                       children: [
-                                                        Text('Sales'),
-                                                        Text('\$' +
-                                                            double.parse((service[
+                                                        const Text('Sales'),
+                                                        Text('\$${double.parse((service[
                                                                             'price'] *
                                                                         (listingData['orders']
                                                                                 as List)
                                                                             .length)
                                                                     .toString())
                                                                 .toStringAsFixed(
-                                                                    2))
+                                                                    2)}')
                                                       ]),
                                                   const SizedBox(height: 5),
                                                   Row(
@@ -227,7 +226,7 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
                                                           MainAxisAlignment
                                                               .spaceBetween,
                                                       children: [
-                                                        Text('Units Sold'),
+                                                        const Text('Units Sold'),
                                                         Text((listingData[
                                                                     'orders']
                                                                 as List)
@@ -241,7 +240,7 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
                                           ),
                                         ],
                                       )
-                                    : Center(
+                                    : const Center(
                                         child: Text(
                                             'You have not listed any services')),
                                 const SizedBox(height: 10),
@@ -308,7 +307,7 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
                         ],
                       );
                     }
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   });
             },
           ),

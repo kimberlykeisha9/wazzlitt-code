@@ -23,6 +23,7 @@ class _EditServiceState extends State<EditService> {
   String? _name, _description, _price;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  @override
   void initState() {
     super.initState();
     widget.service['available'] ? available = 1 : available = 2;

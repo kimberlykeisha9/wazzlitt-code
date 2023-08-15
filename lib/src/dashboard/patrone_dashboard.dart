@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 import 'dart:io';
-import '../location/location.dart';
 import 'chats_view.dart';
 import 'explore.dart';
 import 'feed.dart';
-import 'feed_image.dart';
 import 'patrone_drawer.dart';
 import 'upload_image.dart';
 
@@ -26,24 +25,25 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   @override
   void initState() {
     super.initState();
+    uploadLocation();
     _exploreController = TabController(length: 2, vsync: this);
   }
 
   List<Widget> views(BuildContext context) {
     return [
-      Feed(),
+      const Feed(),
       Explore(
         tabController: _exploreController!,
       ),
-      ChatsView(chatType: ChatRoomType.individual),
-      const ProfileScreen(),
+      const ChatsView(chatType: ChatRoomType.individual),
+      ProfileScreen(userProfile: currentUserPatroneProfile,),
     ];
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: PatroneDrawer(),
+      drawer: const PatroneDrawer(),
       appBar: AppBar(
         title: titleWidget(context),
         actions: [
@@ -115,7 +115,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
         );
       case 1:
         return IconButton(
-          onPressed: () {},
+          onPressed: () => Navigator.pushNamed(context, 'search'),
           icon: const Icon(Icons.search),
         );
     }

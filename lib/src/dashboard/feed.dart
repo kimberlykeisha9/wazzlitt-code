@@ -6,7 +6,7 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import 'feed_image.dart';
 
 class Feed extends StatefulWidget {
-  Feed({
+  const Feed({
     super.key,
   });
 
@@ -35,7 +35,7 @@ class _FeedState extends State<Feed> {
                 }
           );
         } else {
-          return Center(child: Text('Nothing to see here'));
+          return const Center(child: Text('Nothing to see here'));
         }
       },
     );

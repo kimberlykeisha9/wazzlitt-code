@@ -42,7 +42,7 @@ class _UploadImageState extends State<UploadImage> {
     try {
       List<Location> locations = await locationFromAddress(query);
       List<Placemark> placemarks = await placemarkFromCoordinates(
-          locations[0].latitude!, locations[0].longitude!,
+          locations[0].latitude, locations[0].longitude,
           localeIdentifier: 'enUS');
       setState(() {
         _locationCoordinates = locations;
@@ -78,24 +78,21 @@ class _UploadImageState extends State<UploadImage> {
           IconButton(
             onPressed: () {
               print(_locationCoordinates);
-              if (widget.uploadedImage != null &&
-                  _selectedChip != null &&
-                  _selectedLocation != null &&
-                  _locationCoordinates[0] != null) {
+              if (_selectedChip != null &&
+                  _selectedLocation != null) {
                 uploadPost(
                   widget.uploadedImage,
                   _captionController.text,
                   _selectedChip!,
-                  _locationCoordinates[0]!.latitude,
-                  _locationCoordinates[0]!.longitude,
+                  _locationCoordinates[0].latitude,
+                  _locationCoordinates[0].longitude,
                 ).then((value) => Navigator.of(context).pop());
               } else {
                 if (_selectedChip == null) {
                   log('No category selected');
                   showSnackbar(context, 'Please select a category');
                 }
-                if (_selectedLocation == null ||
-                    _locationCoordinates[0] == null) {
+                if (_selectedLocation == null) {
                   showSnackbar(context, 'Please put the location');
                   log('No location selected');
                 }
@@ -111,7 +108,7 @@ class _UploadImageState extends State<UploadImage> {
         body: SafeArea(
             child: PageView(
                 controller: pageController,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
               Padding(
                 padding: const EdgeInsets.all(20),
@@ -139,7 +136,7 @@ class _UploadImageState extends State<UploadImage> {
                           itemCount: _locations.length,
                           itemBuilder: (context, index) {
                             if (_locations == []) {
-                              return Text('No places found');
+                              return const Text('No places found');
                             }
                             return ListTile(
                               selected: _selectedLocation == _locations[index],
@@ -158,7 +155,7 @@ class _UploadImageState extends State<UploadImage> {
                             );
                           }),
                     )),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     SizedBox(
                         width: width(context),
                         child: ElevatedButton(
@@ -171,7 +168,7 @@ class _UploadImageState extends State<UploadImage> {
                               showSnackbar(context, 'Please select a location');
                             }
                           },
-                          child: Text('Next'),
+                          child: const Text('Next'),
                         )),
                   ],
                 ),
@@ -237,14 +234,14 @@ class _UploadImageState extends State<UploadImage> {
                       Text.rich(
                         TextSpan(
                           text: 'Vibing at ',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 16,
                             color: Colors.black,
                           ),
                           children: [
                             TextSpan(
                               text: _selectedLocation?.name ?? '',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,

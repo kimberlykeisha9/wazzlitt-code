@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import '../../app.dart';
 import '../../event/edit_ticket.dart';
 import '../../event/new_ticket.dart';
-import '../../place/new_service.dart';
 
 class EventOrganizerDashboard extends StatefulWidget {
   EventOrganizerDashboard({super.key, required this.events});
@@ -54,11 +53,11 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard> with 
   void initState() {
     super.initState();
     _eventController = TabController(length: widget.events.length, vsync: this);
-    widget.events.forEach((event) {
+    for (var event in widget.events) {
       (event as DocumentReference).get().then((eventData) {
         eventNames.add(eventData.get('event_name'));
     });
-  });
+  }
   }
 
 
@@ -75,7 +74,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard> with 
                 controller: _eventController,
                 tabs: eventNames.map((name) => Tab(text: name)).toList(),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Expanded(
                 child: TabBarView(
                   controller: _eventController,
@@ -104,7 +103,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard> with 
                                 ),
                                 const SizedBox(height: 20),
                                 Text(eventData['event_name'] ?? 'null',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
                                     )),
@@ -114,36 +113,36 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard> with 
                                 Card(
                                     elevation: 10,
                                     child: Padding(
-                                      padding: EdgeInsets.all(20),
+                                      padding: const EdgeInsets.all(20),
                                       child: Column(children: [
-                                        Text('Daily Stats Overview',
+                                        const Text('Daily Stats Overview',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             )),
-                                        SizedBox(height: 20),
+                                        const SizedBox(height: 20),
                                         Row(
                                             mainAxisAlignment:
                                             MainAxisAlignment.spaceEvenly,
                                             children: [
                                               Column(
                                                 children: [
-                                                  Text('Tickets Sold',
+                                                  const Text('Tickets Sold',
                                                       style: TextStyle(fontSize: 12)),
                                                   Text(
                                                       '${(eventData['orders'] != null || eventData.containsKey('orders')) ? (eventData['orders'] as List).length : 0}',
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                           fontWeight:
                                                           FontWeight.bold)),
-                                                  SizedBox(height: 20),
-                                                  Text('Revenue Earned',
+                                                  const SizedBox(height: 20),
+                                                  const Text('Revenue Earned',
                                                       style: TextStyle(fontSize: 12)),
-                                                  Text('\$0.00',
+                                                  const Text('\$0.00',
                                                       style: TextStyle(
                                                           fontWeight:
                                                           FontWeight.bold)),
                                                 ],
                                               ),
-                                              Column(
+                                              const Column(
                                                 children: [
                                                   Text('Daily Chats',
                                                       style: TextStyle(fontSize: 12)),
@@ -160,7 +159,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard> with 
                                                           FontWeight.bold)),
                                                 ],
                                               ),
-                                              Column(
+                                              const Column(
                                                 children: [
                                                   Text('Daily Impressions',
                                                       style: TextStyle(fontSize: 12)),
@@ -243,14 +242,13 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard> with 
                                                         MainAxisAlignment
                                                             .spaceBetween,
                                                         children: [
-                                                          Text('Sales'),
-                                                          Text('\$' +
-                                                              double.parse((ticket[
+                                                          const Text('Sales'),
+                                                          Text('\$${double.parse((ticket[
                                                               'price'] *
                                                                   ((eventData['orders'] == null || !eventData.containsKey('orders')) ? 0 : eventData['orders'].length))
                                                                   .toString())
                                                                   .toStringAsFixed(
-                                                                  2))
+                                                                  2)}')
                                                         ]),
                                                     const SizedBox(height: 5),
                                                     Row(
@@ -258,7 +256,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard> with 
                                                         MainAxisAlignment
                                                             .spaceBetween,
                                                         children: [
-                                                          Text('Tickets Sold'),
+                                                          const Text('Tickets Sold'),
                                                           Text('${((eventData['orders'] == null || !eventData.containsKey('orders')) ? 0 : eventData['orders'].length)}'),
                                                         ]),
                                                     const SizedBox(height: 10),
@@ -269,7 +267,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard> with 
                                           ),
                                         ],
                                       )
-                                          : Center(
+                                          : const Center(
                                           child: Text(
                                               'You have not listed any tickets')),
                                       const SizedBox(height: 10),
@@ -328,7 +326,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard> with 
                               ],
                             );
                           }
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator());
                         })
               ).toList(),),),
             ],

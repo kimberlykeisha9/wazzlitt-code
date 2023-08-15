@@ -1,16 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wazzlitt/src/event/edit_event.dart';
 
 import '../../../user_data/user_data.dart';
 import '../../app.dart';
 import '../../event/edit_event_organizer.dart';
-import '../../place/edit_place.dart';
-import '../../place/service_overview.dart';
 
 class EventOrganizerProfile extends StatelessWidget {
-  EventOrganizerProfile({super.key});
+  const EventOrganizerProfile({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +76,7 @@ class EventOrganizerProfile extends StatelessWidget {
                                   Text(
                                       eventOrganizerData['organizer_name'] ??
                                           'null',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                           fontWeight: FontWeight.bold,
                                           fontSize: 20)),
                                   const SizedBox(height: 20),
@@ -100,7 +97,7 @@ class EventOrganizerProfile extends StatelessWidget {
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    EditEventOrganizer(),
+                                                    const EditEventOrganizer(),
                                               ),
                                             ),
                                             child: const Text('Edit Profile',
@@ -154,7 +151,7 @@ class EventOrganizerProfile extends StatelessWidget {
                                   TextButton(
                                     child: const Text('Create new event'),
                                     onPressed: () {
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => EditEvent()));
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => const EditEvent()));
                                     },
                                   ),
                                 ],
@@ -188,19 +185,19 @@ class EventOrganizerProfile extends StatelessWidget {
                                             ),
                                           ),
                                           padding: const EdgeInsets.all(20),
-                                          child: Center(child: Text(eventData['event_name'], style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),),
+                                          child: Center(child: Text(eventData['event_name'], style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold), textAlign: TextAlign.center),),
                                         ),
                                       );
                                     }
-                                    return Center(child: CircularProgressIndicator());
+                                    return const Center(child: CircularProgressIndicator());
                                   }
                                 );
-                              }, gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+                              }, gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                             ),
                           ],
                         );
                       }
-                      return Center(child: CircularProgressIndicator());
+                      return const Center(child: CircularProgressIndicator());
                     }))));
   }
 }

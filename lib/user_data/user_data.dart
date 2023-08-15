@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,7 +5,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:uuid/uuid.dart';
-import 'package:http/http.dart' as http;
 import '../src/registration/interests.dart';
 
 import 'dart:io';
@@ -31,6 +29,7 @@ Future<String?> uploadImageToFirebase(File? imageFile, String path) async {
       return null;
     }
   }
+  return null;
 }
 
 Future<String?> payFromBalance(double amount) async {
@@ -58,10 +57,11 @@ Future<String?> payFromBalance(double amount) async {
   } catch (e) {
     print(e);
   }
+  return null;
 }
 
 String generateUniqueId() {
-  var uuid = Uuid();
+  var uuid = const Uuid();
   return uuid.v4(); // Returns a version 4 (random) UUID
 }
 
@@ -411,31 +411,93 @@ String getStarSign(DateTime date) {
   return starSigns[index];
 }
 
-Future<String> getCurrentLocation() async {
+Future<void> uploadLocation() async {
   LocationPermission locationPermission = await Geolocator.checkPermission();
   if (locationPermission == LocationPermission.denied) {
     LocationPermission permissionStatus = await Geolocator.requestPermission();
     if (permissionStatus == LocationPermission.deniedForever) {
-        print('Location permissions are permanently denied.');
-      return 'Not available';
+      print('Location permissions are permanently denied.');
     }
   }
 
   if (locationPermission == LocationPermission.denied ||
       locationPermission == LocationPermission.deniedForever) {
     print('Location permissions are denied.');
-    return 'Not available';
   }
 
   Position position = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high);
 
-  List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude, position.longitude);
+  currentUserPatroneProfile.update({
+    'current_location': GeoPoint(position.latitude, position.longitude),
+  });
+}
 
-  Placemark placemark =  placemarks.where((placemark) => !(placemark.name!.contains('+'))).toList()[0];
+Future<bool> isFollowingUser(DocumentReference user) async {
+  bool isFollowing = false;
+  try {
+    await currentUserPatroneProfile.get().then((value) {
+      Map<String, dynamic> data = value.data() as Map<String, dynamic>;
+      List<dynamic> following = data['following'];
+      isFollowing = following.contains(user);
+    });
+    return isFollowing;
+  } catch (e) {
+    log(e.toString());
+    return isFollowing;
+  }
+}
 
-    return '${placemark.name}, ${placemark.country}';
+followUser (DocumentReference user) async {
+  try {
+    await currentUserPatroneProfile.update({
+      'following': FieldValue.arrayUnion([user]),
+    }).then((value) async {
+      await user.update({
+        'followers': FieldValue.arrayUnion([currentUserPatroneProfile]),
+      });
+    });
+    log('followed ${user.path}');
+  } catch (e) {
+    log(e.toString());
+  }
+}
+
+unfollowUser (DocumentReference user) async {
+  try {
+    await currentUserPatroneProfile.update({
+      'following': FieldValue.arrayRemove([user]),
+    }).then((value) async {
+      await user.update({
+        'followers': FieldValue.arrayRemove([currentUserPatroneProfile]),
+      });
+    });
+    log('unfollowed ${user.path}');
+  } catch (e) {
+    log(e.toString());
+  }
+}
+
+Future<String> getCurrentLocation(DocumentReference userProfile) async {
+  String serverLocation = '';
+    await userProfile.get().then((data) async {
+      if (data.exists) {
+        Map<String, dynamic> userData = data.data() as Map<String, dynamic>;
+        GeoPoint? location = userData['current_location'];
+        if (location != null) {
+          List<Placemark> placemarks = await placemarkFromCoordinates(
+              location.latitude, location.longitude);
+          Placemark placemark =  placemarks.where((placemark) => !(placemark.name!.contains('+'))).toList()[0];
+
+          serverLocation = '${placemark.name}, ${placemark.country}';
+        } else {
+          serverLocation = 'Not available';
+        }
+      } else {
+        serverLocation = 'Not available';
+      }
+    });
+    return serverLocation;
 }
 
 Future<void> sendMessage(
@@ -445,7 +507,9 @@ Future<void> sendMessage(
       'senderID': currentUserProfile,
       'content': messageContent,
       'time_sent': DateTime.now(),
-    });
+    }).then((chat) => chats.parent!.update({
+      'last_message': chat,
+    }));
   } catch (e) {
     log(e.toString());
   }
@@ -546,7 +610,13 @@ Future<void> savePlaceProfile(
           .then((newPlace) => currentUserIgniterProfile.update({
                 'listings': FieldValue.arrayUnion([newPlace]),
                 'igniter_type': 'business_owner'
-              }));
+              }).then((_) => firestore.collection('messages').add({
+        'owner': newPlace,
+        'welcome_message': 'Hi welcome to our chat room',
+        'last_message': null,
+      }).then((chatroom) => newPlace.update({
+        'chat_room' : chatroom,
+      }))));
     }
   } on FirebaseException catch (e) {
     log(e.code);

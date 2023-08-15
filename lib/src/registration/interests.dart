@@ -1,6 +1,4 @@
-import 'dart:convert';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
@@ -137,7 +135,7 @@ class Category {
 }
 
 class CategoryProvider extends ChangeNotifier {
-  List<Category> _selectedCategories = [];
+  final List<Category> _selectedCategories = [];
 
   List<Category> get selectedCategories => _selectedCategories;
 

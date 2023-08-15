@@ -10,6 +10,7 @@ import '../authorization/authorization.dart';
 import 'dashboard/feed.dart';
 import 'dashboard/igniter_dashboard.dart';
 import 'dashboard/patrone_dashboard.dart';
+import 'dashboard/search.dart';
 import 'orders/confirmed_order.dart';
 import 'orders/orders.dart';
 import 'registration/home.dart';
@@ -19,7 +20,6 @@ import 'registration/interests.dart';
 import 'settings/settings.dart';
 import 'settings/settings_controller.dart';
 import 'registration/sign_up.dart';
-import 'place/place_order.dart' as wazzlitt_place;
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -56,11 +56,11 @@ class MyApp extends StatelessWidget {
             darkTheme: ThemeData(
                 colorScheme: ColorScheme.dark(
                   onPrimary: Colors.white,
-                    primary: Colors.indigo[900]!,
-                    secondary: Colors.greenAccent[400]!),
+                    primary: Colors.orangeAccent[700]!,
+                    secondary: Colors.yellowAccent),
               chipTheme: ChipThemeData(
-                  backgroundColor: Colors.greenAccent[700],
-                  selectedColor: Colors.greenAccent[400]),
+                  backgroundColor: Colors.yellowAccent,
+                  selectedColor: Colors.yellowAccent[700]),
               inputDecorationTheme: InputDecorationTheme(
                 border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
                 titleTextStyle:
                 const TextStyle(color: Colors.white, fontSize: 16),
                 toolbarHeight: height(context) * 0.075,
-                iconTheme: IconThemeData(color: Colors.white!),
+                iconTheme: const IconThemeData(color: Colors.white),
               ),
               elevatedButtonTheme: ElevatedButtonThemeData(
                   style: ElevatedButton.styleFrom(
@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10)))),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  foregroundColor: Colors.indigo[600],
+                  foregroundColor: Colors.yellowAccent,
                 )
               ),
               textTheme: const TextTheme(
@@ -90,9 +90,9 @@ class MyApp extends StatelessWidget {
               ),
             ),
             theme: ThemeData(
-                tabBarTheme: TabBarTheme(labelColor: Colors.indigo[900]),
+                tabBarTheme: TabBarTheme(labelColor: Colors.orangeAccent[700]),
                 bottomNavigationBarTheme: BottomNavigationBarThemeData(
-                    backgroundColor: Colors.indigo[900]),
+                    backgroundColor: Colors.orangeAccent[700]),
                 appBarTheme: AppBarTheme(
                   color: Colors.transparent,
                   elevation: 0,
@@ -100,11 +100,11 @@ class MyApp extends StatelessWidget {
                   titleTextStyle:
                       const TextStyle(color: Colors.black, fontSize: 16),
                   toolbarHeight: height(context) * 0.075,
-                  iconTheme: IconThemeData(color: Colors.indigo[900]!),
+                  iconTheme: IconThemeData(color: Colors.orangeAccent[700]),
                 ),
                 chipTheme: ChipThemeData(
-                    backgroundColor: Colors.greenAccent[100],
-                    selectedColor: Colors.greenAccent[400]),
+                    backgroundColor: Colors.yellow[200],
+                    selectedColor: Colors.yellowAccent),
                 inputDecorationTheme: InputDecorationTheme(
                   border:
                       OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
@@ -119,8 +119,8 @@ class MyApp extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)))),
                 colorScheme: ColorScheme.light(
-                    primary: Colors.indigo[900]!,
-                    secondary: Colors.greenAccent[400]!)),
+                    primary: Colors.orangeAccent[700]!,
+                    secondary: Colors.yellowAccent)),
             themeMode: settingsController.themeMode,
             initialRoute: isLoggedIn ? 'dashboard' : 'home',
             routes: {
@@ -135,6 +135,7 @@ class MyApp extends StatelessWidget {
               'confirmed': (context) => const ConfirmedOrder(),
               'dashboard': (context) => const Dashboard(),
               'igniter_dashboard': (context) => const IgniterDashboard(),
+              'search': (context) => Search(),
               // 'place_order': (context) => PlaceOrder(),
             },
           );

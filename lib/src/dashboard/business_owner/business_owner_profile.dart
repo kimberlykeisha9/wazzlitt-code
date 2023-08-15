@@ -8,9 +8,9 @@ import '../../place/edit_place.dart';
 import '../../place/service_overview.dart';
 
 class BusinessOwnerProfile extends StatelessWidget {
-  BusinessOwnerProfile({super.key, required this.listings});
+  const BusinessOwnerProfile({super.key, required this.listings});
 
-  List<dynamic> listings;
+  final List<dynamic> listings;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +93,7 @@ class BusinessOwnerProfile extends StatelessWidget {
                           child: Column(
                             children: [
                               Text(listingData['place_name'] ?? 'null',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20)),
                               const SizedBox(height: 20),
@@ -104,7 +104,7 @@ class BusinessOwnerProfile extends StatelessWidget {
                               Text(
                                   listingData['location'] ??
                                       'You have not set your location',
-                                  style: TextStyle(fontSize: 14)),
+                                  style: const TextStyle(fontSize: 14)),
                               const SizedBox(height: 20),
                               Row(
                                 children: [
@@ -214,7 +214,7 @@ class BusinessOwnerProfile extends StatelessWidget {
                                           trailing: IconButton(
                                             onPressed: () =>
                                                 deleteService(service, placeData),
-                                            icon: Icon(Icons.delete,
+                                            icon: const Icon(Icons.delete,
                                                 color: Colors.red),
                                           ),
                                           leading: Container(
@@ -243,7 +243,7 @@ class BusinessOwnerProfile extends StatelessWidget {
                                         );
                                       },
                                     )
-                                  : Align(
+                                  : const Align(
                                       alignment: Alignment.topLeft,
                                       child: Text(
                                         'You have not listed any services',
@@ -278,7 +278,7 @@ class BusinessOwnerProfile extends StatelessWidget {
                       ],
                     );
                   }
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 });
           }),
         ),

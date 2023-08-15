@@ -1,14 +1,11 @@
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../authorization/authorization.dart';
 import '../app.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../registration/interests.dart';
@@ -29,11 +26,11 @@ class _EditEventOrganizerState extends State<EditEventOrganizer>
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Text Controllers
-  TextEditingController? _nameController = TextEditingController();
-  TextEditingController? _phoneController = TextEditingController();
-  TextEditingController? _websiteController = TextEditingController();
-  TextEditingController? _descriptionController = TextEditingController();
-  TextEditingController? _emailController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _websiteController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
   // Images from Network
   String? networkProfile;
@@ -57,11 +54,11 @@ class _EditEventOrganizerState extends State<EditEventOrganizer>
       if (value.exists) {
         Map<String, dynamic>? organizerData =
         value.data();
-        _nameController?.text = organizerData?['organizer_name'] ?? '';
-        _phoneController?.text = organizerData?['phone_number'] ?? '';
-        _websiteController?.text = organizerData?['website'] ?? '';
-        _descriptionController?.text = organizerData?['organizer_description'] ?? '';
-        _emailController?.text = organizerData?['email_address'] ?? '';
+        _nameController.text = organizerData?['organizer_name'] ?? '';
+        _phoneController.text = organizerData?['phone_number'] ?? '';
+        _websiteController.text = organizerData?['website'] ?? '';
+        _descriptionController.text = organizerData?['organizer_description'] ?? '';
+        _emailController.text = organizerData?['email_address'] ?? '';
         networkCoverPhoto = organizerData?['cover_image'] ?? '';
         networkProfile = organizerData?['image'];
         _selectedChip = organizerData?['category'];
@@ -343,12 +340,12 @@ class _EditEventOrganizerState extends State<EditEventOrganizer>
                                               'users/${auth.currentUser!.uid}/igniter/profile_photo')
                                           .then((profilePic) {
                                         saveEventOrganizerProfile(
-                                          organizerName: _nameController?.text,
-                                          website: _websiteController?.text,
+                                          organizerName: _nameController.text,
+                                          website: _websiteController.text,
                                           category: _selectedChip,
-                                          description: _descriptionController?.text,
-                                          emailAddress: _emailController?.text,
-                                          phoneNumber: _phoneController?.text,
+                                          description: _descriptionController.text,
+                                          emailAddress: _emailController.text,
+                                          phoneNumber: _phoneController.text,
                                           coverPhoto:
                                               coverPic ?? networkCoverPhoto,
                                           profilePhoto:
@@ -403,12 +400,12 @@ class _EditEventOrganizerState extends State<EditEventOrganizer>
                         'users/${auth.currentUser!.uid}/igniter/profile_photo')
                     .then((profilePic) {
                   saveEventOrganizerProfile(
-                    organizerName: _nameController?.text,
-                    website: _websiteController?.text,
+                    organizerName: _nameController.text,
+                    website: _websiteController.text,
                     category: _selectedChip,
-                    description: _descriptionController?.text,
-                    emailAddress: _emailController?.text,
-                    phoneNumber: _phoneController?.text,
+                    description: _descriptionController.text,
+                    emailAddress: _emailController.text,
+                    phoneNumber: _phoneController.text,
                     coverPhoto: coverPic ?? networkCoverPhoto,
                     profilePhoto: profilePic ?? networkProfile,
                   ).then((value) => Navigator.pushReplacementNamed(

@@ -1,13 +1,10 @@
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../registration/interests.dart';
@@ -25,10 +22,10 @@ class _EditEventState extends State<EditEvent> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Text Controllers
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _descriptionController = TextEditingController();
-  TextEditingController _locationController = TextEditingController();
-  TextEditingController _dateController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
 
   // Time
   Timestamp? _date;
@@ -52,7 +49,7 @@ class _EditEventState extends State<EditEvent> {
     widget.event?.get().then((value) {
       if (value.exists) {
         Map<String, dynamic>? eventData =
-            value?.data() as Map<String, dynamic>?;
+            value.data() as Map<String, dynamic>?;
         _nameController.text = eventData?['event_name'] ?? '';
         _descriptionController.text = eventData?['event_description'] ?? '';
         _locationController.text = eventData?['location']?? '';
@@ -94,13 +91,13 @@ class _EditEventState extends State<EditEvent> {
           title: const Text('Edit Event'),
           actions: [
             widget.event != null ? TextButton(
-              child: Text('Delete'),
+              child: const Text('Delete'),
               onPressed: () {
                 if (widget.event != null) {
                   widget.event?.delete().then((value) => Navigator.pop(context));
                 }
               }
-            ) : SizedBox(),
+            ) : const SizedBox(),
           ]
         ),
         body: FutureBuilder<DocumentSnapshot>(
@@ -205,7 +202,7 @@ class _EditEventState extends State<EditEvent> {
                                       }
                                       return null;
                                     },
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: 'Event Date',
                                     ),
                                     keyboardType: TextInputType.text,

@@ -4,8 +4,6 @@ import 'package:wazzlitt/src/dashboard/igniter_dashboard.dart';
 import 'package:wazzlitt/src/dashboard/patrone_dashboard.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
-import '../../authorization/authorization.dart';
-import '../app.dart';
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -29,14 +27,14 @@ class Dashboard extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(top: 50),
                       child: Column(children: [
-                        Text(
+                        const Text(
                           'Welcome to WazzLitt!\n\nChoose which profile you would like to access',
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 30),
+                        const SizedBox(height: 30),
                         Expanded(
                           child: Container(
-                            decoration: BoxDecoration(
+                            decoration: const BoxDecoration(
                               image: DecorationImage(
                                 fit: BoxFit.cover,
                                 image: NetworkImage(
@@ -45,7 +43,7 @@ class Dashboard extends StatelessWidget {
                             ),
                             child: Center(
                                 child: TextButton(
-                              child: Text('Patrone Profile',
+                              child: const Text('Patrone Profile',
                                   style: TextStyle(
                                       fontSize: 30, color: Colors.white)),
                               onPressed: () => Navigator.popAndPushNamed(
@@ -64,7 +62,7 @@ class Dashboard extends StatelessWidget {
                               ),
                               child: Center(
                                   child: TextButton(
-                                child: Text('Igniter Profile',
+                                child: const Text('Igniter Profile',
                                     style: TextStyle(
                                         fontSize: 30, color: Colors.white)),
                                 onPressed: () => Navigator.popAndPushNamed(
@@ -87,8 +85,8 @@ class Dashboard extends StatelessWidget {
                 body: SafeArea(
                   child: Column(
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(40),
+                      const Padding(
+                        padding: EdgeInsets.all(40),
                         child: Column(
                           children: [
                             Text(
@@ -109,7 +107,7 @@ class Dashboard extends StatelessWidget {
                       ),
                       Expanded(
                         child: Container(
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             image: DecorationImage(
                               fit: BoxFit.cover,
                               image: NetworkImage(
@@ -119,7 +117,7 @@ class Dashboard extends StatelessWidget {
                           ),
                           child: Center(
                             child: TextButton(
-                              child: Text('Patrone Profile',
+                              child: const Text('Patrone Profile',
                                   style: TextStyle(
                                       fontSize: 30, color: Colors.white)),
                               onPressed: () => Navigator.popAndPushNamed(
@@ -139,7 +137,7 @@ class Dashboard extends StatelessWidget {
                           ),
                           child: Center(
                             child: TextButton(
-                              child: Text('Igniter Profile',
+                              child: const Text('Igniter Profile',
                                   style: TextStyle(
                                       fontSize: 30, color: Colors.white)),
                               onPressed: () => Navigator.popAndPushNamed(
@@ -156,7 +154,7 @@ class Dashboard extends StatelessWidget {
           }
           return Container(
               color: Colors.white,
-              child: Center(child: CircularProgressIndicator()));
+              child: const Center(child: CircularProgressIndicator()));
         });
   }
 }

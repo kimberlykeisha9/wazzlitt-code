@@ -56,7 +56,7 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
     return Column(
       children: [
         ZoomIn(
-          duration: Duration(milliseconds: 200),
+          duration: const Duration(milliseconds: 200),
           child: Text(
             AppLocalizations.of(context)!.verifyPhone,
             textAlign: TextAlign.center,
@@ -66,7 +66,7 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
         Form(
           key: widget._formKey,
           child: ZoomIn(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             child: IntlPhoneField(
               controller: widget._phoneController,
               decoration: InputDecoration(
@@ -87,7 +87,7 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
         ),
         const Spacer(),
         ZoomIn(
-          duration: Duration(milliseconds: 400),
+          duration: const Duration(milliseconds: 400),
           child: SizedBox(
               width: width(context),
               child: ElevatedButton(
@@ -109,13 +109,13 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
         ),
         const Spacer(),
         ZoomIn(
-          duration: Duration(milliseconds: 500),
+          duration: const Duration(milliseconds: 500),
           child: Text(
             AppLocalizations.of(context)!.googleSignIn,
           ),
         ),
         ZoomIn(
-          duration: Duration(milliseconds: 600),
+          duration: const Duration(milliseconds: 600),
           child: IconButton(
             icon: const FaIcon(FontAwesomeIcons.google),
             onPressed: () {},
@@ -123,7 +123,7 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
         ),
         const Spacer(flex: 2),
         ZoomIn(
-          duration: Duration(milliseconds: 700),
+          duration: const Duration(milliseconds: 700),
           child: Text(
             AppLocalizations.of(context)!.acceptTerms,
             textAlign: TextAlign.center,
@@ -147,27 +147,27 @@ class _PhoneVerificationState extends State<PhoneVerification> {
     });
     return Column(
       children: [
-        Spacer(),
+        const Spacer(),
         ZoomIn(
-        duration: Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 200),
           child: Text(
             'A verification code will be sent to $_phoneNumber',
             textAlign: TextAlign.center,
           ),
         ),
-        Spacer(),
+        const Spacer(),
         ZoomIn(
-    duration: Duration(milliseconds: 300),
-          child: Text(
+    duration: const Duration(milliseconds: 300),
+          child: const Text(
             'Please enter it in the space below',
             textAlign: TextAlign.center,
           ),
         ),
-        Spacer(),
+        const Spacer(),
         ZoomIn(
-    duration: Duration(milliseconds: 400),
+    duration: const Duration(milliseconds: 400),
           child: TextButton(
-            child: Text('Change phone number'),
+            child: const Text('Change phone number'),
             onPressed: () {
               widget._pageController.previousPage(
                   duration: const Duration(milliseconds: 200),
@@ -175,9 +175,9 @@ class _PhoneVerificationState extends State<PhoneVerification> {
             },
           ),
         ),
-        Spacer(),
+        const Spacer(),
         ZoomIn(
-    duration: Duration(milliseconds: 500),
+    duration: const Duration(milliseconds: 500),
           child: PinCodeTextField(
               controller: _verificationController,
               validator: (val) {
@@ -194,9 +194,9 @@ class _PhoneVerificationState extends State<PhoneVerification> {
               length: 6,
               onChanged: (val) {}),
         ),
-        Spacer(flex: 5),
+        const Spacer(flex: 5),
         ZoomIn(
-    duration: Duration(milliseconds: 600),
+    duration: const Duration(milliseconds: 600),
           child: SizedBox(
             width: width(context),
             child: ElevatedButton(
@@ -240,11 +240,11 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                             {showSnackbar(context, 'Something went wrong.')}
                         });
               },
-              child: Text('Verify'),
+              child: const Text('Verify'),
             ),
           ),
         ),
-        Spacer(flex: 10),
+        const Spacer(flex: 10),
       ],
     );
   }
@@ -262,7 +262,7 @@ class _SignUpState extends State<SignUp> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _smsController = TextEditingController();
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
 
   @override
   Widget build(BuildContext context) {
@@ -273,7 +273,7 @@ class _SignUpState extends State<SignUp> {
           padding: const EdgeInsets.all(30),
           child: PageView(
             controller: _pageController,
-            physics: NeverScrollableScrollPhysics(),
+            physics: const NeverScrollableScrollPhysics(),
             children: [
               PhoneNumberPrompt(
                 formKey: _formKey,

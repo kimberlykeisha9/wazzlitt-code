@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -70,16 +69,16 @@ class _IgniterProfileState extends State<IgniterProfile> {
         });
       });
       currentUserIgniterProfile.get().then((igniterData) => {
-      _nameController.text = igniterData?['title'],
-          _phoneController.text = igniterData?['phone_number'],
-          _websiteController.text = igniterData?['website'],
-          _locationController.text = igniterData?['location'],
-          _descriptionController.text = igniterData?['description'],
-          _emailController.text = igniterData?['email_address'],
-          _selectedChip = igniterData?['category'],
-          selectedOption = igniterData?['business_type'],
-        networkCoverPhoto = igniterData?['cover_photo'],
-        networkProfile = igniterData?['profile_photo'],
+      _nameController.text = igniterData['title'],
+          _phoneController.text = igniterData['phone_number'],
+          _websiteController.text = igniterData['website'],
+          _locationController.text = igniterData['location'],
+          _descriptionController.text = igniterData['description'],
+          _emailController.text = igniterData['email_address'],
+          _selectedChip = igniterData['category'],
+          selectedOption = igniterData['business_type'],
+        networkCoverPhoto = igniterData['cover_photo'],
+        networkProfile = igniterData['profile_photo'],
 
       });
     firestore.collection('app_data').doc('categories').get().then((value) {
@@ -124,7 +123,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
         return;
       } else {
 
-        http.Response response = await http.get(Uri.parse(imageUrl!));
+        http.Response response = await http.get(Uri.parse(imageUrl));
 
       if (response.statusCode == 200) {
         final picker = ImagePicker();
@@ -195,7 +194,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                               ) : _profilePicture == null ? null : DecorationImage(image: FileImage(_profilePicture!)),
                             ),
                             child: _profilePicture != null
-                                ? SizedBox()
+                                ? const SizedBox()
                                 : const Icon(Icons.person),
                           ),
                         ),
@@ -228,7 +227,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                             keyboardType: TextInputType.text,
                             textCapitalization: TextCapitalization.words,
                           ),
-                          igniterType == 'business_owner' ? const Padding(padding: EdgeInsets.only(top: 15)) : SizedBox(),
+                          igniterType == 'business_owner' ? const Padding(padding: EdgeInsets.only(top: 15)) : const SizedBox(),
                           igniterType == 'business_owner' ? Container(
                         width: width(context),
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
@@ -238,8 +237,8 @@ class _IgniterProfileState extends State<IgniterProfile> {
                         ),
                         child: DropdownButton<String>(
                           isExpanded: true,
-                          underline: SizedBox(),
-                          hint: Text('Select your business type'),
+                          underline: const SizedBox(),
+                          hint: const Text('Select your business type'),
                           value: selectedOption,
                           onChanged: (newValue) {
                             setState(() {
@@ -313,7 +312,7 @@ class _IgniterProfileState extends State<IgniterProfile> {
                                 labelText: AppLocalizations.of(context)!.website),
                             keyboardType: TextInputType.url,
                           ),
-                          igniterType == 'business_owner' ? const Padding(padding: EdgeInsets.only(top: 15)) : SizedBox(),
+                          igniterType == 'business_owner' ? const Padding(padding: EdgeInsets.only(top: 15)) : const SizedBox(),
                           igniterType == 'business_owner' ? TextFormField(
                             controller: _locationController,
                             validator: (value) {
@@ -322,10 +321,10 @@ class _IgniterProfileState extends State<IgniterProfile> {
                               }
                               return null;
                             },
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                                 labelText: 'Location'),
                             keyboardType: TextInputType.streetAddress,
-                          ) : SizedBox(),
+                          ) : const SizedBox(),
                           const Padding(padding: EdgeInsets.only(top: 15)),
                           TextFormField(
                             controller: _descriptionController,

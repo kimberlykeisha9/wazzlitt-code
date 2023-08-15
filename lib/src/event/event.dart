@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../app.dart';
-import '../place/place_order.dart';
 import 'event_order.dart';
 
 class Event extends StatelessWidget {
@@ -62,7 +61,7 @@ class Event extends StatelessWidget {
                         Text((event.containsKey('price')) ? '\$'
                             '${((event['price'] * 1.25) as double).toStringAsFixed(2)}'
                             : 'N/A',
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontSize: 14,
                                 decoration:
                                 TextDecoration.lineThrough)),
@@ -112,7 +111,7 @@ class Event extends StatelessWidget {
                           fontSize: 20,
                           fontWeight: FontWeight.bold)),
                   FutureBuilder<DocumentSnapshot>(
-                    future: (event['lister'] as DocumentReference?)?.collection('account_type').doc('igniter')?.get(),
+                    future: (event['lister'] as DocumentReference?)?.collection('account_type').doc('igniter').get(),
                     builder: (context, snapshot) {
                       Map<String, dynamic>? organizerData = snapshot.data?.data() as Map<String, dynamic>?;
                       if (snapshot.hasData) {
@@ -124,7 +123,7 @@ class Event extends StatelessWidget {
                               onPressed: () {},
                               child: const Text('Follow')),
                         );
-                      } return Center(child: CircularProgressIndicator());
+                      } return const Center(child: CircularProgressIndicator());
                     }
                   ),
                 ],

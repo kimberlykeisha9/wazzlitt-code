@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 
@@ -23,7 +22,7 @@ class _EventOrderState extends State<EventOrder> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    tickets = widget.event?['tickets'] ?? [];
+    tickets = widget.event['tickets'] ?? [];
   }
   @override
   Widget build(BuildContext context) {
@@ -38,7 +37,7 @@ class _EventOrderState extends State<EventOrder> {
               Text(widget.event['event_name'],
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               const Spacer(),
-              Text('Choose which tickets you would like to order'),
+              const Text('Choose which tickets you would like to order'),
               const Spacer(),
               ListView.builder(
                 shrinkWrap: true,
@@ -48,7 +47,7 @@ class _EventOrderState extends State<EventOrder> {
                   return SizedBox(
                     width: width(context),
                     child: ListTile(
-                        title: Text(ticket['name']),
+                        title: Text(ticket['ticket_name']),
                         subtitle: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,19 +90,19 @@ class _EventOrderState extends State<EventOrder> {
                   subtitle: const Text('I confirm that I am liable to the Terms and '
                       'Conditions of this purchase and all other regulations set.')),
               const Spacer(flex: 3),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Total', style: TextStyle(fontSize: 20)),
+                  const Text('Total', style: TextStyle(fontSize: 20)),
                   Text(
                       _selectedTicket == null
                           ? '\$ 0.00'
                           : '\$ ${double.parse(_selectedTicket!['price'].toString()).toStringAsFixed(2)}',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 ],
               ),
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               SizedBox(
                   width: width(context),
                   child: ElevatedButton(
@@ -114,7 +113,7 @@ class _EventOrderState extends State<EventOrder> {
                           showDialog(
                               context: context,
                               builder: (_) => AlertDialog(
-                                title: Text(
+                                title: const Text(
                                   'I would like to pay by',
                                   textAlign: TextAlign.center,
                                 ),
@@ -128,7 +127,7 @@ class _EventOrderState extends State<EventOrder> {
                                             showSnackbar(
                                                 context, 'Not configured');
                                           },
-                                          child: Column(
+                                          child: const Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Icon(Icons.credit_card_outlined,
@@ -141,9 +140,9 @@ class _EventOrderState extends State<EventOrder> {
                                               ]),
                                         ),
                                       ),
-                                      SizedBox(width: 30),
-                                      Text('OR'),
-                                      SizedBox(width: 30),
+                                      const SizedBox(width: 30),
+                                      const Text('OR'),
+                                      const SizedBox(width: 30),
                                       Expanded(
                                           child: GestureDetector(
                                             onTap: () {
@@ -158,15 +157,15 @@ class _EventOrderState extends State<EventOrder> {
                                                       children: [
                                                         Text(
                                                             'Deduct \$${double.parse(_selectedTicket!['price'].toString()).toStringAsFixed(2)} from your WazzLitt account',
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 fontWeight:
                                                                 FontWeight
                                                                     .bold,
                                                                 fontSize: 20)),
-                                                        SizedBox(height: 60),
-                                                        Text(
+                                                        const SizedBox(height: 60),
+                                                        const Text(
                                                             'Confirm that you would like to deduct this amount from your balance.'),
-                                                        SizedBox(height: 60),
+                                                        const SizedBox(height: 60),
                                                         Row(
                                                           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           children: [
@@ -176,11 +175,10 @@ class _EventOrderState extends State<EventOrder> {
                                                                     0.4,
                                                                 child:
                                                                 ElevatedButton(
-                                                                  child: Text('Pay \$' +
-                                                                      double.parse(_selectedTicket!['price']
+                                                                  child: Text('Pay \$${double.parse(_selectedTicket!['price']
                                                                           .toString())
                                                                           .toStringAsFixed(
-                                                                          2)),
+                                                                          2)}'),
                                                                   onPressed:
                                                                       () {
                                                                     payFromBalance(double.parse(_selectedTicket!['price'].toString())).then((paymentStatus) {
@@ -195,7 +193,7 @@ class _EventOrderState extends State<EventOrder> {
                                                                   },
                                                                 )),
                                                             TextButton(
-                                                                child: Text(
+                                                                child: const Text(
                                                                     'Cancel'),
                                                                 onPressed: () =>
                                                                     Navigator.of(
@@ -207,7 +205,7 @@ class _EventOrderState extends State<EventOrder> {
                                                     ),
                                                   ));
                                             },
-                                            child: Column(
+                                            child: const Column(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Icon(

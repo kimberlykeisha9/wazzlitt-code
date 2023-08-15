@@ -32,7 +32,7 @@ class _IgniterRegistrationState extends State<IgniterRegistration> {
             Expanded(
               flex: 5,
               child: GestureDetector(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EditEventOrganizer())),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const EditEventOrganizer())),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),
@@ -65,7 +65,7 @@ class _IgniterRegistrationState extends State<IgniterRegistration> {
             Expanded(
               flex: 5,
               child: GestureDetector(
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => EditPlace())),
+                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const EditPlace())),
                 child: Container(
                   padding: const EdgeInsets.symmetric(vertical: 30),
                   width: width(context),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../app.dart';
 
 class ConfirmedOrder extends StatelessWidget {
@@ -16,7 +15,7 @@ class ConfirmedOrder extends StatelessWidget {
           Container(
             width: 250,
             height: 250,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
                 image: NetworkImage('https://i.pinimg.com/236x/91/0e/08/910e08a5ce36f96097423af6f8af99dd.jpg'),

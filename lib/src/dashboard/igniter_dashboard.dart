@@ -1,12 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:wazzlitt/src/dashboard/business_owner/business_owner_dashboard.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
-import '../place/edit_place.dart';
-import '../place/new_service.dart';
-import '../place/service_overview.dart';
 import 'business_owner/business_owner_profile.dart';
 import 'chats_view.dart';
 import 'event_organizer/event_organizer_dashboard.dart';
@@ -26,7 +22,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
   List<Widget> businessOwnerView(List<dynamic> listings) {
     return [
       BusinessOwnerDashboard(listings: listings),
-      ChatsView(chatType: ChatRoomType.business),
+      const ChatsView(chatType: ChatRoomType.business),
       BusinessOwnerProfile(listings: listings)
     ];
   }
@@ -34,8 +30,8 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
   List<Widget> eventOrganizerView(List<dynamic> events) {
     return [
       EventOrganizerDashboard(events: events),
-      ChatsView(chatType: ChatRoomType.business),
-      EventOrganizerProfile()
+      const ChatsView(chatType: ChatRoomType.business),
+      const EventOrganizerProfile()
     ];
   }
 
@@ -60,7 +56,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                 return eventOrganizerView(events)[_currentIndex];
               }
             }
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }),
       bottomNavigationBar: Theme(
         data: ThemeData(

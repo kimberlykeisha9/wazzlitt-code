@@ -13,7 +13,7 @@ class OrderDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(order['service']['service_name'] ?? ''),
+        title: Text(order['service']?['service_name'] ?? order['ticket']?['ticket_name'] ?? ''),
       ),
       body: SafeArea(
           child: Column(children: [
@@ -34,7 +34,7 @@ class OrderDetails extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Text(order['service']['service_name'] ?? 'null',
+                  child: Text(order['order_type'] == 'place' ? order['service']['service_name'] : order['ticket']['ticket_name'],
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       )),
@@ -48,11 +48,11 @@ class OrderDetails extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Order',
+                        const Text('Order',
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 10),
-                        Text(order['service']['service_name'] ?? 'null', style: TextStyle(fontSize: 14)),
+                        const SizedBox(height: 10),
+                        Text(order['order_type'] == 'place' ? order['service']['service_name'] : order['ticket']['ticket_name'], style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                     // Column(
@@ -68,30 +68,27 @@ class OrderDetails extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('Price',
+                        const Text('Price',
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold)),
-                        SizedBox(height: 10),
-                        Text('\$ ${double.parse(order['service']['price'].toString()).toStringAsFixed(2)}', style: TextStyle(fontSize: 14)),
+                        const SizedBox(height: 10),
+                        Text('\$ ${double.parse((order['order_type'] == 'place' ? order['service'] : order['ticket'])['price'].toString()).toStringAsFixed(2)}', style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
-                Text('Validity Date: ${DateFormat.yMMMd().format((order['date_placed'] as Timestamp).toDate().add(Duration(days: 3)))}',
-                    style: TextStyle(fontSize: 14)),
                 const Spacer(flex: 3),
                 const Text('Payment Status: Completed',
                     style: TextStyle(fontSize: 14)),
                 const Spacer(),
                 Text('Purchase Date: ${DateFormat.yMMMd().format((order['date_placed'] as Timestamp).toDate())}',
-                    style: TextStyle(fontSize: 14)),
+                    style: const TextStyle(fontSize: 14)),
                 const Spacer(),
                 Text('Order ID: ${(order['order_id'] as String).toUpperCase()}',
-                    style: TextStyle(fontSize: 14)),
+                    style: const TextStyle(fontSize: 14)),
                 const Spacer(),
                 Text('Payment Type: ${(order['payment_type'] as String).toUpperCase()}',
-                    style: TextStyle(fontSize: 14)),
+                    style: const TextStyle(fontSize: 14)),
                 const Spacer(flex: 3),
                 SizedBox(
                   width: width(context),

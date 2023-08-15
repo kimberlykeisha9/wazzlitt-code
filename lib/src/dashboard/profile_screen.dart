@@ -2,10 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/src/dashboard/feed_image.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
+import '../../authorization/authorization.dart';
 import '../app.dart';
+import 'conversation_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({super.key, required this.userProfile});
+
+  final DocumentReference userProfile;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -20,18 +24,16 @@ class _ProfileScreenState extends State<ProfileScreen>  with
   void initState() {
     // TODO: implement initState
     super.initState();
-    getCurrentLocation();
     _tabController = TabController(length: 2, vsync: this);
   }
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
-      stream: currentUserPatroneProfile.snapshots(),
+      stream: widget.userProfile.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           Map<String, dynamic> data = snapshot.data!.data() as Map<String,
               dynamic>;
-          print(data);
           String? coverPhoto = data['cover_photo'];
           String? profilePhoto = data['profile_picture'];
           String? firstName = data['first_name'];
@@ -61,8 +63,8 @@ class _ProfileScreenState extends State<ProfileScreen>  with
                     profilePhoto, firstName: firstName, lastName: lastName,
                       bio: bio, username: username, interests: interests,
                         isHivPositive: isHivPositive, isGangMember:
-                      isGangMember, dob: dob?.toDate(), posts: createdPosts!),
-                    ActivityTab(createdPosts: createdPosts,),
+                      isGangMember, dob: dob?.toDate(), posts: createdPosts ?? [], userProfile: widget.userProfile, following: following?? [], followers: followers??[]),
+                    ActivityTab(createdPosts: createdPosts, userProfile: widget.userProfile,),
                   ],
                 ),
               ),
@@ -70,9 +72,9 @@ class _ProfileScreenState extends State<ProfileScreen>  with
           );
         }
         else if (snapshot.hasError) {
-          return Center(child: Text('Something went wrong'));
+          return const Center(child: Text('Something went wrong'));
         } else {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
       }
     );
@@ -82,6 +84,7 @@ class _ProfileScreenState extends State<ProfileScreen>  with
 class ProfileTab extends StatelessWidget {
   const ProfileTab({
     super.key,
+    required this.userProfile,
     required this.coverPhoto,
     required this.profilePhoto,
     required this.firstName,
@@ -93,8 +96,11 @@ class ProfileTab extends StatelessWidget {
     required this.isHivPositive,
     required this.dob,
     required this.posts,
+    required this.following,
+    required this.followers,
   });
 
+  final DocumentReference userProfile;
   final String? coverPhoto;
   final String? profilePhoto;
   final String? firstName;
@@ -106,6 +112,8 @@ class ProfileTab extends StatelessWidget {
   final bool? isHivPositive;
   final DateTime? dob;
   final List<dynamic> posts;
+  final List<dynamic> following;
+  final List<dynamic> followers;
 
 
   @override
@@ -137,7 +145,7 @@ class ProfileTab extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       isGangMember != null ? Chip(label: Text(isGangMember! ?
-                          'Gang Member' : 'Not Gang Member')) : SizedBox(),
+                          'Gang Member' : 'Not Gang Member')) : const SizedBox(),
                       Container(
                         width: 100,
                         height: 100,
@@ -154,7 +162,7 @@ class ProfileTab extends StatelessWidget {
                       ),
                       isHivPositive != null ? Chip(label: Text(isHivPositive! ?
                       'HIV Postive' : 'HIV Negative')) :
-                      SizedBox(),
+                      const SizedBox(),
                     ],
                   ),
                 ),
@@ -171,7 +179,7 @@ class ProfileTab extends StatelessWidget {
                     style: const TextStyle(fontWeight: FontWeight
                         .bold)),
                 const SizedBox(height: 5),
-                Text('@$username', style: TextStyle(fontSize:
+                Text('@$username', style: const TextStyle(fontSize:
                 12)),
                 const SizedBox(height: 20),
                 Row(
@@ -179,21 +187,21 @@ class ProfileTab extends StatelessWidget {
                   children: [
                     Column(
                       children: [
-                        Text(posts.length.toString(), style: TextStyle(fontWeight: FontWeight
+                        Text(posts.length.toString(), style: const TextStyle(fontWeight: FontWeight
                             .bold, fontSize: 18)),
-                        Text('Posts', style: TextStyle(fontSize: 14)),
+                        const Text('Posts', style: TextStyle(fontSize: 14)),
                       ],
                     ),
-                    Column(
+                     Column(
                       children: [
-                        Text('0', style: TextStyle(fontWeight: FontWeight
+                        Text(followers.length.toString(), style: TextStyle(fontWeight: FontWeight
                             .bold, fontSize: 18)),
                         Text('Followers', style: TextStyle(fontSize: 14)),
                       ],
                     ),
                     Column(
                       children: [
-                        Text('0', style: TextStyle(fontWeight: FontWeight
+                        Text(following.length.toString(), style: TextStyle(fontWeight: FontWeight
                             .bold, fontSize: 18)),
                         Text('Following', style: TextStyle(fontSize: 14)),
                       ],
@@ -201,35 +209,40 @@ class ProfileTab extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Text(bio ?? 'No Bio', textAlign: TextAlign.center),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Theme.of(context).colorScheme.onSurface,),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                    child: Text(bio ?? 'No Bio', textAlign: TextAlign.center)),
                 const SizedBox(height: 20),
                 const Text('Star Sign', style: TextStyle(fontSize: 12)),
                 Text(getStarSign(dob!),
-                    style: TextStyle(fontWeight: FontWeight.bold)),
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
                 const Text('Currently at', style: TextStyle(fontSize: 12)),
                 FutureBuilder<String>(
-                  future: getCurrentLocation(),
+                  future: getCurrentLocation(userProfile),
                   builder: (context, snapshot) {
                     print(snapshot.connectionState);
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Text('Loading...',
+                      return const Text('Loading...',
                           style: TextStyle(fontWeight: FontWeight.bold));
                     }
                     if (snapshot.hasData) {
                      return Text(snapshot.data!,
-                          style: TextStyle(fontWeight: FontWeight.bold));
+                          style: const TextStyle(fontWeight: FontWeight.bold));
                     }
                     if (snapshot.hasError) {
-                      return Text('An error occured',
+                      return const Text('An error occured',
                           style: TextStyle(fontWeight: FontWeight.bold));
                     }
 
-                    return CircularProgressIndicator();
+                    return const CircularProgressIndicator();
                   },
                 ),
                 const SizedBox(height: 20),
-                SizedBox(height: 20),
                 Flexible(
                   child: SizedBox(
                     child: ListView.builder(itemCount: interests?.length ?? 0,
@@ -254,9 +267,41 @@ class ProfileTab extends StatelessWidget {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.all(5)),
-                          onPressed: () => Navigator.pushNamed(context, 'patrone_registration'
-                          ),
-                          child: const Text('Edit Profile',
+                          onPressed: () => userProfile == currentUserPatroneProfile ? Navigator.pushNamed(context, 'patrone_registration'
+                          ) : isFollowingUser(userProfile).then((isFollowing) {
+                            isFollowing ? unfollowUser(userProfile) : followUser(userProfile);
+                          }),
+                          child: userProfile == currentUserPatroneProfile ? Text('Edit Profile',
+                              style: TextStyle(fontSize: 12)) : FutureBuilder<bool>(future: isFollowingUser(userProfile),
+                              builder: (context, snapshot) {
+                            return Text(snapshot.data! ? 'Unfollow' : 'Follow',
+                                style: TextStyle(fontSize: 12));
+                          }),
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    userProfile == currentUserPatroneProfile ? SizedBox() : Expanded(
+                      flex: 10,
+                      child: SizedBox(
+                        height: 30,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.all(5)),
+                          onPressed: () {
+                            firestore.collection('messages').where('participants', arrayContains: [currentUserProfile, userProfile.parent.parent]).get().then((result) {
+                              if (result.size == 0) {
+                                firestore.collection('messages').add({
+                                  'participants': [currentUserProfile, userProfile.parent.parent],
+                                }).then((messages) {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: messages,)));
+                                });
+                              } else {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: result.docs[0].reference,)));
+                              }
+                            });
+                          },
+                          child: const Text('Message',
                               style: TextStyle(fontSize: 12)),
                         ),
                       ),
@@ -288,9 +333,10 @@ class ProfileTab extends StatelessWidget {
 
 class ActivityTab extends StatelessWidget {
   const ActivityTab({
-    super.key, required this.createdPosts,
+    super.key, required this.createdPosts, required this.userProfile,
   });
 
+  final DocumentReference userProfile;
   final List? createdPosts;
 
   @override
@@ -335,10 +381,10 @@ class ActivityTab extends StatelessWidget {
                               );
                             }
                             else if (snapshot.hasError) {
-                              return Center(child: Text('Something went '
+                              return const Center(child: Text('Something went '
                                   'wrong'));
                             } else {
-                              return Center(child: CircularProgressIndicator());
+                              return const Center(child: CircularProgressIndicator());
                             }
                           }
                         );
@@ -346,7 +392,7 @@ class ActivityTab extends StatelessWidget {
                     ),
                     StreamBuilder<QuerySnapshot>(
                       stream: firestore.collection('feed').where('likes',
-                          arrayContains: currentUserProfile).snapshots(),
+                          arrayContains: userProfile).snapshots(),
                       builder: (context, likedPosts) {
                         List<QueryDocumentSnapshot<Object?>>? liked = likedPosts
                             .data?.docs;

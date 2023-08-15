@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:wazzlitt/src/dashboard/conversation_screen.dart';
 import '../app.dart';
 import 'place_order.dart';
 
@@ -11,6 +12,10 @@ class Place extends StatelessWidget {
   Place({super.key, required this.place});
 
   late GoogleMapController mapController;
+
+  Future<int> inRadius() {
+    firestore.collection('users').
+  }
 
   // Initial map camera position.
   static const LatLng _initialPosition = LatLng(37.7749, -122.4194);
@@ -130,7 +135,7 @@ class Place extends StatelessWidget {
                     Chip(label: Text(place['category'] ?? 'Null')),
                     Text('Open - ${DateFormat('hh:mm a').format(((place['opening_time']) as Timestamp).toDate())} to ${DateFormat('hh:mm a').format(((place['closing_time']) as Timestamp).toDate())}'),
                     const SizedBox(height: 5),
-                    const Text('Popularity: 95%',
+                    const Text('238 Patrones around here',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 30),
                     Row(
@@ -156,7 +161,7 @@ class Place extends StatelessWidget {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.all(5)),
-                              onPressed: () {},
+                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: place['chat_room']))),
                               child: const Text('Chat Room',
                                   style: TextStyle(fontSize: 12)),
                             ),
@@ -182,7 +187,7 @@ class Place extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(30),
                       decoration: BoxDecoration(
-                        border: Border.all(),
+                        border: Border.all(color: Theme.of(context).colorScheme.onSurface),
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Column(

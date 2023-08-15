@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -7,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../registration/interests.dart';
@@ -25,14 +23,14 @@ class _EditPlaceState extends State<EditPlace> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Text Controllers
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _phoneController = TextEditingController();
-  TextEditingController _websiteController = TextEditingController();
-  TextEditingController _descriptionController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _locationController = TextEditingController();
-  TextEditingController _openingTimeTextController = TextEditingController();
-  TextEditingController _closingTimeTextController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _websiteController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _openingTimeTextController = TextEditingController();
+  final TextEditingController _closingTimeTextController = TextEditingController();
 
   // Time
   Timestamp? _openingTime;
@@ -69,7 +67,7 @@ class _EditPlaceState extends State<EditPlace> {
     WidgetsFlutterBinding.ensureInitialized();
     widget.place?.get().then((value) {
       if (value.exists) {
-        Map<String, dynamic>? placeData = value?.data() as Map<String, dynamic>?;
+        Map<String, dynamic>? placeData = value.data() as Map<String, dynamic>?;
         _nameController.text = placeData?['place_name'] ?? '';
         _phoneController.text = placeData?['phone_number'] ?? '';
         _websiteController.text = placeData?['website'] ?? '';
@@ -135,7 +133,7 @@ class _EditPlaceState extends State<EditPlace> {
           title: const Text('Edit Igniter Profile'),
         ),
         body: FutureBuilder<DocumentSnapshot>(
-            future: widget.place?.get(GetOptions(source: Source.server)),
+            future: widget.place?.get(const GetOptions(source: Source.server)),
             builder: (context, snapshot) {
               if (snapshot.hasData || snapshot.connectionState == ConnectionState.none) {
                 Map<String, dynamic>? placeData;

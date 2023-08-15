@@ -1,11 +1,8 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
-import '../../authorization/authorization.dart';
 import '../app.dart';
 
 class EditTicket extends StatefulWidget {
@@ -24,6 +21,7 @@ class _EditTicketState extends State<EditTicket> {
       _priceController = TextEditingController(), _expiryDateController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  @override
   void initState() {
     super.initState();
     widget.ticket['available'] ? available = 1 : available = 2;
@@ -37,7 +35,7 @@ class _EditTicketState extends State<EditTicket> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text('Edit Ticket Details'), actions: [
+        appBar: AppBar(title: const Text('Edit Ticket Details'), actions: [
           TextButton(
               onPressed: () {
                   if(available == 1 || available == 2) {
@@ -82,7 +80,7 @@ class _EditTicketState extends State<EditTicket> {
 
                           if (value != null) {
                             _expiryDate = Timestamp.fromDate(value);
-                            _expiryDateController!.text = DateFormat('E, dd/MM/yyyy').format(value);
+                            _expiryDateController.text = DateFormat('E, dd/MM/yyyy').format(value);
                           }
                         });
                       }),

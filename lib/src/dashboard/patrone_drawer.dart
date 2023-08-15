@@ -65,13 +65,13 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text('WazzLitt Balance'),
-                        SizedBox(height: 5),
+                        const SizedBox(height: 5),
                         Text(
                             userData.containsKey('balance')
-                                ? '\$ ${double.parse(userData!['balance'].toString()).toStringAsFixed(2)}'
+                                ? '\$ ${double.parse(userData['balance'].toString()).toStringAsFixed(2)}'
                                 : '\$ 0.00',
                             style:
-                            TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+                            const TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
                         const SizedBox(height: 10),
                         SizedBox(
                           height: 20,
@@ -124,8 +124,8 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                             'ter_registration'),
                     child: Row(
                       children: [
-                        Icon(FontAwesomeIcons.bolt),
-                        SizedBox(width: 10),
+                        const Icon(FontAwesomeIcons.bolt),
+                        const SizedBox(width: 10),
                         Text(isIgniter!
                             ? 'Go to Igniter Profile'
                             : 'Create an '
@@ -148,7 +148,7 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                   ),
                 ]));
           }
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
       ),
     );

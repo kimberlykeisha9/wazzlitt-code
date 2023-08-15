@@ -41,7 +41,7 @@ class _ServiceOverviewState extends State<ServiceOverview> {
           TextButton(
             onPressed: () {Navigator.push(context,
             MaterialPageRoute(builder: (context) => EditService(service: widget.service, place: widget.place,)));},
-            child: Text('Edit'),
+            child: const Text('Edit'),
           )
         ]
       ),

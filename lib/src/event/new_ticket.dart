@@ -1,11 +1,8 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
-import '../../authorization/authorization.dart';
 import '../app.dart';
 
 class NewTicket extends StatefulWidget {
@@ -23,6 +20,7 @@ class _NewTicketState extends State<NewTicket> {
   TextEditingController? _nameController, _descriptionController, _priceController, _expiryDateController;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  @override
   void initState() {
     super.initState();
     _nameController = TextEditingController();

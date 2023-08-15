@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 
@@ -23,7 +22,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    services = widget.place?['services'] ?? [];
+    services = widget.place['services'] ?? [];
   }
 
   @override
@@ -38,7 +37,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
               style:
                   const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const Spacer(),
-          Text('Choose which services you would like to order'),
+          const Text('Choose which services you would like to order'),
           const Spacer(),
           ListView.builder(
             shrinkWrap: true,
@@ -78,19 +77,19 @@ class _PlaceOrderState extends State<PlaceOrder> {
                   'I confirm that I am liable to the Terms and '
                   'Conditions of this purchase and all other regulations set.')),
           const Spacer(flex: 3),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total', style: TextStyle(fontSize: 20)),
+              const Text('Total', style: TextStyle(fontSize: 20)),
               Text(
                   _selectedService == null
                       ? '\$ 0.00'
                       : '\$ ${double.parse(_selectedService!['price'].toString()).toStringAsFixed(2)}',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ],
           ),
-          SizedBox(height: 40),
+          const SizedBox(height: 40),
           SizedBox(
               width: width(context),
               child: ElevatedButton(
@@ -101,7 +100,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                       showDialog(
                           context: context,
                           builder: (_) => AlertDialog(
-                                title: Text(
+                                title: const Text(
                                   'I would like to pay by',
                                   textAlign: TextAlign.center,
                                 ),
@@ -115,7 +114,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                             showSnackbar(
                                                 context, 'Not configured');
                                           },
-                                          child: Column(
+                                          child: const Column(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 Icon(Icons.credit_card_outlined,
@@ -128,9 +127,9 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                               ]),
                                         ),
                                       ),
-                                      SizedBox(width: 30),
-                                      Text('OR'),
-                                      SizedBox(width: 30),
+                                      const SizedBox(width: 30),
+                                      const Text('OR'),
+                                      const SizedBox(width: 30),
                                       Expanded(
                                           child: GestureDetector(
                                         onTap: () {
@@ -145,15 +144,15 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                                       children: [
                                                         Text(
                                                             'Deduct \$${double.parse(_selectedService!['price'].toString()).toStringAsFixed(2)} from your WazzLitt account',
-                                                            style: TextStyle(
+                                                            style: const TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,
                                                                 fontSize: 20)),
-                                                        SizedBox(height: 60),
-                                                        Text(
+                                                        const SizedBox(height: 60),
+                                                        const Text(
                                                             'Confirm that you would like to deduct this amount from your balance.'),
-                                                        SizedBox(height: 60),
+                                                        const SizedBox(height: 60),
                                                         Row(
                                                           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                           children: [
@@ -163,11 +162,10 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                                                     0.4,
                                                                 child:
                                                                     ElevatedButton(
-                                                                  child: Text('Pay \$' +
-                                                                      double.parse(_selectedService!['price']
+                                                                  child: Text('Pay \$${double.parse(_selectedService!['price']
                                                                               .toString())
                                                                           .toStringAsFixed(
-                                                                              2)),
+                                                                              2)}'),
                                                                   onPressed:
                                                                       () {
                                                                     payFromBalance(double.parse(_selectedService!['price'].toString())).then((paymentStatus) {
@@ -182,7 +180,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                                                       },
                                                                 )),
                                                             TextButton(
-                                                                child: Text(
+                                                                child: const Text(
                                                                     'Cancel'),
                                                                 onPressed: () =>
                                                                     Navigator.of(
@@ -194,7 +192,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                                     ),
                                                   ));
                                         },
-                                        child: Column(
+                                        child: const Column(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Icon(
