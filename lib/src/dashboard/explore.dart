@@ -123,78 +123,80 @@ class PlacesTab extends StatelessWidget {
         child: Text('Featured Places',
             style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      FutureBuilder<QuerySnapshot>(
-          future: firestore.collection('places').get(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              List<QueryDocumentSnapshot> placesList = snapshot.data!.docs;
-              return GridView.builder(
-                shrinkWrap: true,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 2/3,
-                ),
-                itemCount: 4,
-                itemBuilder: (BuildContext context, int index) {
-                  print(placesList);
-                  Map<String, dynamic> place =
-                      placesList[index].data() as Map<String, dynamic>;
-                  return GestureDetector(
-                    onTap: () => Navigator.push(
-                        context,
-                        CupertinoPageRoute(
-                            builder: (context) => Place(place: place))),
-                    child: Container(
-                      decoration: BoxDecoration(
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: NetworkImage(place['image']),
-                          )),
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.white),
-                                borderRadius: BorderRadius.circular(20),
+      Expanded(
+        child: FutureBuilder<QuerySnapshot>(
+            future: firestore.collection('places').get(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                List<QueryDocumentSnapshot> placesList = snapshot.data!.docs;
+                return GridView.builder(
+                  shrinkWrap: true,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 2/3,
+                  ),
+                  itemCount: 4,
+                  itemBuilder: (BuildContext context, int index) {
+                    print(placesList);
+                    Map<String, dynamic> place =
+                        placesList[index].data() as Map<String, dynamic>;
+                    return GestureDetector(
+                      onTap: () => Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                              builder: (context) => Place(place: place))),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(place['image']),
+                            )),
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.white),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: const EdgeInsets.all(5),
+                                child: Text(place['category'], style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),),
                               ),
-                              padding: const EdgeInsets.all(5),
-                              child: Text(place['category'], style: const TextStyle(
+                            ),
+                            const Spacer(),
+                            Text(
+                              place['place_name'],
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            const Text(
+                              '0 km away',
+                              style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.white,
-                              ),),
+                              ),
                             ),
-                          ),
-                          const Spacer(),
-                          Text(
-                            place['place_name'],
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          const Text(
-                            '0 km away',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              );
-            }
-            return const Center(child: CircularProgressIndicator());
-          }),
+                    );
+                  },
+                );
+              }
+              return const Center(child: CircularProgressIndicator());
+            }),
+      ),
     ]);
   }
 }

@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
+import 'package:google_places_autocomplete_text_field/model/prediction.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:wazzlitt/src/location/location.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -23,14 +26,17 @@ class _EditPlaceState extends State<EditPlace> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   // Text Controllers
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _websiteController = TextEditingController();
-  final TextEditingController _descriptionController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _locationController = TextEditingController();
-  final TextEditingController _openingTimeTextController = TextEditingController();
-  final TextEditingController _closingTimeTextController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
+  TextEditingController _phoneController = TextEditingController();
+  TextEditingController _websiteController = TextEditingController();
+  TextEditingController _descriptionController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _locationController = TextEditingController();
+  TextEditingController _openingTimeTextController = TextEditingController();
+  TextEditingController _closingTimeTextController = TextEditingController();
+
+  // Location predictor
+  Prediction? generatedPrediction;
 
   // Time
   Timestamp? _openingTime;
@@ -68,25 +74,25 @@ class _EditPlaceState extends State<EditPlace> {
     widget.place?.get().then((value) {
       if (value.exists) {
         Map<String, dynamic>? placeData = value.data() as Map<String, dynamic>?;
-        _nameController.text = placeData?['place_name'] ?? '';
-        _phoneController.text = placeData?['phone_number'] ?? '';
-        _websiteController.text = placeData?['website'] ?? '';
-        _locationController.text = placeData?['location'] ?? '';
-        _descriptionController.text = placeData?['place_description'] ?? '';
-        _emailController.text = placeData?['email_address'] ?? '';
-        networkCoverPhoto = placeData?['cover_image'] ?? '';
-        networkProfile = placeData?['image'] ?? '';
+        _nameController = TextEditingController(text: placeData?['place_name']);
+        _phoneController = TextEditingController(text: placeData?['phone_number']);
+        _websiteController = TextEditingController(text: placeData?['website']);
+        // _locationController = TextEditingController(text: placeData?['location']);
+        _descriptionController = TextEditingController(text: placeData?['place_description']);
+        _emailController = TextEditingController(text: placeData?['email_address']);
+        networkCoverPhoto = placeData?['cover_image'];
+        networkProfile = placeData?['image'];
         _openingTime = placeData?['opening_time'];
         _closingTime = placeData?['closing_time'];
         _selectedChip = placeData?['category'];
         selectedOption = placeData?['place_type'];
         _openingTime != null
-            ? _openingTimeTextController.text =
-                DateFormat.Hm().format(_openingTime!.toDate())
+            ? _openingTimeTextController =
+                TextEditingController(text: DateFormat.Hm().format(_openingTime!.toDate()))
             : '';
         _closingTime != null
-            ? _closingTimeTextController.text =
-                DateFormat.Hm().format(_closingTime!.toDate())
+            ? _closingTimeTextController =
+                TextEditingController(text: DateFormat.Hm().format(_closingTime!.toDate()))
             : '';
       }
     });
@@ -403,9 +409,9 @@ class _EditPlaceState extends State<EditPlace> {
                                     ),
                                     keyboardType: TextInputType.number,
                                     validator: (value) {
-                                      if (value == null) {
-                                        return 'Phone number is required';
-                                      }
+                                      // if (value == null) {
+                                      //   return 'Phone number is required';
+                                      // }
                                       return null; // Return null if the input is valid
                                     },
                                   ),
@@ -413,12 +419,12 @@ class _EditPlaceState extends State<EditPlace> {
                                       padding: EdgeInsets.only(top: 15)),
                                   TextFormField(
                                     controller: _websiteController,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Website is required';
-                                      }
-                                      return null;
-                                    },
+                                    // validator: (value) {
+                                    //   if (value == null || value.isEmpty) {
+                                    //     return 'Website is required';
+                                    //   }
+                                    //   return null;
+                                    // },
                                     decoration: InputDecoration(
                                         labelText: AppLocalizations.of(context)!
                                             .website),
@@ -426,17 +432,43 @@ class _EditPlaceState extends State<EditPlace> {
                                   ),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
-                                  TextFormField(
-                                    controller: _locationController,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Location is required';
+                                  GooglePlacesAutoCompleteTextFormField(
+                                      textEditingController:
+                                      _locationController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Location is required';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: const InputDecoration(
+                                        hintText: 'Location',
+                                          labelText: 'Location'),
+                                      googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
+                                      debounceTime: 400, // defaults to 600 ms,
+                                      countries: ["us"], // optional, by
+                                      // default the list is empty (no restrictions)
+                                      isLatLngRequired: true, // if you require the coordinates from the place details
+                                      getPlaceDetailWithLatLng: (prediction) {
+                                        if(prediction != null) {
+                                          setState(() {
+                                            generatedPrediction = prediction;
+                                          });
+                                        }
+                                        print("placeDetails" + prediction.lng.toString());
+                                      }, // this callback is called when isLatLngRequired is true
+                                      itmClick: (prediction) {
+                                        if(prediction != null) {
+                                          setState(() {
+                                            _locationController.text =
+                                            prediction.description!;
+                                            _locationController.selection =
+                                                TextSelection.fromPosition
+                                                  (TextPosition(offset:
+                                                prediction.description!.length));
+                                          });
+                                        }
                                       }
-                                      return null;
-                                    },
-                                    decoration: const InputDecoration(
-                                        labelText: 'Location'),
-                                    keyboardType: TextInputType.streetAddress,
                                   ),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
@@ -461,17 +493,17 @@ class _EditPlaceState extends State<EditPlace> {
                                       padding: EdgeInsets.only(top: 15)),
                                   TextFormField(
                                     controller: _emailController,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Email is required';
-                                      }
-                                      if (!RegExp(
-                                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                          .hasMatch(value)) {
-                                        return 'Invalid email address';
-                                      }
-                                      return null;
-                                    },
+                                    // validator: (value) {
+                                    //   if (value == null || value.isEmpty) {
+                                    //     return 'Email is required';
+                                    //   }
+                                    //   if (!RegExp(
+                                    //           r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                    //       .hasMatch(value)) {
+                                    //     return 'Invalid email address';
+                                    //   }
+                                    //   return null;
+                                    // },
                                     decoration: InputDecoration(
                                         labelText:
                                             AppLocalizations.of(context)!.email),
@@ -511,7 +543,7 @@ class _EditPlaceState extends State<EditPlace> {
                                               ),
                                               actions: [
                                                 TextButton(
-                                                  onPressed: () => {
+                                                  onPressed: () {
                                                     savePlaceProfile(
                                                       businessName:
                                                           _nameController.text,
@@ -525,6 +557,10 @@ class _EditPlaceState extends State<EditPlace> {
                                                       description:
                                                           _descriptionController
                                                               .text,
+                                                      latitude: double.parse
+                                                        (generatedPrediction!.lat!),
+                                                      longitude: double.parse
+                                                        (generatedPrediction!.lng!),
                                                       emailAddress:
                                                           _emailController.text,
                                                       phoneNumber:
@@ -532,7 +568,8 @@ class _EditPlaceState extends State<EditPlace> {
                                                     ).then((value) => Navigator
                                                         .pushReplacementNamed(
                                                             context,
-                                                            'igniter_dashboard')),
+                                                            'igniter_dashboar'
+                                                                'd'));
                                                   },
                                                   child: Text(
                                                       AppLocalizations.of(
@@ -549,6 +586,12 @@ class _EditPlaceState extends State<EditPlace> {
                                                     _profilePicture,
                                                     'places/${widget.place?.id}/profile_photo')
                                                 .then((profilePic) {
+                                                  uploadPlaceLocation(widget
+                                                      .place!,
+                                                      double.parse(generatedPrediction
+                                                      !.lat!),
+                                                      double.parse
+                                                        (generatedPrediction!.lng!));
                                               savePlaceProfile(
                                                 businessName:
                                                     _nameController.text,
@@ -561,12 +604,16 @@ class _EditPlaceState extends State<EditPlace> {
                                                     _descriptionController.text,
                                                 emailAddress:
                                                     _emailController.text,
+                                                latitude: double.parse
+                                                  (generatedPrediction!.lat!),
+                                                longitude: double.parse
+                                                  (generatedPrediction!.lng!),
                                                 phoneNumber:
                                                     _phoneController.text,
                                               ).then((value) =>
                                                   Navigator.popAndPushNamed(
                                                       context,
-                                                      'ignitier_dashboard'));
+                                                      'igniter_dashboard'));
                                             });
                                           });
                                   }

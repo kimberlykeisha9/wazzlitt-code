@@ -41,6 +41,7 @@ dependencies:
   flutter_dotenv: ^5.1.0
   geo_firestore_flutter: ^0.1.6
   geoflutterfire_updated: ^3.1.0
+  google_places_autocomplete_text_field: ^0.1.2
 
 dev_dependencies:
   flutter_test:

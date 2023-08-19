@@ -4,6 +4,7 @@ import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 import 'dart:io';
+import '../location/location.dart';
 import 'chats_view.dart';
 import 'explore.dart';
 import 'feed.dart';
@@ -25,7 +26,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   @override
   void initState() {
     super.initState();
-    uploadLocation();
+    // uploadLocation();
     _exploreController = TabController(length: 2, vsync: this);
   }
 

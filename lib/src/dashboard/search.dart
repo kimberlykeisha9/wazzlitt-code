@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/src/event/event.dart';
 import 'package:wazzlitt/src/place/place.dart';
@@ -17,6 +18,8 @@ class _SearchState extends State<Search> {
 
   // Creates List of the results
   List<DocumentSnapshot> _searchResults = [];
+
+  var generatedPrediction;
 
   Future<void> _performSearch(String searchQuery) async {
     // Searches Users
@@ -62,16 +65,56 @@ class _SearchState extends State<Search> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search...',
-                prefixIcon: Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                print(_searchResults!.length);
-                _performSearch(value);
-              },
+            // TextField(
+            //   controller: _searchController,
+            //   decoration: InputDecoration(
+            //     hintText: 'Search...',
+            //     prefixIcon: Icon(Icons.search),
+            //   ),
+            //   onChanged: (value) {
+            //     print(_searchResults!.length);
+            //     _performSearch(value);
+            //   },
+            // ),
+            GooglePlacesAutoCompleteTextFormField(
+                textEditingController:
+                _searchController,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Location is required';
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
+                    hintText: 'Location',
+                    labelText: 'Location'),
+                googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
+                debounceTime: 400, // defaults to 600 ms,
+                countries: ["us"], // optional, by
+                // default the list is empty (no restrictions)
+                isLatLngRequired: true, // if you require the coordinates from the place details
+                getPlaceDetailWithLatLng: (prediction) {
+                  if(prediction != null) {
+                    setState(() {
+                      generatedPrediction = prediction;
+                    });
+                  }
+                  print("placeDetails" + prediction.lng.toString());
+                }, // this callback is called when isLatLngRequired is true
+                itmClick: (prediction) {
+                  if(prediction != null) {
+                    Map<String, dynamic> placeData = {
+                      'location': {
+                        'geopoint': GeoPoint(double.parse(generatedPrediction
+                            .lat!),
+                            double.parse(generatedPrediction.lng!)),
+                      },
+                      'place_name': generatedPrediction.description,
+                    };
+                    Navigator.push(context, MaterialPageRoute(builder:
+                        (context) => Place(place: placeData)));
+                  }
+                }
             ),
             SizedBox(height: 16),
             _searchResults != null

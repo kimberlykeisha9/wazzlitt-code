@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../user_data/user_data.dart';
 import '../../app.dart';
+import '../../location/location.dart';
 import '../../place/edit_place.dart';
 import '../../place/service_overview.dart';
 
@@ -101,10 +102,24 @@ class BusinessOwnerProfile extends StatelessWidget {
                               const SizedBox(height: 10),
                               const Text('97% Popularity'),
                               const SizedBox(height: 10),
-                              Text(
-                                  listingData['location'] ??
-                                      'You have not set your location',
-                                  style: const TextStyle(fontSize: 14)),
+                              FutureBuilder<String>(
+                                future: getLocationForPlace(placeData),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.waiting) {
+                                    return const Text('Loading...',
+                                        style: TextStyle(fontWeight: FontWeight.bold));
+                                  }
+                                  if (snapshot.hasData) {
+                                    return Text(snapshot.data!,
+                                        style: const TextStyle(fontWeight: FontWeight.bold));
+                                  }
+                                  if (snapshot.hasError) {
+                                    return const Text('An error occured',
+                                        style: TextStyle(fontWeight: FontWeight.bold));
+                                  }
+                                  return const CircularProgressIndicator();
+                                },
+                              ),
                               const SizedBox(height: 20),
                               Row(
                                 children: [

@@ -238,7 +238,6 @@ class ProfileTab extends StatelessWidget {
                       return const Text('An error occured',
                           style: TextStyle(fontWeight: FontWeight.bold));
                     }
-
                     return const CircularProgressIndicator();
                   },
                 ),

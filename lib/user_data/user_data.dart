@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:uuid/uuid.dart';
+import '../src/location/location.dart';
 import '../src/registration/interests.dart';
 
 import 'dart:io';
@@ -411,27 +412,7 @@ String getStarSign(DateTime date) {
   return starSigns[index];
 }
 
-Future<void> uploadLocation() async {
-  LocationPermission locationPermission = await Geolocator.checkPermission();
-  if (locationPermission == LocationPermission.denied) {
-    LocationPermission permissionStatus = await Geolocator.requestPermission();
-    if (permissionStatus == LocationPermission.deniedForever) {
-      print('Location permissions are permanently denied.');
-    }
-  }
 
-  if (locationPermission == LocationPermission.denied ||
-      locationPermission == LocationPermission.deniedForever) {
-    print('Location permissions are denied.');
-  }
-
-  Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high);
-
-  currentUserPatroneProfile.update({
-    'current_location': GeoPoint(position.latitude, position.longitude),
-  });
-}
 
 Future<bool> isFollowingUser(DocumentReference user) async {
   bool isFollowing = false;
@@ -483,7 +464,7 @@ Future<String> getCurrentLocation(DocumentReference userProfile) async {
     await userProfile.get().then((data) async {
       if (data.exists) {
         Map<String, dynamic> userData = data.data() as Map<String, dynamic>;
-        GeoPoint? location = userData['current_location'];
+        GeoPoint? location = userData['current_location']['geopoint'];
         if (location != null) {
           List<Placemark> placemarks = await placemarkFromCoordinates(
               location.latitude, location.longitude);
@@ -582,6 +563,7 @@ Future<void> savePlaceProfile(
     String? phoneNumber,
     String? profilePhoto,
     String? coverPhoto,
+      double? latitude, double? longitude,
     Timestamp? openingTime,
     Timestamp? closingTime,
     String? placeType}) async {
@@ -602,7 +584,10 @@ Future<void> savePlaceProfile(
       'place_type': placeType,
     };
     if (place != null) {
-      await place.update(placeData);
+      await place.update(placeData).then((value) {
+        log('Uploaded place data');
+        uploadPlaceLocation
+        (place, latitude!, longitude!);});
     } else {
       await firestore
           .collection('places')
@@ -614,9 +599,12 @@ Future<void> savePlaceProfile(
         'owner': newPlace,
         'welcome_message': 'Hi welcome to our chat room',
         'last_message': null,
-      }).then((chatroom) => newPlace.update({
+      }).then((chatroom) {newPlace.update({
         'chat_room' : chatroom,
-      }))));
+      });
+      uploadPlaceLocation
+        (chatroom, latitude!, longitude!);
+      })));
     }
   } on FirebaseException catch (e) {
     log(e.code);

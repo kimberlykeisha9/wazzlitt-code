@@ -5,25 +5,40 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wazzlitt/src/dashboard/conversation_screen.dart';
+import 'package:wazzlitt/src/location/location.dart';
 import '../app.dart';
 import 'place_order.dart';
 
-class Place extends StatelessWidget {
+class Place extends StatefulWidget {
   Place({super.key, required this.place});
 
+  final Map<String, dynamic> place;
+
+  @override
+  State<Place> createState() => _PlaceState();
+}
+
+class _PlaceState extends State<Place> {
   late GoogleMapController mapController;
 
-  // Future<int> inRadius() {
-  //   firestore.collection('users').
-  // }
+  static LatLng _initialPosition = LatLng(37.7749, -122.4194);
 
-  // Initial map camera position.
-  static const LatLng _initialPosition = LatLng(37.7749, -122.4194);
+  // Future<int> inRadius() {
+
+  Stream<List<DocumentSnapshot<Object?>>>? nearby;
 
   // Set your Google Maps API key here.
   final String apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
 
-  final Map<String, dynamic> place;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    GeoPoint location = widget.place['location']['geopoint'];
+    _initialPosition = LatLng(location.latitude, location.longitude);
+    nearby = getNearbyPeople(_initialPosition.latitude, _initialPosition
+        .longitude);
+  }
 
   void _shareOnFacebook() {
     Share.share('Shared on Facebook');
@@ -37,7 +52,7 @@ class Place extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(place['place_name'] ?? 'Null'),
+        title: Text(widget.place['place_name'] ?? 'Null'),
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
@@ -92,11 +107,11 @@ class Place extends StatelessWidget {
                       height: 150,
                       decoration: BoxDecoration(
                           color: Colors.grey,
-                          image: place.containsKey('cover_image')
+                          image: widget.place.containsKey('cover_image')
                               ? DecorationImage(
                                   fit: BoxFit.cover,
                                   image: NetworkImage(
-                                    place['cover_image'],
+                                    widget.place['cover_image'],
                                   ),
                                 )
                               : null),
@@ -109,11 +124,11 @@ class Place extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.grey[800],
                           shape: BoxShape.circle,
-                            image: place.containsKey('image')
+                            image: widget.place.containsKey('image')
                                 ? DecorationImage(
                               fit: BoxFit.cover,
                               image: NetworkImage(
-                                place['image'],
+                                widget.place['image'],
                               ),
                             )
                                 : null
@@ -127,16 +142,22 @@ class Place extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Text(place['place_name'] ?? 'Null',
+                    Text(widget.place['place_name'] ?? 'Null',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         )),
-                    Chip(label: Text(place['category'] ?? 'Null')),
-                    Text('Open - ${DateFormat('hh:mm a').format(((place['opening_time']) as Timestamp).toDate())} to ${DateFormat('hh:mm a').format(((place['closing_time']) as Timestamp).toDate())}'),
+                    Chip(label: Text(widget.place['category'] ?? 'Null')),
+                    Text('Open - ${DateFormat('hh:mm a').format(((widget.place['opening_time']) as Timestamp).toDate())} to ${DateFormat('hh:mm a').format(((widget.place['closing_time']) as Timestamp).toDate())}'),
                     const SizedBox(height: 5),
-                    const Text('238 Patrones around here',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    StreamBuilder<List<DocumentSnapshot>>(
+                      stream: nearby,
+                      builder: (context, snapshot) {
+                        return Text('${snapshot.data?.length ?? 0} Patrones '
+                            'around here',
+                            style: TextStyle(fontWeight: FontWeight.bold));
+                      }
+                    ),
                     const SizedBox(height: 30),
                     Row(
                       children: [
@@ -161,7 +182,7 @@ class Place extends StatelessWidget {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.all(5)),
-                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: place['chat_room']))),
+                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: widget.place['chat_room']))),
                               child: const Text('Chat Room',
                                   style: TextStyle(fontSize: 12)),
                             ),
@@ -192,31 +213,31 @@ class Place extends StatelessWidget {
                       ),
                       child: Column(
                         children: [
-                          Text('About ${place['place_name'] ?? 'Null'}',
+                          Text('About ${widget.place['place_name'] ?? 'Null'}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               )),
                           const SizedBox(height: 10),
-                          Text(place['place_description'],
+                          Text(widget.place['place_description'],
                               textAlign: TextAlign.center),
                         ],
                       ),
                     ),
                     const SizedBox(height: 20),
-                    place.containsKey('services') ? TextButton(
+                    widget.place.containsKey('services') ? TextButton(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => PlaceOrder(
-                                place: place),
+                                place: widget.place),
                           ),
                         );
                       },
                       child: const Text('Check out our services'),
                     ) : const SizedBox(),
-                    place.containsKey('services') ? const SizedBox(height: 10) : const SizedBox(),
+                    widget.place.containsKey('services') ? const SizedBox(height: 10) : const SizedBox(),
                     const Text('Location',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const Text('Street Name', style: TextStyle(fontSize: 12)),
@@ -228,42 +249,46 @@ class Place extends StatelessWidget {
                 height: 100,
                 color: Colors.grey,
                 child: GoogleMap(
-                  initialCameraPosition: const CameraPosition(target: _initialPosition, zoom: 12),
+                  markers: {
+                    Marker(markerId: MarkerId('place'), position: _initialPosition)
+                  },
+                  initialCameraPosition: CameraPosition(target:
+                  _initialPosition, zoom: 12),
                   onMapCreated: (controller) {
                     mapController = controller;
                   },
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    const Text('Photos',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(
-                        height: 20,
-                        child: TextButton(
-                            style: TextButton.styleFrom(
-                                padding: const EdgeInsets.all(0)),
-                            onPressed: () {},
-                            child: const Text('See more',
-                                style: TextStyle(fontSize: 12)))),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 400,
-                width: width(context),
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 4,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        width: width(context) * 0.25,
-                        color: Colors.grey,
-                      );
-                    }),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(20),
+              //   child: Column(
+              //     children: [
+              //       const Text('Photos',
+              //           style: TextStyle(fontWeight: FontWeight.bold)),
+              //       SizedBox(
+              //           height: 20,
+              //           child: TextButton(
+              //               style: TextButton.styleFrom(
+              //                   padding: const EdgeInsets.all(0)),
+              //               onPressed: () {},
+              //               child: const Text('See more',
+              //                   style: TextStyle(fontSize: 12)))),
+              //     ],
+              //   ),
+              // ),
+              // SizedBox(
+              //   height: 400,
+              //   width: width(context),
+              //   child: ListView.builder(
+              //       scrollDirection: Axis.horizontal,
+              //       itemCount: 4,
+              //       itemBuilder: (context, index) {
+              //         return Container(
+              //           width: width(context) * 0.25,
+              //           color: Colors.grey,
+              //         );
+              //       }),
+              // ),
             ],
           ),
         ),
