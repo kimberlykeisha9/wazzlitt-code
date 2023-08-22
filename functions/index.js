@@ -1,5 +1,8 @@
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const stripe = require("stripe")("sk_test_51N6MV7Aw4gbUiKS" +
+  "OVcDYHBiDM5ibgvUiGZQQ2erLCvrDXerqrJXDYjhdc33LMfSKXgzf5doG" +
+  "BAtV75AIXK3u3eUw00stk6GUfw");
 admin.initializeApp();
 
 const firestore = admin.firestore();
@@ -45,32 +48,54 @@ exports.updateUserInfo = functions.firestore
     });
 
 exports.updateFollowers = functions.firestore
-  .document('users/{userId}/account_type/patrone')
-  .onUpdate(async (change, context) => {
-    const patroneData = change.after.data();
-    const previousPatroneData = change.before.data();
+    .document("users/{userId}/account_type/patrone")
+    .onUpdate(async (change, context) => {
+      const patroneData = change.after.data();
+      const previousPatroneData = change.before.data();
 
-    const followingList = patroneData.following || [];
-    const previousFollowingList = previousPatroneData.following || [];
+      const followingList = patroneData.following || [];
+      const previousFollowingList = previousPatroneData.following || [];
 
-    // Get the follower's user ID
-    const followerId = context.params.userId;
+      // Get the follower"s user ID
+      const followerId = context.params.userId;
 
-    // Get a batch reference
-    const batch = admin.firestore().batch();
+      // Get a batch reference
+      const batch = admin.firestore().batch();
 
-    // Iterate through the following list and update their followers
-    for (const followingUserId of followingList) {
-      if (!previousFollowingList.includes(followingUserId)) {
-        const followingUserRef = admin.firestore().doc(`users/${followingUserId}/account_type/patrone`);
-        batch.update(followingUserRef, {
-          followers: admin.firestore.FieldValue.arrayUnion(followerId),
-        });
-        console.log(`Updated followers list for user ${followingUserId}`);
+      // Iterate through the following list and update their followers
+      for (const followingUserId of followingList) {
+        if (!previousFollowingList.includes(followingUserId)) {
+          const followingUserRef = admin.firestore()
+              .doc(`users/${followingUserId}/account_type/patrone`);
+          batch.update(followingUserRef, {
+            followers: admin.firestore.FieldValue.arrayUnion(followerId),
+          });
+          console.log(`Updated followers list for user ${followingUserId}`);
+        }
       }
+
+      // Commit the batch
+      await batch.commit();
+    });
+
+exports.generateEphemeralSecret =
+  functions.https.onRequest(async (req, res) => {
+    if (req.method !== "POST") {
+      res.status(400).send("Invalid request method");
+      return;
     }
 
-    // Commit the batch
-    await batch.commit();
+    const customerId = req.body.customer_id;
+    const apiVersion = req.body.api_version;
+
+    try {
+      const key = await stripe.ephemeralKeys.create(
+          {customer: customerId},
+          {api_version: apiVersion},
+      );
+      res.status(200).json(key);
+    } catch (err) {
+      res.status(500).json({error: err.message});
+    }
   });
 

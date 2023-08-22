@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
@@ -10,6 +11,31 @@ import '../src/registration/interests.dart';
 
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+
+class Patrone extends ChangeNotifier {
+  String firstName = '';
+  String lastName = '';
+  String username = auth.currentUser!.displayName!;
+  String phoneNumber = auth.currentUser!.phoneNumber!;
+  String? emailAddress = auth.currentUser!.email;
+  String? profilePicture;
+  String? coverPicture;
+  String? bio;
+  DateTime? dob;
+  String? gender;
+  double? accountBalance;
+  GeoPoint? currentLocation;
+  DocumentReference? patroneReference;
+  String uid = auth.currentUser!.uid;
+  List<Post> createdPosts = [];
+  List<Order> placedOrders = [];
+  List<String> interests = [];
+  List<Patrone> followers = [];
+}
+
+class Post {}
+
+class Order {}
 
 Future<String?> uploadImageToFirebase(File? imageFile, String path) async {
   if (imageFile != null) {
@@ -529,21 +555,21 @@ Future<void> saveUserPatroneInformation(
     {String? firstName,
     String? lastName,
     String? username,
+      String? email,
     DateTime? dob,
-    bool? isGangMember,
-    bool? isHIVPositive,
     String? gender}) async {
   try {
     await currentUserProfile.update({'is_patrone': true}).then((value) =>
         currentUserProfile.collection('account_type').doc('patrone').set({
           'first_name': firstName?.trim(),
+          'email': email,
           'last_name': lastName?.trim(),
           'username': username?.trim(),
           'dob': dob,
-          'is_gang_member': isGangMember,
-          'is_hiv_positive': isHIVPositive,
           'gender': gender,
-        }).then((value) => updateDisplayName(username?.trim())));
+        }).then((value) => {updateDisplayName(username?.trim()),
+          auth.currentUser!.updateEmail(email!),
+        }));
   } on FirebaseException catch (e) {
     log(e.code);
     log(e.message ?? 'No message');

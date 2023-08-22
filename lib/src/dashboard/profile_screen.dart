@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/src/dashboard/feed_image.dart';
+import 'package:wazzlitt/user_data/payments.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../authorization/authorization.dart';
 import '../app.dart';
@@ -140,12 +141,7 @@ class ProfileTab extends StatelessWidget {
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      isGangMember != null ? Chip(label: Text(isGangMember! ?
-                          'Gang Member' : 'Not Gang Member')) : const SizedBox(),
+                  child:
                       Container(
                         width: 100,
                         height: 100,
@@ -157,13 +153,6 @@ class ProfileTab extends StatelessWidget {
                           // color: Colors.grey[800],
                           shape: BoxShape.circle,
                         ),
-                        child: profilePhoto == null ? const Icon(Icons
-                            .account_circle, size: 100) : null,
-                      ),
-                      isHivPositive != null ? Chip(label: Text(isHivPositive! ?
-                      'HIV Postive' : 'HIV Negative')) :
-                      const SizedBox(),
-                    ],
                   ),
                 ),
               ),
@@ -175,6 +164,10 @@ class ProfileTab extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
+                ElevatedButton(
+                  child: Text('Pay for Patrone'),
+                  onPressed: () => payForPatrone(context),
+                ),
                 Text('$firstName $lastName',
                     style: const TextStyle(fontWeight: FontWeight
                         .bold)),

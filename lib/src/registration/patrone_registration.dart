@@ -27,13 +27,12 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
   TextEditingController dobController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   DateTime? selectedDOB;
-  bool? _isGangMember = false;
-  bool? _isHIVPositive = false;
   String _selectedGender = 'male';
 
   // Local Images
   File? _coverPhoto;
   File? _profilePicture;
+
   // Images from Network
   String? networkProfile;
   String? networkCoverPhoto;
@@ -79,8 +78,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
           _selectedGender = data?['gender'];
           networkProfile = data?['profile_picture'];
           networkCoverPhoto = data?['cover_photo'];
-          _isHIVPositive = data?['is_hiv_positive'];
-          _isGangMember = data?['is_gang_member'];
           passwordController = TextEditingController();
           _isExistingUser = true;
         });
@@ -347,25 +344,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                               ),
                             ],
                           ),
-                          CheckboxListTile(
-                            title: const Text('Are you a gang member?'),
-                            value: _isGangMember,
-                            onChanged: (value) {
-                              setState(() {
-                                _isGangMember = value!;
-                              });
-                            },
-                          ),
-                          CheckboxListTile(
-                            title: const Text('Are you HIV positive?'),
-                            value: _isHIVPositive,
-                            onChanged: (value) {
-                              setState(() {
-                                _isHIVPositive = value!;
-                              });
-                            },
-                          ),
-
                         ],
                       ),
                     ),
@@ -393,18 +371,17 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                           actions: [
                             TextButton(
                               onPressed: () {
-                              //   saveUserPatroneInformation(
-                              //   firstName: firstNameController.text,
-                              //   lastName: lastNameController.text,
-                              //   username: usernameController.text,
-                              //   dob: selectedDOB,
-                              //   isGangMember: _isGangMember,
-                              //   isHIVPositive: _isHIVPositive,
-                              //   gender: _selectedGender,
-                              // ).then((value) => Navigator.popAndPushNamed(
-                              //     context, 'interests'), onError: (e) =>
-                              // showSnackbar(context, 'An error has occured. '
-                              //     'Please try again later.'));
+                                saveUserPatroneInformation(
+                                firstName: firstNameController.text,
+                                lastName: lastNameController.text,
+                                username: usernameController.text,
+                                dob: selectedDOB,
+                                email: emailController.text,
+                                gender: _selectedGender,
+                              ).then((value) => payForPatrone(context).then((value) => Navigator.popAndPushNamed(
+                                    context, 'interests')), onError: (e) =>
+                              showSnackbar(context, 'An error has occured. '
+                                  'Please try again later.'));
                                 payForPatrone(context);
                               },
                               child:

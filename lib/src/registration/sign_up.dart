@@ -6,7 +6,6 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:animate_do/animate_do.dart';
-
 import '../../user_data/user_data.dart';
 import '../app.dart';
 
