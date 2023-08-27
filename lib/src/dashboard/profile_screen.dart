@@ -150,7 +150,7 @@ class ProfileTab extends StatelessWidget {
                             image: NetworkImage(profilePhoto!), fit:
                           BoxFit.cover
                           ) : null,
-                          // color: Colors.grey[800],
+                          color: Colors.grey[800],
                           shape: BoxShape.circle,
                         ),
                   ),
@@ -164,13 +164,6 @@ class ProfileTab extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                ElevatedButton(
-                  child: Text('Pay for Patrone'),
-                  onPressed: () => payForPatrone(context),
-                ),
-                Text('$firstName $lastName',
-                    style: const TextStyle(fontWeight: FontWeight
-                        .bold)),
                 const SizedBox(height: 5),
                 Text('@$username', style: const TextStyle(fontSize:
                 12)),

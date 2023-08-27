@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const stripe = require("stripe")("sk_test_51N6MV7Aw4gbUiKS" +
@@ -18,6 +19,28 @@ exports.createUserDocument = functions.auth.user().onCreate((user) => {
   // Create the user document in Firestore.
   return firestore.collection("users").doc(uid).set(userData);
 });
+
+exports.createPatroneAccount = functions.firestore
+    .document("users/{userId}/account_type/patrone")
+    .onCreate((snap, context) => {
+      const userId = context.params.userId;
+      const docRef = admin.firestore()
+          .doc(`users/${userId}/account_type/patrone`);
+      return docRef.update({
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
+
+exports.createIgniterAccount = functions.firestore
+    .document("users/{userId}/account_type/igniter")
+    .onCreate((snap, context) => {
+      const userId = context.params.userId;
+      const docRef = admin.firestore()
+          .doc(`users/${userId}/account_type/igniter`);
+      return docRef.update({
+        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    });
 
 exports.updateUserInfo = functions.firestore
     .document("users/{userId}/account_type/patrone")

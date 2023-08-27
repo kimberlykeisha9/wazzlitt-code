@@ -12,7 +12,7 @@ import firebase_auth
 import firebase_core
 import firebase_storage
 import geolocator_apple
-import location_macos
+import location
 import path_provider_foundation
 import share_plus
 import shared_preferences_foundation

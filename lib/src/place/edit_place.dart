@@ -175,6 +175,7 @@ class _EditPlaceState extends State<EditPlace> {
                                       : _coverPhoto == null
                                           ? null
                                           : DecorationImage(
+                                            fit: BoxFit.cover,
                                               image: FileImage(_coverPhoto!)),
                                 ),
                                 child: (_coverPhoto != null ||

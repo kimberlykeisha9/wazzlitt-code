@@ -9,50 +9,65 @@ import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
 final apiKey = 'sk_test_51N6MV7Aw4gbUiKSOVcDYHBiDM5ibgvUiGZQQ2erLCvrDXerqrJXDY'
-    'jhdc33LMfSKXgzf5doGBAtV75AIXK3u3eUw00stk6GUfw'; // Replace with your Stripe Secret Key
+    'jhdc33LMfSKXgzf5doGBAtV75AIXK3u3eUw00stk6GUfw';
 
 var customerReference =
     firestore.collection('customers').doc(auth.currentUser!.uid);
 
-Future<Map<String, dynamic>> createEphemeralKey(String customerId) async {
+Future<void> payForIgniter(BuildContext context) async {
   try {
-    final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable
-      ('generateEphemeralSecret');
-    final response = await callable.call({'customerId': customerId, 'apiVersion'
-        : '2022-11-15'});
-    print(response.data);
-    return response.data;
+    var customerID;
+    // Step 0: Ensure user is a customer
+    await customerReference.get().then((customerData) async {
+      if (customerData.exists) {
+        customerID = customerData.data()?['id'];
+        log('Customer exists. Customer ID is: $customerID');
+      } else {
+        log('Customer did not exist so a new customer is being created');
+        createStripeCustomer(auth.currentUser!.email!).then((value) {
+          customerReference.get().then((newCustomerData) async {
+            if (newCustomerData.exists) {
+              customerID = newCustomerData.data()?['id'];
+              log('New customer created. Customer ID is: $customerID');
+            } else {
+              log('Customer is not getting created for some reason');
+              return;
+            }
+          });
+        });
+      }
+    });
+
+    // Step 1
+    var paymentIntent = await createPaymentIntent('20', 'USD');
+    print('Just checking: ' + customerID);
+    // Step 2
+    await Stripe.instance
+        .initPaymentSheet(
+            paymentSheetParameters: SetupPaymentSheetParameters(
+              billingDetailsCollectionConfiguration:
+              BillingDetailsCollectionConfiguration(
+                name: CollectionMode.automatic,
+                email: CollectionMode.always,
+              ),
+              billingDetails: BillingDetails(
+                email: auth.currentUser!.email,
+              ),
+                allowsDelayedPaymentMethods: false,
+                customFlow: false,
+                customerId: customerID!,
+                paymentIntentClientSecret: paymentIntent!['client_secret'],
+                style: ThemeMode.system,
+                merchantDisplayName: 'WazzLitt'))
+        .then((value) {});
+
+    // Step 3
+    displayIgniterPaymentSheet(context, paymentIntent);
   } catch (e) {
-    log(e.toString());
-    throw Exception(e);
+    print('$e');
   }
 }
 
-Future<PaymentIntent> wasPaymentSuccessful(var paymentIntent) async {
-  final paymentIntentResult;
-  try {
-    paymentIntentResult = await Stripe.instance.confirmPayment(
-      paymentIntentClientSecret: paymentIntent["client_secret"],
-      data: PaymentMethodParams.card(paymentMethodData: PaymentMethodData(
-        billingDetails: BillingDetails(email: auth.currentUser!.email!),
-      ))
-    );
-
-    if (paymentIntentResult.status == PaymentIntentsStatus.Succeeded) {
-      print(paymentIntentResult.toJson());
-    } else {
-      print(paymentIntentResult.toJson());
-    }
-    return paymentIntentResult;
-  } catch (error) {
-    if (error is StripeException) {
-      log('Stripe error: $error');
-    } else {
-      log('Normal error: $error');
-    }
-    throw Exception(error);
-  }
-}
 
 Future<bool> doesStripeCustomerExist(String email) async {
   final url = 'https://api.stripe.com/v1/customers';
@@ -110,15 +125,11 @@ Future<void> createStripeCustomer(String email) async {
 Future<void> payForPatrone(BuildContext context) async {
   try {
     var customerID;
-    var ephemeralSecret;
     // Step 0: Ensure user is a customer
     await customerReference.get().then((customerData) async {
       if (customerData.exists) {
         customerID = customerData.data()?['id'];
         log('Customer exists. Customer ID is: $customerID');
-        ephemeralSecret = await createEphemeralKey(customerID);
-        print( Stripe.publishableKey.split('_')[1]);
-        log(ephemeralSecret!);
       } else {
         log('Customer did not exist so a new customer is being created');
         createStripeCustomer(auth.currentUser!.email!).then((value) {
@@ -126,9 +137,6 @@ Future<void> payForPatrone(BuildContext context) async {
             if (newCustomerData.exists) {
               customerID = newCustomerData.data()?['id'];
               log('New customer created. Customer ID is: $customerID');
-              ephemeralSecret = await createEphemeralKey(customerID);
-              print( Stripe.publishableKey.split('_')[1]);
-              log(ephemeralSecret!);
             } else {
               log('Customer is not getting created for some reason');
               return;
@@ -149,33 +157,29 @@ Future<void> payForPatrone(BuildContext context) async {
               BillingDetailsCollectionConfiguration(
                 name: CollectionMode.automatic,
                 email: CollectionMode.always,
-                phone: CollectionMode.always,
               ),
               billingDetails: BillingDetails(
                 email: auth.currentUser!.email,
               ),
                 allowsDelayedPaymentMethods: false,
-                customFlow: true,
+                customFlow: false,
                 customerId: customerID!,
-                customerEphemeralKeySecret: ephemeralSecret!,
                 paymentIntentClientSecret: paymentIntent!['client_secret'],
                 style: ThemeMode.system,
                 merchantDisplayName: 'WazzLitt'))
         .then((value) {});
 
     // Step 3
-    displayPaymentSheet(context, paymentIntent);
-
-    wasPaymentSuccessful(paymentIntent);
+    displayPatronePaymentSheet(context, paymentIntent);
   } catch (e) {
     print('$e');
   }
 }
 
-Future<void> displayPaymentSheet(BuildContext context, var paymentIntent)
+Future<void> displayIgniterPaymentSheet(BuildContext context, var paymentIntent)
 async {
   try {
-    await Stripe.instance.presentPaymentSheet().then((value) {
+    await Stripe.instance.presentPaymentSheet().then((value) async {
       showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -193,11 +197,98 @@ async {
                 ),
               ));
 
-      // Confirm if a payment was successful
-      wasPaymentSuccessful(paymentIntent);
-
+      // Log the transaction on firestore
+      await customerReference.collection('transactions').add({
+        'payment_purpose': 'igniter_payment',
+        'amount_paid': 20,
+        'payment_status': 'successful',
+        'date_paid': DateTime.now(),
+        'expiration_date': DateTime.now().add(Duration(days: 30)),
+        'payment_intent_data': paymentIntent,
+      }).then((transaction) async {
+        await currentUserIgniterProfile.update({
+        'igniter_payment': {
+          'date_paid': DateTime.now(),
+          'expiration_date': DateTime.now().add(Duration(days: 30)),
+          'transaction_reference': transaction,
+        }
+        });
+      }).then((value) => 
       // Clears the payment intent
-      paymentIntent = null;
+      paymentIntent = null);
+
+      
+      
+    }).onError((error, stackTrace) {
+      throw Exception(error);
+    });
+  } on StripeException catch (e) {
+    print('Error is:---> $e');
+    AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: const [
+              Icon(
+                Icons.cancel,
+                color: Colors.red,
+              ),
+              Text("Payment Failed"),
+            ],
+          ),
+        ],
+      ),
+    );
+  } catch (e) {
+    print('$e');
+  }
+}
+
+
+Future<void> displayPatronePaymentSheet(BuildContext context, var paymentIntent)
+async {
+  try {
+    await Stripe.instance.presentPaymentSheet().then((value) async {
+      showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 100.0,
+                    ),
+                    SizedBox(height: 10.0),
+                    Text("Payment Successful!"),
+                  ],
+                ),
+              ));
+
+      // Log the transaction on firestore
+      await customerReference.collection('transactions').add({
+        'payment_purpose': 'patrone_payment',
+        'amount_paid': 1,
+        'payment_status': 'successful',
+        'date_paid': DateTime.now(),
+        'expiration_date': DateTime.now().add(Duration(days: 30)),
+        'payment_intent_data': paymentIntent,
+      }).then((transaction) async {
+        await currentUserPatroneProfile.update({
+        'patrone_payment': {
+          'date_paid': DateTime.now(),
+          'expiration_date': DateTime.now().add(Duration(days: 30)),
+          'transaction_reference': transaction,
+        }
+        });
+      }).then((value) => 
+      // Clears the payment intent
+      paymentIntent = null);
+
+      
+      
     }).onError((error, stackTrace) {
       throw Exception(error);
     });

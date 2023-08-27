@@ -51,12 +51,6 @@ class _IgniterRegistrationState extends State<IgniterRegistration> {
                             fontSize: 20,
                             fontWeight: FontWeight.bold),
                       ),
-                      Text(
-                        AppLocalizations.of(context)!.eventOrganizerDescription,
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -84,51 +78,12 @@ class _IgniterRegistrationState extends State<IgniterRegistration> {
                             fontSize: 20,
                             fontWeight: FontWeight.bold),
                       ),
-                      Text(
-                        AppLocalizations.of(context)!.businessOwnerDescription,
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ),
             ),
-            Expanded(
-              flex: 5,
-              child: GestureDetector(
-                // onTap: () => Navigator.pushNamed(context, 'igniter_profile', arguments: 'individual'),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 30),
-                  width: width(context),
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage('assets/images/igniter-3.png'),
-                        fit: BoxFit.cover),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.individual,
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        AppLocalizations.of(context)!.individualDescription,
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
         ),
       ),
     );

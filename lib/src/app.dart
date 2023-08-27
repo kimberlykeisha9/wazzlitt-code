@@ -57,10 +57,10 @@ class MyApp extends StatelessWidget {
                 colorScheme: ColorScheme.dark(
                   onPrimary: Colors.white,
                     primary: Colors.orangeAccent[700]!,
-                    secondary: Colors.yellowAccent),
+                    secondary: Colors.indigo),
               chipTheme: ChipThemeData(
-                  backgroundColor: Colors.yellowAccent,
-                  selectedColor: Colors.yellowAccent[700]),
+                  backgroundColor: Colors.indigo,
+                  selectedColor: Colors.indigo[800]),
               inputDecorationTheme: InputDecorationTheme(
                 border:
                 OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
@@ -81,7 +81,7 @@ class MyApp extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10)))),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
-                  foregroundColor: Colors.yellowAccent,
+                  foregroundColor: Colors.indigo,
                 )
               ),
               textTheme: const TextTheme(
@@ -103,8 +103,8 @@ class MyApp extends StatelessWidget {
                   iconTheme: IconThemeData(color: Colors.orangeAccent[700]),
                 ),
                 chipTheme: ChipThemeData(
-                    backgroundColor: Colors.yellow[200],
-                    selectedColor: Colors.yellowAccent),
+                    backgroundColor: Colors.indigo,
+                    selectedColor: Colors.indigo[800]),
                 inputDecorationTheme: InputDecorationTheme(
                   border:
                       OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
@@ -120,7 +120,7 @@ class MyApp extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10)))),
                 colorScheme: ColorScheme.light(
                     primary: Colors.orangeAccent[700]!,
-                    secondary: Colors.yellowAccent)),
+                    secondary: Colors.indigo)),
             themeMode: settingsController.themeMode,
             initialRoute: isLoggedIn ? 'dashboard' : 'home',
             routes: {

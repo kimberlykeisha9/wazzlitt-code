@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:uuid/uuid.dart';
 import '../src/location/location.dart';
@@ -490,7 +489,7 @@ Future<String> getCurrentLocation(DocumentReference userProfile) async {
     await userProfile.get().then((data) async {
       if (data.exists) {
         Map<String, dynamic> userData = data.data() as Map<String, dynamic>;
-        GeoPoint? location = userData['current_location']['geopoint'];
+        GeoPoint? location = userData['current_location']?['geopoint'];
         if (location != null) {
           List<Placemark> placemarks = await placemarkFromCoordinates(
               location.latitude, location.longitude);
