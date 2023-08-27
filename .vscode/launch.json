@@ -8,7 +8,6 @@
             "name": "wazzlitt",
             "request": "launch",
             "type": "dart",
-        //   /  "args": ["--use-application-binary=--use-application-binary=--use-application-binary=C:/Users/Kim/Documents/Kitsi/wazzlitt/build/app/outputs/flutter-apk/app-debug.apk"]
         },
         {
             "name": "wazzlitt (profile mode)",

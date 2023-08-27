@@ -206,7 +206,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                     .then((value) => {
                           if (widget._direction == 'patrone')
                             {
-                              checkIfPatroneUser().then((isPatrone) {
+                              Patrone().checkIfPatroneUser().then((isPatrone) {
                                 if (isPatrone == true) {
                                   Navigator.popAndPushNamed(
                                       context, 'patrone_dashboard');

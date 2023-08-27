@@ -29,7 +29,7 @@ class BusinessOwnerProfile extends StatelessWidget {
                     Map<String, dynamic> listingData =
                         snapshot.data!.data() as Map<String, dynamic>;
                     String? openingTime() {
-                      if (listingData.containsKey('opening_time')) {
+                      if (listingData.containsKey('opening_time') && listingData['opening_time'] != null) {
                         Timestamp openingTime = listingData['opening_time'];
                         return DateFormat('hh:mm a')
                             .format(openingTime.toDate());
@@ -39,7 +39,7 @@ class BusinessOwnerProfile extends StatelessWidget {
                     }
 
                     String? closingTime() {
-                      if (listingData.containsKey('closing_time')) {
+                      if (listingData.containsKey('closing_time') && listingData['closing_time'] != null) {
                         Timestamp openingTime = listingData['closing_time'];
                         return DateFormat('hh:mm a')
                             .format(openingTime.toDate());

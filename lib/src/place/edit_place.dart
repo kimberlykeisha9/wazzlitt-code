@@ -545,27 +545,28 @@ class _EditPlaceState extends State<EditPlace> {
                                               actions: [
                                                 TextButton(
                                                   onPressed: () {
+                                                    uploadPlaceLocation(widget
+                                                      .place!,
+                                                      double.parse(generatedPrediction
+                                                      !.lat!),
+                                                      double.parse
+                                                        (generatedPrediction!.lng!));
                                                     savePlaceProfile(
                                                       businessName:
-                                                          _nameController.text,
-                                                      location:
-                                                          _locationController
-                                                              .text,
-                                                      website:
-                                                          _websiteController
-                                                              .text,
-                                                      category: _selectedChip,
-                                                      description:
-                                                          _descriptionController
-                                                              .text,
-                                                      latitude: double.parse
-                                                        (generatedPrediction!.lat!),
-                                                      longitude: double.parse
-                                                        (generatedPrediction!.lng!),
-                                                      emailAddress:
-                                                          _emailController.text,
-                                                      phoneNumber:
-                                                          _phoneController.text,
+                                                    _nameController.text,
+                                                website:
+                                                    _websiteController.text,
+                                                category: _selectedChip,
+                                                description:
+                                                    _descriptionController.text,
+                                                emailAddress:
+                                                    _emailController.text,
+                                                latitude: double.parse
+                                                  (generatedPrediction!.lat!),
+                                                longitude: double.parse
+                                                  (generatedPrediction!.lng!),
+                                                phoneNumber:
+                                                    _phoneController.text,
                                                     ).then((value) => Navigator
                                                         .pushReplacementNamed(
                                                             context,
@@ -596,8 +597,6 @@ class _EditPlaceState extends State<EditPlace> {
                                               savePlaceProfile(
                                                 businessName:
                                                     _nameController.text,
-                                                location:
-                                                    _locationController.text,
                                                 website:
                                                     _websiteController.text,
                                                 category: _selectedChip,

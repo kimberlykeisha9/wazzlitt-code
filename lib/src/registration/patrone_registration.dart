@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../authorization/authorization.dart';
@@ -16,7 +17,6 @@ class PatroneRegistration extends StatefulWidget {
   @override
   State<PatroneRegistration> createState() => _PatroneRegistrationState();
 }
-
 
 class _PatroneRegistrationState extends State<PatroneRegistration> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -64,26 +64,29 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
   @override
   void initState() {
     super.initState();
-    currentUserPatroneProfile.get().then((profile) {
-      if (profile.exists) {
-        auth.currentUser!.reload();
-        Map<String, dynamic>? data = profile.data();
+    Patrone().currentUserPatroneProfile.get().then((value) {
+      if (value.exists) {
         setState(() {
-          firstNameController = TextEditingController(text: data?['first_name']);
-          lastNameController = TextEditingController(text: data?['last_name']);
-          usernameController = TextEditingController(text: auth.currentUser!.displayName);
-          emailController = TextEditingController(text: auth.currentUser!.email);
-          dobController = TextEditingController(text: DateFormat.yMMMMd().format((data?['dob'] as Timestamp).toDate()));
-          selectedDOB = (data?['dob'] as Timestamp).toDate();
-          _selectedGender = data?['gender'];
-          networkProfile = data?['profile_picture'];
-          networkCoverPhoto = data?['cover_photo'];
+          firstNameController = TextEditingController(
+              text: Provider.of<Patrone>(context).firstName);
+          lastNameController = TextEditingController(
+              text: Provider.of<Patrone>(context).lastName);
+          usernameController = TextEditingController(
+              text: Provider.of<Patrone>(context).username);
+          emailController = TextEditingController(
+              text: Provider.of<Patrone>(context).emailAddress);
+          dobController = TextEditingController(
+              text: DateFormat.yMMMMd()
+                  .format(Provider.of<Patrone>(context).dob ?? DateTime.now()));
+          selectedDOB = Provider.of<Patrone>(context).dob;
+          _selectedGender = Provider.of<Patrone>(context).gender ?? 'male';
+          networkProfile = Provider.of<Patrone>(context).profilePicture;
+          networkCoverPhoto = Provider.of<Patrone>(context).coverPicture;
           passwordController = TextEditingController();
           _isExistingUser = true;
         });
       }
     });
-
   }
 
   @override
@@ -97,8 +100,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
             children: [
               const Text(
                 'Patrone Account',
-                style:
-                    TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               Text(
@@ -121,19 +123,18 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                           color: Colors.grey,
                           image: networkCoverPhoto != null
                               ? DecorationImage(
-                              fit: BoxFit.cover,
-                              image:
-                              NetworkImage(networkCoverPhoto!))
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(networkCoverPhoto!))
                               : _coverPhoto == null
-                              ? null
-                              : DecorationImage(
-                              fit: BoxFit.cover,
-                              image: FileImage(_coverPhoto!)),
+                                  ? null
+                                  : DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: FileImage(_coverPhoto!)),
                         ),
-                        child: (_coverPhoto != null ||
-                            networkCoverPhoto != null)
-                            ? const SizedBox()
-                            : const Icon(Icons.add_photo_alternate),
+                        child:
+                            (_coverPhoto != null || networkCoverPhoto != null)
+                                ? const SizedBox()
+                                : const Icon(Icons.add_photo_alternate),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -151,18 +152,16 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                             shape: BoxShape.circle,
                             image: networkProfile != null
                                 ? DecorationImage(
-                                fit: BoxFit.cover,
-                                image:
-                                NetworkImage(networkProfile!))
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(networkProfile!))
                                 : _profilePicture == null
-                                ? null
-                                : DecorationImage(
-                                fit: BoxFit.cover,
-                                image: FileImage(
-                                    _profilePicture!)),
+                                    ? null
+                                    : DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: FileImage(_profilePicture!)),
                           ),
                           child: (_profilePicture != null ||
-                              networkProfile != null)
+                                  networkProfile != null)
                               ? const SizedBox()
                               : const Icon(Icons.person),
                         ),
@@ -250,7 +249,8 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                                 return null;
                               },
                               decoration: InputDecoration(
-                                labelText: AppLocalizations.of(context)!.username,
+                                labelText:
+                                    AppLocalizations.of(context)!.username,
                               ),
                               autofillHints: const [AutofillHints.newUsername],
                               keyboardType: TextInputType.name,
@@ -305,7 +305,8 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                                   setState(() {
                                     selectedDOB = selectedDate;
                                   });
-                                  dobController.text = DateFormat.yMMMd().format(selectedDate);
+                                  dobController.text =
+                                      DateFormat.yMMMd().format(selectedDate);
                                 }
                               },
                               autofillHints: const [AutofillHints.birthday],
@@ -371,17 +372,21 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                           actions: [
                             TextButton(
                               onPressed: () {
-                                saveUserPatroneInformation(
-                                firstName: firstNameController.text,
-                                lastName: lastNameController.text,
-                                username: usernameController.text,
-                                dob: selectedDOB,
-                                email: emailController.text,
-                                gender: _selectedGender,
-                              ).then((value) => payForPatrone(context).then((value) => Navigator.popAndPushNamed(
-                                    context, 'interests')), onError: (e) =>
-                              showSnackbar(context, 'An error has occured. '
-                                  'Please try again later.'));
+                                Patrone().saveUserPatroneInformation(
+                                  firstName: firstNameController.text,
+                                  lastName: lastNameController.text,
+                                  username: usernameController.text,
+                                  dob: selectedDOB,
+                                  email: emailController.text,
+                                  gender: _selectedGender,
+                                ).then(
+                                    (value) => payForPatrone(context).then(
+                                        (value) => Navigator.popAndPushNamed(
+                                            context, 'interests')),
+                                    onError: (e) => showSnackbar(
+                                        context,
+                                        'An error has occured. '
+                                        'Please try again later.'));
                                 payForPatrone(context);
                               },
                               child:

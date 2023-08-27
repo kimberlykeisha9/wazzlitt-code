@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 
 import '../../user_data/user_data.dart';
@@ -43,10 +44,8 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: FutureBuilder<DocumentSnapshot>(
-        future: currentUserPatroneProfile.get(),
+        future: null,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            Map<String, dynamic> userData = snapshot.data!.data() as Map<String, dynamic>;
             return Container(
                 height: height(context),
                 width: width(context) * 0.75,
@@ -67,8 +66,8 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                         const Text('WazzLitt Balance'),
                         const SizedBox(height: 5),
                         Text(
-                            userData.containsKey('balance')
-                                ? '\$ ${double.parse(userData['balance'].toString()).toStringAsFixed(2)}'
+                            (Provider.of<Patrone>(context).accountBalance != null )
+                                ? '\$ ${double.parse(Provider.of<Patrone>(context).accountBalance.toString()).toStringAsFixed(2)}'
                                 : '\$ 0.00',
                             style:
                             const TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
@@ -148,8 +147,6 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                   ),
                 ]));
           }
-          return const Center(child: CircularProgressIndicator());
-        }
       ),
     );
   }
@@ -197,7 +194,7 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                     child: const Text('Top up'),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        topUpAccount(double.parse(topUpController.text)).then((value) => Navigator.of(context).pop());
+                        Provider.of<Patrone>(context).topUpAccount(double.parse(topUpController.text)).then((value) => Navigator.of(context).pop());
                       }
                     },
                   )

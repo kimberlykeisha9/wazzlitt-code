@@ -1,19 +1,20 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as db;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
 class OrderDetails extends StatelessWidget {
   OrderDetails({super.key, required this.order, required this.orderSourceData});
 
   Map<String, dynamic> orderSourceData;
-  Map<String, dynamic> order;
+  Order order;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(order['service']?['service_name'] ?? order['ticket']?['ticket_name'] ?? ''),
+        title: Text(order.details['service_name'] ?? order.details['ticket_name'] ?? ''),
       ),
       body: SafeArea(
           child: Column(children: [
@@ -34,7 +35,7 @@ class OrderDetails extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Text(order['order_type'] == 'place' ? order['service']['service_name'] : order['ticket']['ticket_name'],
+                  child: Text(order.details['service_name'] ?? order.details['ticket_name'] ?? '',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       )),
@@ -52,7 +53,7 @@ class OrderDetails extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 10),
-                        Text(order['order_type'] == 'place' ? order['service']['service_name'] : order['ticket']['ticket_name'], style: const TextStyle(fontSize: 14)),
+                        Text(order.details['service_name'] ?? order.details['ticket_name'] ?? '', style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                     // Column(
@@ -72,7 +73,7 @@ class OrderDetails extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 10),
-                        Text('\$ ${double.parse((order['order_type'] == 'place' ? order['service'] : order['ticket'])['price'].toString()).toStringAsFixed(2)}', style: const TextStyle(fontSize: 14)),
+                        Text('\$ ${double.parse(order.details['price'].toString()).toStringAsFixed(2)}', style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                   ],
@@ -81,13 +82,13 @@ class OrderDetails extends StatelessWidget {
                 const Text('Payment Status: Completed',
                     style: TextStyle(fontSize: 14)),
                 const Spacer(),
-                Text('Purchase Date: ${DateFormat.yMMMd().format((order['date_placed'] as Timestamp).toDate())}',
+                Text('Purchase Date: ${DateFormat.yMMMd().format((order.datePlaced))}',
                     style: const TextStyle(fontSize: 14)),
                 const Spacer(),
-                Text('Order ID: ${(order['order_id'] as String).toUpperCase()}',
+                Text('Order ID: ${(order.orderID).toUpperCase()}',
                     style: const TextStyle(fontSize: 14)),
                 const Spacer(),
-                Text('Payment Type: ${(order['payment_type'] as String).toUpperCase()}',
+                Text('Payment Type: ${(order.paymentType).toUpperCase()}',
                     style: const TextStyle(fontSize: 14)),
                 const Spacer(flex: 3),
                 SizedBox(

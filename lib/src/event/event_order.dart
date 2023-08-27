@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wazzlitt/user_data/payments.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 
@@ -181,7 +182,7 @@ class _EventOrderState extends State<EventOrder> {
                                                                           2)}'),
                                                                   onPressed:
                                                                       () {
-                                                                    payFromBalance(double.parse(_selectedTicket!['price'].toString())).then((paymentStatus) {
+                                                                    payFromBalance(double.parse(_selectedTicket!['price'].toString()), context).then((paymentStatus) {
                                                                       print(paymentStatus ?? 'No payment info found');
                                                                       if (paymentStatus == 'paid') {
                                                                         uploadEventOrder(_selectedTicket!,_selectedIndex!, widget.event, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(context, 'confirmed'));

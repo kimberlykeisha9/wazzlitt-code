@@ -24,7 +24,7 @@ Future<String> getLocationForPlace(DocumentReference place) async {
   await place.get().then((data) async {
     if (data.exists) {
       Map<String, dynamic> placeData = data.data() as Map<String, dynamic>;
-      GeoPoint? location = placeData['location'];
+      GeoPoint? location = placeData['location']['geopoint'];
       if (location != null) {
         List<Placemark> placemarks = await placemarkFromCoordinates(
             location.latitude, location.longitude);
@@ -76,7 +76,7 @@ Future<void> uploadLocation() async {
     GeoFirePoint geoPoint = geo.point(latitude: position.latitude, longitude:
     position.longitude);
 
-    await currentUserPatroneProfile.update({
+    await Patrone().currentUserPatroneProfile.update({
       'current_location': geoPoint.data,
     });
   } catch (e) {

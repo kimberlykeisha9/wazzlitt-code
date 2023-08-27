@@ -204,7 +204,7 @@ class ProfileTab extends StatelessWidget {
                     child: Text(bio ?? 'No Bio', textAlign: TextAlign.center)),
                 const SizedBox(height: 20),
                 const Text('Star Sign', style: TextStyle(fontSize: 12)),
-                Text(getStarSign(dob!),
+                Text(Patrone().getStarSign(dob!),
                     style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 20),
                 const Text('Currently at', style: TextStyle(fontSize: 12)),
@@ -252,12 +252,12 @@ class ProfileTab extends StatelessWidget {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.all(5)),
-                          onPressed: () => userProfile == currentUserPatroneProfile ? Navigator.pushNamed(context, 'patrone_registration'
-                          ) : isFollowingUser(userProfile).then((isFollowing) {
-                            isFollowing ? unfollowUser(userProfile) : followUser(userProfile);
+                          onPressed: () => userProfile == Patrone().currentUserPatroneProfile ? Navigator.pushNamed(context, 'patrone_registration'
+                          ) : Patrone().isFollowingUser(userProfile).then((isFollowing) {
+                            isFollowing ? Patrone().unfollowUser(userProfile) : Patrone().followUser(userProfile);
                           }),
-                          child: userProfile == currentUserPatroneProfile ? Text('Edit Profile',
-                              style: TextStyle(fontSize: 12)) : FutureBuilder<bool>(future: isFollowingUser(userProfile),
+                          child: userProfile == Patrone().currentUserPatroneProfile ? Text('Edit Profile',
+                              style: TextStyle(fontSize: 12)) : FutureBuilder<bool>(future: Patrone().isFollowingUser(userProfile),
                               builder: (context, snapshot) {
                             return Text(snapshot.data! ? 'Unfollow' : 'Follow',
                                 style: TextStyle(fontSize: 12));
@@ -266,7 +266,7 @@ class ProfileTab extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    userProfile == currentUserPatroneProfile ? SizedBox() : Expanded(
+                    userProfile == Patrone().currentUserPatroneProfile ? SizedBox() : Expanded(
                       flex: 10,
                       child: SizedBox(
                         height: 30,
@@ -401,26 +401,6 @@ class ActivityTab extends StatelessWidget {
                         );
                       }
                     ),
-                    GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                      ),
-                      itemCount: 9,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Container(
-                          color: Colors.orange,
-                          child: Center(
-                            child: Text(
-                              'Saved $index',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 20),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-
                   ],
                 ),
               ),
@@ -429,7 +409,6 @@ class ActivityTab extends StatelessWidget {
               tabs: const [
                 Tab(icon: Icon(Icons.place),),
                 Tab(icon: Icon(Icons.favorite)),
-                Tab(icon: Icon(Icons.bookmark)),
               ],
               labelColor: Theme.of(context).colorScheme.secondary,
               unselectedLabelColor: Theme.of(context)

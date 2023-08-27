@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
@@ -13,6 +14,31 @@ final apiKey = 'sk_test_51N6MV7Aw4gbUiKSOVcDYHBiDM5ibgvUiGZQQ2erLCvrDXerqrJXDY'
 
 var customerReference =
     firestore.collection('customers').doc(auth.currentUser!.uid);
+
+    Future<String?> payFromBalance(double amount, BuildContext context) async {
+  String? paymentStatus;
+  try {
+    var account = Provider.of<Patrone>(context).accountBalance;
+      if (account != null) {
+        log('Balance found');
+        if (account > amount) {
+          Patrone().currentUserPatroneProfile.update( 
+              {'balance': FieldValue.increment(double.parse('-$amount'))});
+          paymentStatus = 'paid';
+        } else {
+          log('Balance is less than amount to be deducted');
+          paymentStatus = 'unpaid';
+        }
+      } else {
+        log('Balance not found');
+        paymentStatus = 'unpaid';
+      }
+    return paymentStatus;
+  } catch (e) {
+    print(e);
+  }
+  return null;
+}
 
 Future<void> payForIgniter(BuildContext context) async {
   try {
@@ -276,7 +302,7 @@ async {
         'expiration_date': DateTime.now().add(Duration(days: 30)),
         'payment_intent_data': paymentIntent,
       }).then((transaction) async {
-        await currentUserPatroneProfile.update({
+        await Patrone().currentUserPatroneProfile.update({
         'patrone_payment': {
           'date_paid': DateTime.now(),
           'expiration_date': DateTime.now().add(Duration(days: 30)),

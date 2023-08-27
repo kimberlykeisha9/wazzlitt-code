@@ -112,7 +112,7 @@ class _InterestsState extends State<Interests> {
                             showSnackbar(context,
                                 'Please select at least 3 categories to proceed');
                           } else {
-                            saveUserInterests(interests: categoryProvider
+                            Patrone().saveUserInterests(interests: categoryProvider
                                 .selectedCategories).then((value) =>
                             Navigator.pushNamed(context, 'patrone_dashboard'));
                           }

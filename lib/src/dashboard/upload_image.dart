@@ -80,7 +80,7 @@ class _UploadImageState extends State<UploadImage> {
               print(_locationCoordinates);
               if (_selectedChip != null &&
                   _selectedLocation != null) {
-                uploadPost(
+                Patrone().uploadPost(
                   widget.uploadedImage,
                   _captionController.text,
                   _selectedChip!,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wazzlitt/user_data/payments.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 
@@ -168,7 +169,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                                                               2)}'),
                                                                   onPressed:
                                                                       () {
-                                                                    payFromBalance(double.parse(_selectedService!['price'].toString())).then((paymentStatus) {
+                                                                    payFromBalance(double.parse(_selectedService!['price'].toString()), context).then((paymentStatus) {
                                                                       print(paymentStatus ?? 'No payment info found');
                                                                       if (paymentStatus == 'paid') {
                                                                         uploadPlaceOrder(_selectedService!, widget.place, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(context, 'confirmed'));

@@ -8,6 +8,7 @@ import 'firebase_options.dart';
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
+import 'user_data/user_data.dart';
 
 void main() async {
 
@@ -33,7 +34,7 @@ void main() async {
   Stripe.publishableKey = 'pk_test_51N6MV7Aw4gbUiKSO9S7epyOYDxLjQxzQjUUP4cwPaTpMAIFX6cccpePl4vlPyBDQLL3uKycqBaVKRDD0LoteysiN00pGKIfRjG';
   runApp(MultiProvider(
       providers: [
-        categoryProvider
+        ChangeNotifierProvider(create: (_) => Patrone()),
       ],
       child: MyApp(settingsController: settingsController)));
 }
