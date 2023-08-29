@@ -4,34 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:uuid/uuid.dart';
-import '../src/location/location.dart';
-import '../../user_data/patrone_data.dart';
-
 
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
-
-
-class Order {
-  DateTime datePlaced;
-  String orderID;
-  OrderType orderType;
-  String paymentType;
-  Map<String, dynamic> details;
-  DocumentReference reference;
-
-  Order({
-    required this.datePlaced,
-    required this.orderID,
-    required this.paymentType,
-    required this.orderType,
-    required this.details,
-    required this.reference,
-  });
-}
-
-enum OrderType { ticket, service }
 
 Future<String?> uploadImageToFirebase(File? imageFile, String path) async {
   if (imageFile != null) {
@@ -58,124 +34,6 @@ Future<String?> uploadImageToFirebase(File? imageFile, String path) async {
 String generateUniqueId() {
   var uuid = const Uuid();
   return uuid.v4(); // Returns a version 4 (random) UUID
-}
-
-Future<void> uploadPlaceOrder(Map<String, dynamic> service,
-    Map<String, dynamic> place, String paymentType) async {
-  // Add order to Orders Collection
-  await firestore.collection('orders').add({
-    'date_placed': DateTime.now(),
-    'order_type': 'place',
-    'service': service,
-    'ordered_by': currentUserProfile,
-    'payment_type': paymentType,
-    'order_id': generateUniqueId(),
-  }).then((order) {
-    log('Added order to orders');
-    // Query for business place
-    firestore
-        .collection('places')
-        .where('place_name', isEqualTo: place['place_name'])
-        .where('services', arrayContains: service)
-        .limit(1)
-        .get()
-        .then((query) {
-      // Update businesses orders
-      DocumentReference place = query.docs[0].reference;
-      order.update({'place': place});
-      place.update({
-        'orders': FieldValue.arrayUnion([order]),
-      }).then((value) {
-        // Update user's orders
-        log('Added order to business');
-        Patrone().currentUserPatroneProfile.update({
-          'orders': FieldValue.arrayUnion([order]),
-        }).then(
-            (val) => log('Completed uploading place order to user profile'));
-      });
-    });
-  });
-}
-
-Future<void> uploadEventOrder(Map<String, dynamic> ticket, int index,
-    Map<String, dynamic> event, String paymentType) async {
-  // Add order to Orders Collection
-  await firestore.collection('orders').add({
-    'date_placed': DateTime.now(),
-    'order_type': 'ticket',
-    'ticket': ticket,
-    'ordered_by': currentUserProfile,
-    'payment_type': paymentType,
-    'order_id': generateUniqueId(),
-  }).then((order) {
-    log('Added order to orders');
-    // Query for event
-    firestore
-        .collection('events')
-        .where('event_name', isEqualTo: event['event_name'])
-        .where('tickets', arrayContains: ticket)
-        .limit(1)
-        .get()
-        .then((query) {
-      // Update event orders
-      DocumentReference eventRef = query.docs[0].reference;
-      order.update({'event': eventRef});
-      eventRef.update({
-        'orders': FieldValue.arrayUnion([order]),
-        'tickets': event['tickets'],
-      }).then((value) {
-        // Update user's orders
-        log('Added order to business');
-        Patrone().currentUserPatroneProfile.update({
-          'orders': FieldValue.arrayUnion([order]),
-        }).then(
-            (val) => log('Completed uploading event order to user profile'));
-      });
-    });
-  });
-}
-
-Future<void> deleteService(
-    Map<String, dynamic> service, DocumentReference place) async {
-  try {
-    await place.update({
-      'services': FieldValue.arrayRemove([service]),
-    });
-  } on Exception catch (e) {
-    print(e);
-  }
-}
-
-Future<void> addNewService(
-    {required DocumentReference place,
-    String? serviceName,
-    String? description,
-    String? image,
-    double? price,
-    int? available}) async {
-  bool? isAvailable() {
-    if (available == 1) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  try {
-    await place.update({
-      'services': FieldValue.arrayUnion([
-        {
-          'service_name': serviceName,
-          'service_description': description,
-          'image': image,
-          'price': price,
-          'available': isAvailable()
-        }
-      ]),
-    });
-  } catch (e) {
-    print(e);
-  }
 }
 
 Future<void> addNewTicket(
@@ -210,40 +68,6 @@ Future<void> addNewTicket(
   }
 }
 
-Future<void> updateService(
-    {required DocumentReference place,
-    required Map<String, dynamic> service,
-    required String serviceName,
-    required String description,
-    String? image,
-    required double price,
-    required int available}) async {
-  bool? isAvailable() {
-    if (available == 1) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  try {
-    await place.update({
-      'services': FieldValue.arrayRemove([service]),
-    }).then((value) => place.update({
-          'services': FieldValue.arrayUnion([
-            {
-              'service_name': serviceName,
-              'service_description': description,
-              'image': image,
-              'price': price,
-              'available': isAvailable()
-            }
-          ]),
-        }));
-  } catch (e) {
-    print(e);
-  }
-}
 
 Future<void> updateTicket(
     {required DocumentReference event,
@@ -356,90 +180,6 @@ Future<void> sendMessage(
   }
 }
 
-Future<void> savePlaceProfile(
-    {DocumentReference? place,
-    String? businessName,
-    String? website,
-    String? category,
-    String? description,
-    String? emailAddress,
-    String? phoneNumber,
-    String? profilePhoto,
-    String? coverPhoto,
-    double? latitude,
-    double? longitude,
-    Timestamp? openingTime,
-    Timestamp? closingTime,
-    String? placeType}) async {
-  try {
-    var placeData = {
-      'place_name': businessName?.trim(),
-      'website': website,
-      'category': category,
-      'place_description': description,
-      'email_address': emailAddress,
-      'phone_number': phoneNumber,
-      'image': profilePhoto,
-      'cover_image': coverPhoto,
-      'opening_time': openingTime,
-      'closing_time': closingTime,
-      'lister': currentUserProfile,
-      'place_type': placeType,
-    };
-    if (place != null) {
-      await place.update(placeData).then((value) {
-        log('Uploaded place data');
-        uploadPlaceLocation(place, latitude!, longitude!);
-      });
-    } else {
-      await firestore
-          .collection('places')
-          .add(placeData)
-          .then((newPlace) => currentUserIgniterProfile.get().then((value) {
-                if (value.exists) {
-                  currentUserIgniterProfile.update({
-                    'listings': FieldValue.arrayUnion([newPlace]),
-                    'igniter_type': 'business_owner'
-                  }).then(
-                    (_) => firestore.collection('messages').add({
-                      'owner': newPlace,
-                      'welcome_message': 'Hi welcome to our chat room',
-                      'last_message': null,
-                    }).then((chatroom) {
-                      newPlace.update({
-                        'chat_room': chatroom,
-                      });
-                      uploadPlaceLocation(newPlace, latitude!, longitude!);
-                    }),
-                  );
-                } else {
-                  currentUserProfile.update({'is_igniter': true});
-                  currentUserIgniterProfile.set({
-                    'listings': FieldValue.arrayUnion([newPlace]),
-                    'igniter_type': 'business_owner',
-                    'createdAt': DateTime.now(),
-                  }).then(
-                    (_) => firestore.collection('messages').add({
-                      'owner': newPlace,
-                      'welcome_message': 'Hi welcome to our chat room',
-                      'last_message': null,
-                    }).then((chatroom) {
-                      newPlace.update({
-                        'chat_room': chatroom,
-                      });
-                      uploadPlaceLocation(chatroom, latitude!, longitude!);
-                    }),
-                  );
-                }
-              }));
-    }
-  } on FirebaseException catch (e) {
-    log(e.code);
-    log(e.message ?? 'No message');
-  } catch (e) {
-    log(e.toString());
-  }
-}
 
 Future<void> saveEvent(
     {DocumentReference? event,

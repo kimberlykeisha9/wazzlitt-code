@@ -7,6 +7,8 @@ import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/src/registration/interests.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
+import 'order_data.dart';
+
 class Patrone extends ChangeNotifier {
   // First name
   String? _firstName;

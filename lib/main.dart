@@ -8,7 +8,7 @@ import 'firebase_options.dart';
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
-import 'user_data/user_data.dart';
+import '../../user_data/patrone_data.dart';
 
 void main() async {
 
