@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -295,7 +296,7 @@ class _EditEventState extends State<EditEvent> {
                                   uploadImageToFirebase(_localEventImage,
                                       'event/${widget.event?.id}/event_image')
                                       .then((eventPic) {
-                                    saveEvent(
+                                    EventData().saveEvent(
                                       event: widget.event,
                                       eventName: _nameController.text,
                                       location: _locationController.text,

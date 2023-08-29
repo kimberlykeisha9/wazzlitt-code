@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
@@ -40,7 +41,7 @@ class _EditTicketState extends State<EditTicket> {
               onPressed: () {
                   if(available == 1 || available == 2) {
                     if (_formKey.currentState!.validate()) {
-                      updateTicket(
+                      Ticket().updateTicket(
                         event: widget.event, ticket: widget.ticket,
                         ticketName: _nameController.text, description: _descriptionController.text, expiry: _expiryDate, available: available, price: double.parse(_priceController.text),
                       ).then((value) => Navigator.pop(context));

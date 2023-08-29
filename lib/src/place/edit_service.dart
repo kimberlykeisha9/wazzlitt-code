@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../authorization/authorization.dart';
+import '../../user_data/business_owner_data.dart';
 import '../app.dart';
 
 class EditService extends StatefulWidget {
@@ -52,7 +53,7 @@ class _EditServiceState extends State<EditService> {
                 if(_servicePhoto != null || _networkServicePhoto != null) {
                   if(available == 1 || available == 2) {
                     if (_formKey.currentState!.validate()) {
-                      uploadImageToFirebase(_servicePhoto, 'users/${auth.currentUser!.uid}/patrone/services/').then((value) => updateService(
+                      uploadImageToFirebase(_servicePhoto, 'users/${auth.currentUser!.uid}/patrone/services/').then((value) => Service().updateService(
                         place: widget.place, service: widget.service,
                         serviceName: _name!, description: _description!, image: value, available: available, price: double.parse(_price!),
                       ).then((value) => Navigator.pop(context)));

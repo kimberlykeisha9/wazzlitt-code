@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart' as db;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/user_data/order_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
@@ -14,7 +15,7 @@ class OrderDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(order.details['service_name'] ?? order.details['ticket_name'] ?? ''),
+        title: Text(order.details!['service_name'] ?? order.details!['ticket_name'] ?? ''),
       ),
       body: SafeArea(
           child: Column(children: [
@@ -35,7 +36,7 @@ class OrderDetails extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Center(
-                  child: Text(order.details['service_name'] ?? order.details['ticket_name'] ?? '',
+                  child: Text(order.details!['service_name'] ?? order.details!['ticket_name'] ?? '',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       )),
@@ -53,7 +54,7 @@ class OrderDetails extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 10),
-                        Text(order.details['service_name'] ?? order.details['ticket_name'] ?? '', style: const TextStyle(fontSize: 14)),
+                        Text(order.details!['service_name'] ?? order.details!['ticket_name'] ?? '', style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                     // Column(
@@ -73,7 +74,7 @@ class OrderDetails extends StatelessWidget {
                             style: TextStyle(
                                 fontSize: 14, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 10),
-                        Text('\$ ${double.parse(order.details['price'].toString()).toStringAsFixed(2)}', style: const TextStyle(fontSize: 14)),
+                        Text('\$ ${double.parse(order.details!['price'].toString()).toStringAsFixed(2)}', style: const TextStyle(fontSize: 14)),
                       ],
                     ),
                   ],
@@ -82,13 +83,13 @@ class OrderDetails extends StatelessWidget {
                 const Text('Payment Status: Completed',
                     style: TextStyle(fontSize: 14)),
                 const Spacer(),
-                Text('Purchase Date: ${DateFormat.yMMMd().format((order.datePlaced))}',
+                Text('Purchase Date: ${DateFormat.yMMMd().format((order.datePlaced!))}',
                     style: const TextStyle(fontSize: 14)),
                 const Spacer(),
-                Text('Order ID: ${(order.orderID).toUpperCase()}',
+                Text('Order ID: ${(order.orderID)!.toUpperCase()}',
                     style: const TextStyle(fontSize: 14)),
                 const Spacer(),
-                Text('Payment Type: ${(order.paymentType).toUpperCase()}',
+                Text('Payment Type: ${(order.paymentType)!.toUpperCase()}',
                     style: const TextStyle(fontSize: 14)),
                 const Spacer(flex: 3),
                 SizedBox(

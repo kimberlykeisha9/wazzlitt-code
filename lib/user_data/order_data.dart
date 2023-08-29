@@ -5,20 +5,20 @@ import 'package:wazzlitt/user_data/patrone_data.dart';
 import 'user_data.dart';
 
 class Order {
-  DateTime datePlaced;
-  String orderID;
-  OrderType orderType;
-  String paymentType;
-  Map<String, dynamic> details;
-  DocumentReference reference;
+  DateTime? datePlaced;
+  String? orderID;
+  OrderType? orderType;
+  String? paymentType;
+  Map<String, dynamic>? details;
+  DocumentReference? reference;
 
   Order({
-    required this.datePlaced,
-    required this.orderID,
-    required this.paymentType,
-    required this.orderType,
-    required this.details,
-    required this.reference,
+    this.datePlaced,
+    this.orderID,
+    this.paymentType,
+    this.orderType,
+    this.details,
+    this.reference,
   });
 
   // Uploads Order for an event

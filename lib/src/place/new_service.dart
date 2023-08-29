@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:wazzlitt/user_data/business_owner_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../authorization/authorization.dart';
 import '../app.dart';
@@ -49,7 +50,7 @@ class _NewServiceState extends State<NewService> {
                 if(_servicePhoto != null) {
                   if(available == 1 || available == 2) {
                     if (_formKey.currentState!.validate()) {
-                      uploadImageToFirebase(_servicePhoto!, 'users/${auth.currentUser!.uid}/patrone/services/').then((value) => addNewService(
+                      uploadImageToFirebase(_servicePhoto!, 'users/${auth.currentUser!.uid}/patrone/services/').then((value) => Service().addNewService(
                         place: widget.place,
                         serviceName: _nameController?.text, description: _descriptionController?.text, image: value, available: available, price: double.parse(_priceController!.text),
                       ).then((value) => Navigator.pop(context)));

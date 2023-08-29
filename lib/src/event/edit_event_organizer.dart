@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../authorization/authorization.dart';
+import '../../user_data/event_organizer_data.dart';
 import '../app.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -339,7 +340,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer>
                                       uploadImageToFirebase(_profilePicture,
                                               'users/${auth.currentUser!.uid}/igniter/profile_photo')
                                           .then((profilePic) {
-                                        saveEventOrganizerProfile(
+                                        EventOrganizer().saveEventOrganizerProfile(
                                           organizerName: _nameController.text,
                                           website: _websiteController.text,
                                           category: _selectedChip,
@@ -399,7 +400,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer>
                 uploadImageToFirebase(_profilePicture,
                         'users/${auth.currentUser!.uid}/igniter/profile_photo')
                     .then((profilePic) {
-                  saveEventOrganizerProfile(
+                  EventOrganizer().saveEventOrganizerProfile(
                     organizerName: _nameController.text,
                     website: _websiteController.text,
                     category: _selectedChip,

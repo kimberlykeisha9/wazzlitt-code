@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../user_data/order_data.dart';
 import '../../user_data/user_data.dart';
 import 'order_details.dart';
 import '../../user_data/patrone_data.dart';
@@ -60,7 +61,7 @@ class _OrdersState extends State<Orders> {
                                 if (snapshot.hasData) {
                                   db.DocumentReference? orderReference = order.reference;
                                   return FutureBuilder<db.DocumentSnapshot>(
-                                    future: orderReference.get(),
+                                    future: orderReference!.get(),
                                     builder: (context,snapshot) {
                                       if(snapshot.hasData) {
                                         Map<String, dynamic> orderTypeData = snapshot.data!.data() as Map<String, dynamic>;
@@ -88,7 +89,7 @@ class _OrdersState extends State<Orders> {
                                                 children: [
                                                   const Spacer(flex: 10),
                                                   Text(
-                                                    (order.orderType == OrderType.service) ? order.details['service_name'] : order.details['ticket_name'],
+                                                    (order.orderType == OrderType.service) ? order.details!['service_name'] : order.details!['ticket_name'],
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontWeight: FontWeight.bold,
@@ -96,7 +97,7 @@ class _OrdersState extends State<Orders> {
                                                   ),
                                                   const Spacer(flex: 3),
                                                   Text(
-                                                    '\$ ${double.parse(order.details['price'].toString()).toStringAsFixed(2)}',
+                                                    '\$ ${double.parse(order.details!['price'].toString()).toStringAsFixed(2)}',
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 14,
@@ -104,7 +105,7 @@ class _OrdersState extends State<Orders> {
                                                   ),
                                                   const Spacer(),
                                                   Text(
-                                                    'Purchase Date: ${DateFormat.yMMMd().format(order.datePlaced)}',
+                                                    'Purchase Date: ${DateFormat.yMMMd().format(order.datePlaced!)}',
                                                     textAlign: TextAlign.center,
                                                     style: const TextStyle(
                                                       color: Colors.white,

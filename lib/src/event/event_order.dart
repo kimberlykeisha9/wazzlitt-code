@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:wazzlitt/user_data/order_data.dart';
 import 'package:wazzlitt/user_data/payments.dart';
-import '../../user_data/user_data.dart';
 import '../app.dart';
 
 class EventOrder extends StatefulWidget {
@@ -185,7 +185,7 @@ class _EventOrderState extends State<EventOrder> {
                                                                     payFromBalance(double.parse(_selectedTicket!['price'].toString()), context).then((paymentStatus) {
                                                                       print(paymentStatus ?? 'No payment info found');
                                                                       if (paymentStatus == 'paid') {
-                                                                        uploadEventOrder(_selectedTicket!,_selectedIndex!, widget.event, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(context, 'confirmed'));
+                                                                        Order().uploadEventOrder(_selectedTicket!,_selectedIndex!, widget.event, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(context, 'confirmed'));
                                                                       } else {
                                                                         Navigator.pop(context);
                                                                         showSnackbar(context, 'Something went wrong with your payment. Please check your balance or try again later');

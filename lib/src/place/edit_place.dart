@@ -7,7 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:wazzlitt/src/location/location.dart';
-import 'package:wazzlitt/user_data/user_data.dart';
+import 'package:wazzlitt/user_data/user_data.dart' as ud;
+import '../../user_data/business_owner_data.dart';
 import '../app.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -96,7 +97,7 @@ class _EditPlaceState extends State<EditPlace> {
             : '';
       }
     });
-    firestore.collection('app_data').doc('categories').get().then((value) {
+    ud.firestore.collection('app_data').doc('categories').get().then((value) {
       var data = value.data() as Map<String, dynamic>;
       data.forEach((key, value) {
         var itemData = value as Map<String, dynamic>;
@@ -551,7 +552,7 @@ class _EditPlaceState extends State<EditPlace> {
                                                       !.lat!),
                                                       double.parse
                                                         (generatedPrediction!.lng!));
-                                                    savePlaceProfile(
+                                                    BusinessPlace().savePlaceProfile(
                                                       businessName:
                                                     _nameController.text,
                                                 website:
@@ -581,10 +582,10 @@ class _EditPlaceState extends State<EditPlace> {
                                               ],
                                             ),
                                           )
-                                        : uploadImageToFirebase(_coverPhoto,
+                                        : ud.uploadImageToFirebase(_coverPhoto,
                                                 'places/${widget.place!.id}/coverPhoto')
                                             .then((coverPic) {
-                                            uploadImageToFirebase(
+                                            ud.uploadImageToFirebase(
                                                     _profilePicture,
                                                     'places/${widget.place?.id}/profile_photo')
                                                 .then((profilePic) {
@@ -594,7 +595,7 @@ class _EditPlaceState extends State<EditPlace> {
                                                       !.lat!),
                                                       double.parse
                                                         (generatedPrediction!.lng!));
-                                              savePlaceProfile(
+                                              BusinessPlace().savePlaceProfile(
                                                 businessName:
                                                     _nameController.text,
                                                 website:

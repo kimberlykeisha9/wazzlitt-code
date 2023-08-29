@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/user_data/business_owner_data.dart';
 
 import '../../../user_data/user_data.dart';
 import '../../app.dart';
@@ -228,7 +229,7 @@ class BusinessOwnerProfile extends StatelessWidget {
                                           },
                                           trailing: IconButton(
                                             onPressed: () =>
-                                                deleteService(service, placeData),
+                                                Service().deleteService(service, placeData),
                                             icon: const Icon(Icons.delete,
                                                 color: Colors.red),
                                           ),

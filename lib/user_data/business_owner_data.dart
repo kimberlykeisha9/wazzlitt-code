@@ -64,8 +64,8 @@ class BusinessOwner extends ChangeNotifier {
 
 class BusinessPlace {
   BusinessPlace({
-    required this.placeName,
-    required this.location,
+    this.placeName,
+    this.location,
     this.category,
     this.placeType,
     this.closingTime,
@@ -82,8 +82,8 @@ class BusinessPlace {
     this.services,
   });
 
-  String placeName;
-  GeoPoint location;
+  String? placeName;
+  GeoPoint? location;
   String? category;
   String? placeType;
   DateTime? closingTime;
