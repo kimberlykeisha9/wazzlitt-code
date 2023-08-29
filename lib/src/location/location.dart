@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geoflutterfire_updated/geoflutterfire_updated.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../user_data/patrone_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
 var geo = Geoflutterfire();

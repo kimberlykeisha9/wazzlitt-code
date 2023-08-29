@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../authorization/authorization.dart';
+import '../../user_data/patrone_data.dart';
 import '../../user_data/payments.dart';
 import '../app.dart';
 

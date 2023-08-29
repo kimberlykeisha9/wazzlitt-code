@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
+import '../../user_data/patrone_data.dart';
 
 class Interests extends StatefulWidget {
   const Interests({super.key});

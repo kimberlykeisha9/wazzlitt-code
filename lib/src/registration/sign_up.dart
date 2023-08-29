@@ -7,6 +7,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../user_data/user_data.dart';
+import '../../user_data/patrone_data.dart';
 import '../app.dart';
 
 class PhoneNumberPrompt extends StatefulWidget {

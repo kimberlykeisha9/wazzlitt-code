@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
-
+import '../../user_data/patrone_data.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 

@@ -7,6 +7,7 @@ import '../app.dart';
 import '../registration/interests.dart';
 import 'dart:io';
 import 'package:geocoding/geocoding.dart';
+import '../../user_data/patrone_data.dart';
 
 class UploadImage extends StatefulWidget {
   const UploadImage({super.key, required this.uploadedImage});

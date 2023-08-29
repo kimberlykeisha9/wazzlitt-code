@@ -10,6 +10,7 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import '../../authorization/authorization.dart';
 import '../../user_data/payments.dart';
 import '../app.dart';
+import '../../user_data/patrone_data.dart';
 import 'dart:io';
 import '../location/location.dart';
 import 'chats_view.dart';
