@@ -23,13 +23,15 @@ class BusinessOwner extends ChangeNotifier {
           var placeData = place.data() as Map<String, dynamic>?;
           List<Service>? servicesList = [];
 
-          for (Map<String, dynamic> service in (placeData?['services'] as List<dynamic>)) {
-            servicesList.add(Service(available: service['available'],
-            title: service['service_name'],
-            price: service['price'],
-            image: service['image'],
-            description: service['service_description'],
-            quantity: service['quantity'],
+          for (Map<String, dynamic> service
+              in (placeData?['services'] as List<dynamic>)) {
+            servicesList.add(Service(
+              available: service['available'],
+              title: service['service_name'],
+              price: service['price'],
+              image: service['image'],
+              description: service['service_description'],
+              quantity: service['quantity'],
             ));
           }
 
@@ -185,7 +187,6 @@ class BusinessPlace {
       log(e.toString());
     }
   }
-
 }
 
 class Service {
@@ -196,9 +197,14 @@ class Service {
   String? description;
   int? quantity;
 
-  Service({this.title, this.price, this.image, this.available, this.description, this.quantity});
+  Service(
+      {this.title,
+      this.price,
+      this.image,
+      this.available,
+      this.description,
+      this.quantity});
 
-  
   // Updates a service
 
   Future<void> updateService(

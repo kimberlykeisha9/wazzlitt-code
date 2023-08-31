@@ -6,8 +6,7 @@ import 'package:wazzlitt/user_data/user_data.dart';
 
 class EventOrganizer extends ChangeNotifier {
   List<EventData>? get events => _events;
-  // ignore: prefer_final_fields
-  List<EventData>? _events = [];
+  List<EventData>_events = [];
   String? get coverImage => _coverImage;
   String? _coverImage;
   String? get profileImage => _profileImage;
@@ -20,6 +19,49 @@ class EventOrganizer extends ChangeNotifier {
   String? _phone;
   String? get email => _email;
   String? _email;
+
+  // Get Events
+
+  getListedEvents() {
+    currentUserIgniterProfile.snapshots().listen((doc) {
+      var data = doc.data();
+      List<dynamic> userEvents = data?['events'];
+
+      for (DocumentReference eventRef in userEvents) {
+        eventRef.get().then((event) {
+          var eventData = event.data() as Map<String, dynamic>?;
+          List<Ticket>? ticketsList = [];
+
+          for (Map<String, dynamic> ticket in (eventData?['tickets'] as List<dynamic>)) {
+            ticketsList.add(Ticket(available: ticket['available'],
+            title: ticket['ticket_name'],
+            price: ticket['price'],
+            image: ticket['image'],
+            description: ticket['ticket_description'],
+            quantity: ticket['quantity'],
+            ));
+          }
+
+          _events.add(
+            EventData(
+              eventName: eventData?['event_name'],
+              location: eventData?['location']?['geopoint'],
+              category: eventData?['category'],
+              date: (eventData?['date'] as Timestamp?)?.toDate(),
+              image: eventData?['image'],
+              description: eventData?['event_description'],
+              eventOrganizer: eventData?['lister'],
+              eventReference: eventRef,
+              tickets: ticketsList,
+            ),
+          );
+          notifyListeners();
+        });
+        notifyListeners();
+      }
+      notifyListeners();
+    });
+  }
 
   // Saves Event Organizer Profile
   Future<void> saveEventOrganizerProfile(
