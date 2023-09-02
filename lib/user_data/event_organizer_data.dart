@@ -1,10 +1,11 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
-class EventOrganizer extends ChangeNotifier {
+import 'igniter_data.dart';
+
+class EventOrganizer extends Igniter {
   List<EventData>? get events => _events;
   List<EventData>_events = [];
   String? get coverImage => _coverImage;

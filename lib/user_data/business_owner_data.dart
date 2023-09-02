@@ -2,8 +2,11 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'order_data.dart' as wz;
 
 import '../src/location/location.dart';
+import 'igniter_data.dart';
+import 'order_data.dart';
 import 'user_data.dart';
 
 var firestore = FirebaseFirestore.instance;
@@ -13,54 +16,82 @@ class BusinessOwner extends ChangeNotifier {
   // ignore: prefer_final_fields
   List<BusinessPlace> _listings = [];
 
-  getListedBusinesses() {
-    currentUserIgniterProfile.snapshots().listen((doc) {
-      var data = doc.data();
-      List<dynamic> listings = data?['listings'];
+  Future<void> getListedBusinesses() async {
+    var doc = await currentUserIgniterProfile.get();
+    var data = doc.data();
+    List<dynamic> listings = data?['listings'];
 
-      for (var listing in listings) {
-        (listing as DocumentReference).get().then((place) {
-          var placeData = place.data() as Map<String, dynamic>?;
-          List<Service>? servicesList = [];
+    for (DocumentReference listing in listings) {
+      var place = await listing.get();
+      var placeData = place.data() as Map<String, dynamic>?;
+      List<Service>? servicesList = [];
+      List<wz.Order>? placeOrders = [];
 
-          for (Map<String, dynamic> service
-              in (placeData?['services'] as List<dynamic>)) {
-            servicesList.add(Service(
-              available: service['available'],
-              title: service['service_name'],
-              price: service['price'],
-              image: service['image'],
-              description: service['service_description'],
-              quantity: service['quantity'],
-            ));
-          }
+      var orders = await firestore
+          .collection('orders')
+          .where('place', isEqualTo: listing)
+          .get();
 
-          _listings.add(
-            BusinessPlace(
-              placeName: placeData?['place_name'],
-              location: placeData?['location']['geopoint'],
-              category: placeData?['category'],
-              placeType: placeData?['place_type'],
-              closingTime: (placeData?['closing_time'] as Timestamp?)?.toDate(),
-              openingTime: (placeData?['opening_time'] as Timestamp?)?.toDate(),
-              emailAddress: placeData?['email_address'],
-              image: placeData?['image'],
-              coverImage: placeData?['cover_image'],
-              description: placeData?['place_description'],
-              lister: placeData?['lister'],
-              placeReference: listing,
-              chatroom: placeData?['chat_room'],
-              phoneNumber: placeData?['phone_number'],
-              website: placeData?['website'],
-              services: servicesList,
+        for (QueryDocumentSnapshot<Map<String, dynamic>> order in orders.docs) {
+          var orderData = order.data();
+          placeOrders.add(
+            wz.Order(
+              datePlaced: (orderData['date_placed'] as Timestamp).toDate(),
+              details: orderData['ticket'],
+              orderID: orderData['order_id'],
+              paymentType: orderData['payment_type'],
+              orderType: wz.OrderType.ticket,
+              reference: orderData['event'],
             ),
           );
-          notifyListeners();
+        }
+
+      if (placeData!.containsKey('services')) {
+        for (Map<String, dynamic> service
+            in (placeData['services'] as List<dynamic>)) {
+          servicesList.add(Service(
+            available: service['available'],
+            title: service['service_name'],
+            price: service['price'],
+            image: service['image'],
+            description: service['service_description'],
+            quantity: service['quantity'],
+          ));
+        }
+      }
+
+      BusinessPlace foundBusinessPlace = BusinessPlace(
+        placeName: placeData['place_name'],
+        location: placeData['location']['geopoint'],
+        category: placeData['category'],
+        placeType: placeData['place_type'],
+        closingTime: (placeData['closing_time'] as Timestamp?)?.toDate(),
+        openingTime: (placeData['opening_time'] as Timestamp?)?.toDate(),
+        emailAddress: placeData['email_address'],
+        image: placeData['image'],
+        coverImage: placeData['cover_image'],
+        description: placeData['place_description'],
+        lister: placeData['lister'],
+        placeReference: listing,
+        chatroom: placeData['chat_room'],
+        phoneNumber: placeData['phone_number'],
+        website: placeData['website'],
+        services: servicesList,
+        orders: placeOrders,
+      );
+
+
+      if((_listings.contains(foundBusinessPlace))) {
+        _listings.where((place) => place.placeReference ==
+    foundBusinessPlace
+            .placeReference).toList().forEach((removablePlace) {
+              _listings.remove(removablePlace);
         });
         notifyListeners();
+      } else {
+        _listings.add(foundBusinessPlace);
       }
-      notifyListeners();
-    });
+    }
   }
 }
 
@@ -82,6 +113,7 @@ class BusinessPlace {
     this.phoneNumber,
     this.website,
     this.services,
+    this.orders,
   });
 
   String? placeName;
@@ -100,6 +132,7 @@ class BusinessPlace {
   String? phoneNumber;
   String? website;
   List<Service>? services = [];
+  List<wz.Order>? orders = [];
 
   // Saves a place profile
 

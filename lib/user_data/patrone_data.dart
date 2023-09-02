@@ -97,7 +97,7 @@ class Patrone extends ChangeNotifier {
       _profilePicture = content?['profile_picture'];
       _coverPicture = content?['cover_photo'];
       _gender = content?['gender'];
-      _createdPosts = content?['created_posts'];
+      _createdPosts = content?['created_posts'] ?? [];
       notifyListeners();
     });
   }

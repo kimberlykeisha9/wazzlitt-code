@@ -39,8 +39,15 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   @override
   void initState() {
     super.initState();
-    // uploadLocation();
+    uploadLocation();
     _exploreController = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     Provider.of<Patrone>(context).getCurrentUserPatroneInformation();
   }
 
@@ -82,10 +89,9 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                           .isBefore(DateTime.now()));
                       if (isFreeTrial ||
                           (Provider.of<Patrone>(context)
-                                  .patronePayment!
-                                  .containsKey('patrone_payment') &&
+                                  .patronePayment != null &&
                               (Provider.of<Patrone>(context)
-                                          .patronePayment!['patrone_payment']
+                                          .patronePayment!
                                       ['expiration_date'] as Timestamp)
                                   .toDate()
                                   .isAfter(DateTime.now()))) {
