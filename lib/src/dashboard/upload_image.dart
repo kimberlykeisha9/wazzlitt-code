@@ -2,6 +2,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
+import 'package:google_places_autocomplete_text_field/model/prediction.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 import '../registration/interests.dart';
@@ -21,38 +23,15 @@ class UploadImage extends StatefulWidget {
 class _UploadImageState extends State<UploadImage> {
   String? _selectedChip;
 
+  // Location predictor
+  Prediction? generatedPrediction;
+
   final PageController pageController = PageController();
 
   // Location Querying
 
   final TextEditingController _searchController = TextEditingController(),
       _captionController = TextEditingController();
-
-  Placemark? _selectedLocation;
-
-  List<Placemark> _locations = [];
-  List<Location> _locationCoordinates = [];
-  Future<void> _searchLocation(String query) async {
-    if (query.isEmpty) {
-      setState(() {
-        _locations = [];
-      });
-      return;
-    }
-
-    try {
-      List<Location> locations = await locationFromAddress(query);
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-          locations[0].latitude, locations[0].longitude,
-          localeIdentifier: 'enUS');
-      setState(() {
-        _locationCoordinates = locations;
-        _locations = placemarks;
-      });
-    } catch (e) {
-      print("Error searching location: $e");
-    }
-  }
 
   List<Category> categories = [];
   @override
@@ -78,22 +57,21 @@ class _UploadImageState extends State<UploadImage> {
         appBar: AppBar(title: const Text('New Post'), actions: [
           IconButton(
             onPressed: () {
-              print(_locationCoordinates);
               if (_selectedChip != null &&
-                  _selectedLocation != null) {
+                  generatedPrediction != null) {
                 Patrone().uploadPost(
                   widget.uploadedImage,
                   _captionController.text,
                   _selectedChip!,
-                  _locationCoordinates[0].latitude,
-                  _locationCoordinates[0].longitude,
+                  double.parse(generatedPrediction!.lat!),
+                  double.parse(generatedPrediction!.lng!),
                 ).then((value) => Navigator.of(context).pop());
               } else {
                 if (_selectedChip == null) {
                   log('No category selected');
                   showSnackbar(context, 'Please select a category');
                 }
-                if (_selectedLocation == null) {
+                if (generatedPrediction == null) {
                   showSnackbar(context, 'Please put the location');
                   log('No location selected');
                 }
@@ -120,48 +98,53 @@ class _UploadImageState extends State<UploadImage> {
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 20)),
                     const SizedBox(height: 20),
-                    TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Search',
-                        prefixIcon: Icon(Icons.search),
-                      ),
-                      controller: _searchController,
-                      onChanged: _searchLocation,
-                    ),
+                    GooglePlacesAutoCompleteTextFormField(
+                                      textEditingController:
+                                      _searchController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Location is required';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: const InputDecoration(
+                                        hintText: 'Location',
+                                          labelText: 'Location'),
+                                      googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
+                                      debounceTime: 400, // defaults to 600 ms,
+                                      countries: ["us"], // optional, by
+                                      // default the list is empty (no restrictions)
+                                      isLatLngRequired: true, // if you require the coordinates from the place details
+                                      getPlaceDetailWithLatLng: (prediction) {
+                                        if(prediction != null) {
+                                          setState(() {
+                                            generatedPrediction = prediction;
+                                          });
+                                        }
+                                        print("placeDetails" + prediction.lng.toString());
+                                      }, // this callback is called when isLatLngRequired is true
+                                      itmClick: (prediction) {
+                                        if(prediction != null) {
+                                          setState(() {
+                                            _searchController.text =
+                                            prediction.description!;
+                                            _searchController.selection =
+                                                TextSelection.fromPosition
+                                                  (TextPosition(offset:
+                                                prediction.description!.length));
+                                          });
+                                        }
+                                      }
+                                  ),
                     const SizedBox(height: 20),
                     const Text('Suggestions'),
-                    const SizedBox(height: 10),
-                    Expanded(
-                        child: SizedBox(
-                      child: ListView.builder(
-                          itemCount: _locations.length,
-                          itemBuilder: (context, index) {
-                            if (_locations == []) {
-                              return const Text('No places found');
-                            }
-                            return ListTile(
-                              selected: _selectedLocation == _locations[index],
-                              selectedColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              onTap: () {
-                                setState(() {
-                                  _selectedLocation = _locations[index];
-                                });
-                              },
-                              leading:
-                                  Icon(Icons.place, color: Colors.red[300]),
-                              title: Text(_locations[index].name ?? ''),
-                              subtitle: Text(
-                                  "${_locations[index].street}, ${_locations[index].country}"),
-                            );
-                          }),
-                    )),
+                    
                     const SizedBox(height: 10),
                     SizedBox(
                         width: width(context),
                         child: ElevatedButton(
                           onPressed: () {
-                            if (_selectedLocation != null) {
+                            if (generatedPrediction != null) {
                               pageController.nextPage(
                                   duration: const Duration(milliseconds: 300),
                                   curve: Curves.easeInOut);
@@ -241,7 +224,7 @@ class _UploadImageState extends State<UploadImage> {
                           ),
                           children: [
                             TextSpan(
-                              text: _selectedLocation?.name ?? '',
+                              text: generatedPrediction?.reference ?? '',
                               style: const TextStyle(
                                 fontSize: 16,
                                 color: Colors.black,

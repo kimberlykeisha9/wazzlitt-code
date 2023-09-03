@@ -69,20 +69,24 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
       if (value.exists) {
         setState(() {
           firstNameController = TextEditingController(
-              text: Provider.of<Patrone>(context).firstName);
+              text: Provider.of<Patrone>(context, listen: false).firstName);
           lastNameController = TextEditingController(
-              text: Provider.of<Patrone>(context).lastName);
+              text: Provider.of<Patrone>(context, listen: false).lastName);
           usernameController = TextEditingController(
-              text: Provider.of<Patrone>(context).username);
+              text: Provider.of<Patrone>(context, listen: false).username);
           emailController = TextEditingController(
-              text: Provider.of<Patrone>(context).emailAddress);
+              text: Provider.of<Patrone>(context, listen: false).emailAddress);
           dobController = TextEditingController(
-              text: DateFormat.yMMMMd()
-                  .format(Provider.of<Patrone>(context).dob ?? DateTime.now()));
-          selectedDOB = Provider.of<Patrone>(context).dob;
-          _selectedGender = Provider.of<Patrone>(context).gender ?? 'male';
-          networkProfile = Provider.of<Patrone>(context).profilePicture;
-          networkCoverPhoto = Provider.of<Patrone>(context).coverPicture;
+              text: DateFormat.yMMMMd().format(
+                  Provider.of<Patrone>(context, listen: false).dob ??
+                      DateTime.now()));
+          selectedDOB = Provider.of<Patrone>(context, listen: false).dob;
+          _selectedGender =
+              Provider.of<Patrone>(context, listen: false).gender ?? 'male';
+          networkProfile =
+              Provider.of<Patrone>(context, listen: false).profilePicture;
+          networkCoverPhoto =
+              Provider.of<Patrone>(context, listen: false).coverPicture;
           passwordController = TextEditingController();
           _isExistingUser = true;
         });
@@ -360,54 +364,41 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                   child: const Text('Continue'),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      showDialog(
-                        context: context,
-                        builder: (_) => AlertDialog(
-                          title: Text(
-                            AppLocalizations.of(context)!.createPatrone,
-                            textAlign: TextAlign.center,
-                          ),
-                          content: Text(
-                            AppLocalizations.of(context)!.patroneTrial,
-                            textAlign: TextAlign.center,
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                try {
-                                  dataSendingNotifier.startLoading();
- if (dataSendingNotifier.isLoading) {
-   showDialog(
-    barrierDismissible: false,
-       context: context,
-    builder: (_) => const Center(
-    child: CircularProgressIndicator()));
- }
-
-  Patrone().saveUserPatroneInformation(
-    firstName: firstNameController.text,
-    lastName: lastNameController.text,
-    username: usernameController.text,
-    dob: selectedDOB,
-    email: emailController.text,
-    gender: _selectedGender,
-  ).then((value) => Navigator.popAndPushNamed(
-              context, 'interests'),
-      onError: (e) => showSnackbar(
-          context,
-          'An error has occured. '
-          'Please try again later.'));
-          dataSendingNotifier.stopLoading();
-} on Exception catch (e) {
- dataSendingNotifier.stopLoading();
-}
-                              },
-                              child:
-                                  Text(AppLocalizations.of(context)!.proceed),
-                            ),
-                          ],
-                        ),
-                      );
+                      try {
+                        dataSendingNotifier.startLoading();
+                        if (dataSendingNotifier.isLoading) {
+                          showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (_) => const Center(
+                                  child: CircularProgressIndicator()));
+                        }
+                        uploadImageToFirebase(_profilePicture, 'users/${auth.currentUser!.uid}/patrone/profile_picture').then((profilePic) {
+                          uploadImageToFirebase(_coverPhoto, 'users/${auth.currentUser!.uid}/patrone/cover_image').then((coverImage) {
+                            Patrone()
+                            .saveUserPatroneInformation(
+                              firstName: firstNameController.text,
+                              lastName: lastNameController.text,
+                              username: usernameController.text,
+                              dob: selectedDOB,
+                              email: emailController.text,
+                              profilePic: profilePic,
+                              coverPic: coverImage,
+                              gender: _selectedGender,
+                            )
+                            .then(
+                                (value) => Navigator.popAndPushNamed(
+                                    context, 'interests'),
+                                onError: (e) => showSnackbar(
+                                    context,
+                                    'An error has occured. '
+                                    'Please try again later.'));
+                          }); 
+                        });                        
+                        dataSendingNotifier.stopLoading();
+                      } on Exception catch (e) {
+                        dataSendingNotifier.stopLoading();
+                      }
                     }
                   },
                 ),

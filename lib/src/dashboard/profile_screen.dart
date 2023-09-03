@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/src/dashboard/feed_image.dart';
 import 'package:wazzlitt/user_data/payments.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
@@ -11,7 +12,7 @@ import 'conversation_screen.dart';
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key, required this.userProfile});
 
-  final DocumentReference userProfile;
+  final DocumentReference? userProfile;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -30,26 +31,20 @@ class _ProfileScreenState extends State<ProfileScreen>  with
   }
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<DocumentSnapshot>(
-      stream: widget.userProfile.snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          Map<String, dynamic> data = snapshot.data!.data() as Map<String,
-              dynamic>;
-          String? coverPhoto = data['cover_photo'];
-          String? profilePhoto = data['profile_picture'];
-          String? firstName = data['first_name'];
-          String? lastName = data['last_name'];
-          String? username = data['username'];
-          String? bio = data['bio'];
-          Timestamp? dob = data['dob'];
-          List<dynamic>? createdPosts = data['created_posts'];
-          List<dynamic>? following = data['following'];
-          List<dynamic>? followers = data['followers'];
-          String? gender = data['gender'];
-          List<dynamic>? interests = data['interests'];
-          bool? isGangMember = data['is_gang_member'];
-          bool? isHivPositive = data['is_hiv_positive'];
+    
+          var currentUser = Provider.of<Patrone>(context);
+          String? coverPhoto = currentUser.coverPicture;
+          String? profilePhoto = currentUser.profilePicture;
+          String? firstName = currentUser.firstName;
+          String? lastName = currentUser.lastName;
+          String? username = currentUser.username;
+          String? bio = currentUser.bio;
+          DateTime? dob = currentUser.dob;
+          List<dynamic>? createdPosts = currentUser.createdPosts;
+          List<dynamic>? following = currentUser.following;
+          List<dynamic>? followers = currentUser.followers;
+          String? gender = currentUser.gender;
+          List<dynamic>? interests = currentUser.interests;
           return Column(
             children: [
               TabBar(tabs: const [
@@ -64,23 +59,14 @@ class _ProfileScreenState extends State<ProfileScreen>  with
                     ProfileTab(coverPhoto: coverPhoto, profilePhoto:
                     profilePhoto, firstName: firstName, lastName: lastName,
                       bio: bio, username: username, interests: interests,
-                        isHivPositive: isHivPositive, isGangMember:
-                      isGangMember, dob: dob?.toDate(), posts: createdPosts ?? [], userProfile: widget.userProfile, following: following?? [], followers: followers??[]),
-                    ActivityTab(createdPosts: createdPosts, userProfile: widget.userProfile,),
+                         dob: dob, posts: createdPosts ?? [], userProfile: currentUser.currentUserPatroneProfile, following: following?? [], followers: followers??[]),
+                    ActivityTab(createdPosts: createdPosts, userProfile: currentUser.currentUserPatroneProfile,),
                   ],
                 ),
               ),
             ],
           );
-        }
-        else if (snapshot.hasError) {
-          return const Center(child: Text('Something went wrong'));
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
       }
-    );
-  }
 }
 
 class ProfileTab extends StatelessWidget {
@@ -94,8 +80,6 @@ class ProfileTab extends StatelessWidget {
     required this.username,
     required this.bio,
     required this.interests,
-    required this.isGangMember,
-    required this.isHivPositive,
     required this.dob,
     required this.posts,
     required this.following,
@@ -110,8 +94,6 @@ class ProfileTab extends StatelessWidget {
   final String? username;
   final String? bio;
   final List? interests;
-  final bool? isGangMember;
-  final bool? isHivPositive;
   final DateTime? dob;
   final List<dynamic> posts;
   final List<dynamic> following;
@@ -165,6 +147,7 @@ class ProfileTab extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
+                Text('$firstName $lastName', style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 5),
                 Text('@$username', style: const TextStyle(fontSize:
                 12)),
@@ -181,16 +164,16 @@ class ProfileTab extends StatelessWidget {
                     ),
                      Column(
                       children: [
-                        Text(followers.length.toString(), style: TextStyle(fontWeight: FontWeight
+                        Text(followers.length.toString(), style: const TextStyle(fontWeight: FontWeight
                             .bold, fontSize: 18)),
-                        Text('Followers', style: TextStyle(fontSize: 14)),
+                        const Text('Followers', style: TextStyle(fontSize: 14)),
                       ],
                     ),
                     Column(
                       children: [
-                        Text(following.length.toString(), style: TextStyle(fontWeight: FontWeight
+                        Text(following.length.toString(), style: const TextStyle(fontWeight: FontWeight
                             .bold, fontSize: 18)),
-                        Text('Following', style: TextStyle(fontSize: 14)),
+                        const Text('Following', style: TextStyle(fontSize: 14)),
                       ],
                     ),
                   ],
@@ -213,10 +196,7 @@ class ProfileTab extends StatelessWidget {
                   future: getCurrentLocation(userProfile),
                   builder: (context, snapshot) {
                     print(snapshot.connectionState);
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Text('Loading...',
-                          style: TextStyle(fontWeight: FontWeight.bold));
-                    }
+                    
                     if (snapshot.hasData) {
                      return Text(snapshot.data!,
                           style: const TextStyle(fontWeight: FontWeight.bold));
@@ -225,7 +205,8 @@ class ProfileTab extends StatelessWidget {
                       return const Text('An error occured',
                           style: TextStyle(fontWeight: FontWeight.bold));
                     }
-                    return const CircularProgressIndicator();
+                     return const Text('Loading...',
+                          style: TextStyle(fontWeight: FontWeight.bold));
                   },
                 ),
                 const SizedBox(height: 20),
@@ -257,17 +238,17 @@ class ProfileTab extends StatelessWidget {
                           ) : Patrone().isFollowingUser(userProfile).then((isFollowing) {
                             isFollowing ? Patrone().unfollowUser(userProfile) : Patrone().followUser(userProfile);
                           }),
-                          child: userProfile == Patrone().currentUserPatroneProfile ? Text('Edit Profile',
+                          child: userProfile == Patrone().currentUserPatroneProfile ? const Text('Edit Profile',
                               style: TextStyle(fontSize: 12)) : FutureBuilder<bool>(future: Patrone().isFollowingUser(userProfile),
                               builder: (context, snapshot) {
                             return Text(snapshot.data! ? 'Unfollow' : 'Follow',
-                                style: TextStyle(fontSize: 12));
+                                style: const TextStyle(fontSize: 12));
                           }),
                         ),
                       ),
                     ),
                     const Spacer(),
-                    userProfile == Patrone().currentUserPatroneProfile ? SizedBox() : Expanded(
+                    userProfile == Patrone().currentUserPatroneProfile ? const SizedBox() : Expanded(
                       flex: 10,
                       child: SizedBox(
                         height: 30,
@@ -328,7 +309,7 @@ class ActivityTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: SizedBox(
         child: Column(
           children: [

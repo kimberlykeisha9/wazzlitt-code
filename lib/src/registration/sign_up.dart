@@ -89,6 +89,7 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
             width: width(context),
             child: ElevatedButton(
               onPressed: () {
+                FocusScope.of(context).unfocus();
                 if (widget.formKey.currentState!.validate()) {
                   getData('phone').then((number) => signInWithPhoneNumber(
                         number ?? '',
@@ -137,6 +138,11 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   final _verificationController = TextEditingController();
   String? _phoneNumber;
 
+  @override
+  void dispose() {
+    super.dispose();
+    _verificationController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -204,47 +210,57 @@ class _PhoneVerificationState extends State<PhoneVerification> {
             width: width(context),
             child: ElevatedButton(
               onPressed: () {
+                FocusScope.of(context).unfocus();
                 try {
                   dataSendingNotifier.startLoading();
- if (dataSendingNotifier.isLoading) {
-   showDialog(
-    barrierDismissible: false,
-       context: context,
-    builder: (_) => const Center(
-    child: CircularProgressIndicator()));
- }
+                  if (dataSendingNotifier.isLoading) {
+                    showDialog(
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (_) =>
+                            const Center(child: CircularProgressIndicator()));
+                  }
 
-  getData('verificationID').then((value) => verifyCode(_verificationController.text, value!)).then((value) {
-    if (widget.direction == 'patrone') {
-      Patrone().checkIfPatroneUser().then((isPatrone) {
-        if (isPatrone == true) {
-          Navigator.popAndPushNamed(context, 'patrone_dashboard');
-        } else if (isPatrone == false) {
-          Navigator.popAndPushNamed(context, 'patrone_registration');
-        } else {
-          dataSendingNotifier.stopLoading();
-          showSnackbar(context, 'Something went wrong. Please try again later');
-        }
-      });
-    } else if (widget.direction == 'igniter') {
-      checkIfIgniterUser().then((isIgniter) {
-        if (isIgniter == true) {
-          Navigator.popAndPushNamed(context, 'igniter_dashboard');
-        } else if (isIgniter == false) {
-          Navigator.popAndPushNamed(context, 'igniter_registration');
-        } else {
-          dataSendingNotifier.stopLoading();
-          showSnackbar(context, 'Something went wrong. Please try again later');
-        }
-      });
-    } else {
-      showSnackbar(context, 'Something went wrong.');
-    }
-  });
-  dataSendingNotifier.stopLoading();
-} on Exception catch (e) {
-  dataSendingNotifier.stopLoading();
-}
+                  getData('verificationID')
+                      .then((value) =>
+                          verifyCode(_verificationController.text, value!))
+                      .then((value) {
+                    if (widget.direction == 'patrone') {
+                      Patrone().checkIfPatroneUser().then((isPatrone) {
+                        if (isPatrone == true) {
+                          Navigator.popAndPushNamed(
+                              context, 'patrone_dashboard');
+                        } else if (isPatrone == false) {
+                          Navigator.popAndPushNamed(
+                              context, 'patrone_registration');
+                        } else {
+                          dataSendingNotifier.stopLoading();
+                          showSnackbar(context,
+                              'Something went wrong. Please try again later');
+                        }
+                      });
+                    } else if (widget.direction == 'igniter') {
+                      checkIfIgniterUser().then((isIgniter) {
+                        if (isIgniter == true) {
+                          Navigator.popAndPushNamed(
+                              context, 'igniter_dashboard');
+                        } else if (isIgniter == false) {
+                          Navigator.popAndPushNamed(
+                              context, 'igniter_registration');
+                        } else {
+                          dataSendingNotifier.stopLoading();
+                          showSnackbar(context,
+                              'Something went wrong. Please try again later');
+                        }
+                      });
+                    } else {
+                      showSnackbar(context, 'Something went wrong.');
+                    }
+                  });
+                  dataSendingNotifier.stopLoading();
+                } on Exception catch (e) {
+                  dataSendingNotifier.stopLoading();
+                }
               },
               child: const Text('Verify'),
             ),
@@ -258,7 +274,7 @@ class _PhoneVerificationState extends State<PhoneVerification> {
   @override
   void initState() {
     super.initState();
-    getData('phone').then((value) => _phoneNumber == value);
+    getData('phone').then((value) => _phoneNumber = value);
   }
 }
 
@@ -266,8 +282,15 @@ class _SignUpState extends State<SignUp> {
   late String _direction = '';
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _smsController = TextEditingController();
   final PageController _pageController = PageController();
+
+  @override
+  void dispose() {
+    super.dispose();
+    _phoneController.dispose();
+    _pageController.dispose();
+    _formKey.currentState?.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

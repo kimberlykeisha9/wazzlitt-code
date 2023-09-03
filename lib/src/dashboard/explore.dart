@@ -49,6 +49,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
 
     return '';
   }
+
   @override
   void initState() {
     super.initState();
@@ -149,8 +150,10 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
           placesSnapshot.docs;
     });
   }
+
   Widget searchBar(BuildContext context) {
-    final isPortrait = MediaQuery.of(context).orientation == Orientation.portrait;
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
 
     return FloatingSearchBar(
       hint: 'Search...',
@@ -188,34 +191,50 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: _searchResults.map((document) {
-                Map<String, dynamic> documentData = document.data() as
-                Map<String,
-                    dynamic>;
+                Map<String, dynamic> documentData =
+                    document.data() as Map<String, dynamic>;
                 return GestureDetector(
-                    onTap: () {
-                  if (document.reference.path.startsWith('users')) {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => Scaffold(appBar:
-                    AppBar(title: Text(document['username'])),
-                        body: ProfileScreen(userProfile: document.reference))));
-                  } else if (document.reference.path.startsWith('places')) {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => Place(place: document.data() as Map<String, dynamic>)));
-                  } else if (document.reference.path.startsWith('events')) {
-                    Navigator.push(context, MaterialPageRoute(
-                        builder: (context) => Event(
-                            event: document.data() as Map<String,
-                                dynamic>)));
-                  };
-                },
+                  onTap: () {
+                    if (document.reference.path.startsWith('users')) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                  appBar:
+                                      AppBar(title: Text(document['username'])),
+                                  body: ProfileScreen(
+                                      userProfile: document.reference))));
+                    } else if (document.reference.path.startsWith('places')) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Place(
+                                  place: document.data()
+                                      as Map<String, dynamic>)));
+                    } else if (document.reference.path.startsWith('events')) {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Event(
+                                  event: document.data()
+                                      as Map<String, dynamic>)));
+                    }
+                    ;
+                  },
                   child: ListTile(
                     leading: CircleAvatar(
-                      foregroundImage: NetworkImage
-                      (documentData['image'] ?? documentData['profile_picture']
-                        ?? 'https://i.pinimg'
-                            '.com/736x/58/58/c9/5858c9e33da2df781d11a0993f9b7030.jpg',),),
+                      foregroundImage: NetworkImage(
+                        documentData['image'] ??
+                            documentData['profile_picture'] ??
+                            'https://i.pinimg'
+                                '.com/736x/58/58/c9/5858c9e33da2df781d11a0993f9b7030.jpg',
+                      ),
+                    ),
                     title: Text(documentData['event_name'] ??
-                        documentData['place_name'] ?? documentData['username'] ?? ''),
+                        documentData['place_name'] ??
+                        documentData['username'] ??
+                        ''),
                   ),
-
                 );
               }).toList(),
             ),
@@ -238,87 +257,93 @@ class PlacesTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-      const Padding(
-        padding: EdgeInsets.all(20),
-        child: Text('Featured Places',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-      ),
-      Expanded(
-        child: FutureBuilder<QuerySnapshot>(
-            future: firestore.collection('places').get(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                List<QueryDocumentSnapshot> placesList = snapshot.data!.docs;
-                return GridView.builder(
-                  shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 2/3,
-                  ),
-                  itemCount: 4,
-                  itemBuilder: (BuildContext context, int index) {
-                    print(placesList);
-                    Map<String, dynamic> place =
-                        placesList[index].data() as Map<String, dynamic>;
-                    return GestureDetector(
-                      onTap: () => Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              builder: (context) => Place(place: place))),
-                      child: Container(
-                        decoration: BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(place['image']),
-                            )),
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.white),
-                                  borderRadius: BorderRadius.circular(20),
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(20),
+          child: Text('Featured Places',
+              style: TextStyle(fontWeight: FontWeight.bold)),
+        ),
+        Expanded(
+          child: FutureBuilder<QuerySnapshot>(
+              future: firestore.collection('places').get(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  List<QueryDocumentSnapshot> placesList = snapshot.data!.docs;
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 2 / 3,
+                    ),
+                    itemCount: 4,
+                    itemBuilder: (BuildContext context, int index) {
+                      print(placesList);
+                      Map<String, dynamic> place =
+                          placesList[index].data() as Map<String, dynamic>;
+                      return GestureDetector(
+                        onTap: () => Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                builder: (context) => Place(place: place))),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(place['image'] ??
+                                'https://i.pinimg.com/564x/90/0b/c3/900bc32b424bc3b817ff1edd38476991.jpg'),
+                          )),
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.white),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.all(5),
+                                  child: Text(
+                                    place['category'],
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
-                                padding: const EdgeInsets.all(5),
-                                child: Text(place['category'], style: const TextStyle(
+                              ),
+                              const Spacer(),
+                              Text(
+                                place['place_name'],
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              const Text(
+                                '0 km away',
+                                style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.white,
-                                ),),
+                                ),
                               ),
-                            ),
-                            const Spacer(),
-                            Text(
-                              place['place_name'],
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            const Text(
-                              '0 km away',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              }
-              return const Center(child: CircularProgressIndicator());
-            }),
-      ),
-    ]);
+                      );
+                    },
+                  );
+                }
+                return const Center(child: CircularProgressIndicator());
+              }),
+        ),
+      ],
+    );
   }
 }
 
@@ -342,7 +367,7 @@ class LitTab extends StatelessWidget {
                     child: GridView.builder(
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 2/3,
+                        childAspectRatio: 2 / 3,
                       ),
                       itemCount: docList.length,
                       itemBuilder: (context, index) {
@@ -355,7 +380,7 @@ class LitTab extends StatelessWidget {
                               CupertinoPageRoute(
                                   builder: (context) => Event(event: result))),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical:0),
+                            padding: const EdgeInsets.symmetric(vertical: 0),
                             child: Container(
                               decoration: BoxDecoration(
                                   image: DecorationImage(
@@ -370,9 +395,12 @@ class LitTab extends StatelessWidget {
                                   Align(
                                     alignment: Alignment.topRight,
                                     child: Container(
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                       child: Text(
-                                        DateFormat.yMMMd().format((result['date'] ?? Timestamp.now()).toDate()),
+                                        DateFormat.yMMMd().format(
+                                            (result['date'] ?? Timestamp.now())
+                                                .toDate()),
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
@@ -383,7 +411,8 @@ class LitTab extends StatelessWidget {
                                   ),
                                   Spacer(),
                                   Container(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     child: Text(
                                       result['event_name'],
                                       style: const TextStyle(
@@ -395,7 +424,8 @@ class LitTab extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8),
                                   Container(
-                                    color: Theme.of(context).colorScheme.secondary,
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
                                     child: Text(
                                       result['category'],
                                       style: const TextStyle(

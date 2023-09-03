@@ -549,7 +549,7 @@ class _EditPlaceState extends State<EditPlace> {
                   _profilePicture,
                   'places/${widget.place?.id}/profile_photo')
               .then((profilePic) {
-                uploadPlaceLocation(widget
+                uploadLocation(widget
                     .place!,
                     double.parse(generatedPrediction
                     !.lat!),

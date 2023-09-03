@@ -7,8 +7,6 @@ import 'order_data.dart' as wz;
 import '../src/location/location.dart';
 import 'user_data.dart';
 
-var firestore = FirebaseFirestore.instance;
-
 class BusinessOwner extends ChangeNotifier {
   List<BusinessPlace> get listings => _listings;
   final List<BusinessPlace> _listings = [];
@@ -174,7 +172,7 @@ class BusinessPlace {
       if (place != null) {
         await place.update(placeData).then((value) {
           log('Uploaded place data');
-          uploadPlaceLocation(place, latitude!, longitude!);
+          uploadLocation(place, latitude!, longitude!);
         });
       } else {
         await firestore
@@ -194,7 +192,7 @@ class BusinessPlace {
                         newPlace.update({
                           'chat_room': chatroom,
                         });
-                        uploadPlaceLocation(newPlace, latitude!, longitude!);
+                        uploadLocation(newPlace, latitude!, longitude!);
                       }),
                     );
                   } else {
@@ -212,7 +210,7 @@ class BusinessPlace {
                         newPlace.update({
                           'chat_room': chatroom,
                         });
-                        uploadPlaceLocation(chatroom, latitude!, longitude!);
+                        uploadLocation(newPlace, latitude!, longitude!);
                       }),
                     );
                   }

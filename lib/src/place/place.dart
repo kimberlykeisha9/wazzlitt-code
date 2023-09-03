@@ -34,7 +34,7 @@ class _PlaceState extends State<Place> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    GeoPoint location = widget.place['location']['geopoint'];
+    GeoPoint location = widget.place['location']?['geopoint'] ?? GeoPoint(0,0 );
     _initialPosition = LatLng(location.latitude, location.longitude);
     nearby = getNearbyPeople(_initialPosition.latitude, _initialPosition
         .longitude);

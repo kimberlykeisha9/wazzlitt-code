@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:wazzlitt/src/location/location.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import 'order_data.dart' as wz;
 
@@ -26,20 +27,20 @@ class EventOrganizer extends ChangeNotifier {
   String? _email;
 
   // Get organizer Info
-  Future<void>getCurrentUserEventOrganizerInformation() async {
+  Future<void> getCurrentUserEventOrganizerInformation() async {
     try {
       await currentUserIgniterProfile.get().then((doc) async {
-      Map<String, dynamic>? content = doc.data();
-      _events = await getListedEvents();
-      _coverImage = content!['cover_image'];
-      _profileImage = content['image'];
-      _organizerName = content['organizer_name'];
-      _description = content['organizer_description'];
-      _website = content['website'];
-      _phone = content['phone_number'];
-      _email = content['email_address'];
-      notifyListeners();
-    });
+        Map<String, dynamic>? content = doc.data();
+        _events = await getListedEvents();
+        _coverImage = content!['cover_image'];
+        _profileImage = content['image'];
+        _organizerName = content['organizer_name'];
+        _description = content['organizer_description'];
+        _website = content['website'];
+        _phone = content['phone_number'];
+        _email = content['email_address'];
+        notifyListeners();
+      });
     } catch (e) {
       log(e.toString());
     }
@@ -54,75 +55,75 @@ class EventOrganizer extends ChangeNotifier {
       final List<dynamic> userEvents = data?['events'] ?? [];
       final List<EventData> listedEvents = [];
 
-
       if (userEvents.isNotEmpty) {
         for (DocumentReference eventRef in userEvents) {
-        final event = await eventRef.get();
-        var eventData = event.data() as Map<String, dynamic>?;
-        List<Ticket>? ticketsList = [];
-        final List<wz.Order> eventOrders = [];
+          final event = await eventRef.get();
+          var eventData = event.data() as Map<String, dynamic>?;
+          List<Ticket>? ticketsList = [];
+          final List<wz.Order> eventOrders = [];
 
-        final orders = await firestore
-            .collection('orders')
-            .where('event', isEqualTo: eventRef)
-            .get();
+          final orders = await firestore
+              .collection('orders')
+              .where('event', isEqualTo: eventRef)
+              .get();
 
-        for (QueryDocumentSnapshot<Map<String, dynamic>> order in orders.docs) {
-          final orderData = order.data();
-          eventOrders.add(
-            wz.Order(
-              datePlaced: (orderData['date_placed'] as Timestamp).toDate(),
-              details: orderData['ticket'],
-              orderID: orderData['order_id'],
-              paymentType: orderData['payment_type'],
-              orderType: wz.OrderType.ticket,
-              reference: orderData['event'],
-            ),
+          for (QueryDocumentSnapshot<Map<String, dynamic>> order
+              in orders.docs) {
+            final orderData = order.data();
+            eventOrders.add(
+              wz.Order(
+                datePlaced: (orderData['date_placed'] as Timestamp).toDate(),
+                details: orderData['ticket'],
+                orderID: orderData['order_id'],
+                paymentType: orderData['payment_type'],
+                orderType: wz.OrderType.ticket,
+                reference: orderData['event'],
+              ),
+            );
+          }
+
+          if (eventData!.containsKey('tickets')) {
+            for (Map<String, dynamic> ticket
+                in (eventData['tickets'] as List<dynamic>)) {
+              ticketsList.add(Ticket(
+                available: ticket['available'],
+                title: ticket['ticket_name'],
+                price: ticket['price'],
+                image: ticket['image'],
+                description: ticket['ticket_description'],
+                quantity: ticket['quantity'],
+              ));
+            }
+          }
+
+          final EventData foundEvent = EventData(
+            eventName: eventData['event_name'],
+            location: eventData['location']?['geopoint'],
+            category: eventData['category'],
+            date: (eventData['date'] as Timestamp?)?.toDate(),
+            image: eventData['image'],
+            description: eventData['event_description'],
+            eventOrganizer: eventData['lister'],
+            eventReference: eventRef,
+            tickets: ticketsList,
+            orders: eventOrders,
           );
-        }
 
-        if (eventData!.containsKey('tickets')) {
-          for (Map<String, dynamic> ticket
-              in (eventData['tickets'] as List<dynamic>)) {
-            ticketsList.add(Ticket(
-              available: ticket['available'],
-              title: ticket['ticket_name'],
-              price: ticket['price'],
-              image: ticket['image'],
-              description: ticket['ticket_description'],
-              quantity: ticket['quantity'],
-            ));
+          if (listedEvents.contains(foundEvent)) {
+            listedEvents
+                .where((event) =>
+                    event.eventReference == foundEvent.eventReference)
+                .toList()
+                .forEach((element) {
+              listedEvents.remove(element);
+              log('Removed event. New value is ${listedEvents.length}');
+            });
+          } else {
+            listedEvents.add(foundEvent);
+            log('Added event. New value is ${listedEvents.length}');
           }
         }
-
-        final EventData foundEvent = EventData(
-          eventName: eventData['event_name'],
-          location: eventData['location']?['geopoint'],
-          category: eventData['category'],
-          date: (eventData['date'] as Timestamp?)?.toDate(),
-          image: eventData['image'],
-          description: eventData['event_description'],
-          eventOrganizer: eventData['lister'],
-          eventReference: eventRef,
-          tickets: ticketsList,
-          orders: eventOrders,
-        );
-
-        if (listedEvents.contains(foundEvent)) {
-          listedEvents
-              .where(
-                  (event) => event.eventReference == foundEvent.eventReference)
-              .toList()
-              .forEach((element) {
-            listedEvents.remove(element);
-            log('Removed event. New value is ${listedEvents.length}');
-          });
-        } else {
-          listedEvents.add(foundEvent);
-          log('Added event. New value is ${listedEvents.length}');
-        }
       }
-      } 
       return listedEvents;
     } catch (e) {
       log(e.toString());
@@ -131,16 +132,16 @@ class EventOrganizer extends ChangeNotifier {
   }
 
   // Saves Event Organizer Profile
-  Future<void> saveEventOrganizerProfile(
-      {String? organizerName,
-      String? website,
-      String? category,
-      String? description,
-      String? emailAddress,
-      String? phoneNumber,
-      String? profilePhoto,
-      String? coverPhoto,
-      String? placeType}) async {
+  Future<void> saveEventOrganizerProfile({
+    String? organizerName,
+    String? website,
+    String? category,
+    String? description,
+    String? emailAddress,
+    String? phoneNumber,
+    String? profilePhoto,
+    String? coverPhoto,
+  }) async {
     try {
       var organizerData = {
         'organizer_name': organizerName?.trim(),
@@ -151,7 +152,6 @@ class EventOrganizer extends ChangeNotifier {
         'phone_number': phoneNumber,
         'image': profilePhoto,
         'cover_image': coverPhoto,
-        'place_type': placeType,
       };
       if (currentUserIgniterProfile != null) {
         await currentUserIgniterProfile.update(organizerData);
@@ -199,12 +199,13 @@ class EventData {
       String? location,
       String? category,
       String? description,
+      double? latitude,
+      double? longitude,
       String? eventPhoto,
-      Timestamp? date}) async {
+      DateTime? date}) async {
     try {
       var eventData = {
         'event_name': eventName?.trim(),
-        'location': location?.trim(),
         'category': category,
         'date': date,
         'event_description': description,
@@ -212,15 +213,19 @@ class EventData {
         'lister': currentUserProfile,
       };
       if (event != null) {
-        await event.update(eventData);
+        await event.update(eventData).then((value) {
+          uploadLocation(event, latitude!, longitude!);
+        });
       } else {
         await firestore
             .collection('events')
             .add(eventData)
-            .then((newEvent) => currentUserIgniterProfile.update({
+            .then((newEvent) {currentUserIgniterProfile.update({
                   'events': FieldValue.arrayUnion([newEvent]),
                   'igniter_type': 'event_organizer',
-                }));
+                });
+                uploadLocation(newEvent, latitude!, longitude!);
+                 });
       }
     } on FirebaseException catch (e) {
       log(e.code);

@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
+import 'package:google_places_autocomplete_text_field/model/prediction.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -32,6 +34,9 @@ class _EditEventState extends State<EditEvent> {
   // Time
   Timestamp? _date;
 
+    // Location predictor
+  Prediction? generatedPrediction;
+
   // Images from Network
   String? networkEventImage;
   // Local Images
@@ -53,7 +58,6 @@ class _EditEventState extends State<EditEvent> {
         Map<String, dynamic>? eventData = value.data() as Map<String, dynamic>?;
         _nameController.text = eventData?['event_name'] ?? '';
         _descriptionController.text = eventData?['event_description'] ?? '';
-        _locationController.text = eventData?['location'] ?? '';
         _date = eventData?['date'] as Timestamp?;
         _date != null
             ? _dateController.text = DateFormat.yMEd().format(_date!.toDate())
@@ -244,18 +248,45 @@ class _EditEventState extends State<EditEvent> {
                                   ),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
-                                  TextFormField(
-                                    controller: _locationController,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Location is required';
+                                  GooglePlacesAutoCompleteTextFormField(
+                                      textEditingController:
+                                      _locationController,
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return 'Location is required';
+                                        }
+                                        return null;
+                                      },
+                                      decoration: const InputDecoration(
+                                        hintText: 'Location',
+                                          labelText: 'Location'),
+                                      googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
+                                      debounceTime: 400, // defaults to 600 ms,
+                                      countries: ["us"], // optional, by
+                                      // default the list is empty (no restrictions)
+                                      isLatLngRequired: true, // if you require the coordinates from the place details
+                                      getPlaceDetailWithLatLng: (prediction) {
+                                        if(prediction != null) {
+                                          setState(() {
+                                            generatedPrediction = prediction;
+                                          });
+                                        }
+                                        print("placeDetails" + prediction.lng.toString());
+                                      }, // this callback is called when isLatLngRequired is true
+                                      itmClick: (prediction) {
+                                        if(prediction != null) {
+                                          setState(() {
+                                            _locationController.text =
+                                            prediction.description!;
+                                            _locationController.selection =
+                                                TextSelection.fromPosition
+                                                  (TextPosition(offset:
+                                                prediction.description!.length));
+                                          });
+                                        }
                                       }
-                                      return null;
-                                    },
-                                    decoration: const InputDecoration(
-                                        labelText: 'Location'),
-                                    keyboardType: TextInputType.streetAddress,
                                   ),
+                                 
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
                                   TextFormField(
@@ -309,7 +340,11 @@ class _EditEventState extends State<EditEvent> {
                                             eventName: _nameController.text,
                                             location: _locationController.text,
                                             category: _selectedChip,
-                                            date: _date,
+                                            date: _date?.toDate(),
+                                            latitude: double.parse
+                (generatedPrediction!.lat!),
+              longitude: double.parse
+                (generatedPrediction!.lng!),
                                             description:
                                                 _descriptionController.text,
                                             eventPhoto:

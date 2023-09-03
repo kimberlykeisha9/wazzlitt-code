@@ -82,12 +82,12 @@ class Patrone extends ChangeNotifier {
 
   // Get user patrone information
   getCurrentUserPatroneInformation() {
-    currentUserPatroneProfile.snapshots().listen((document) {
+    currentUserPatroneProfile.get().then((document) {
       Map<String, dynamic>? content = document.data() as Map<String, dynamic>?;
       // Sets the getters
       _firstName = content?['first_name'];
       _lastName = content?['last_name'];
-      _createdTime = (content?['createdAt'] as db.Timestamp?)?.toDate();
+      _createdTime = (content?['createdAt'] as db.Timestamp?)?.toDate() ?? DateTime(2000);
       _dob = (content?['dob'] as db.Timestamp?)?.toDate();
       _emailAddress = content?['email'];
       _username = content?['username'];
@@ -370,24 +370,51 @@ class Patrone extends ChangeNotifier {
 
   Future<void> saveUserPatroneInformation(
       {String? firstName,
+      String? profilePic,
+      String? coverPic,
       String? lastName,
       String? username,
       String? email,
       DateTime? dob,
       String? gender}) async {
     try {
-      await currentUserProfile.update({'is_patrone': true}).then((value) =>
-          currentUserProfile.collection('account_type').doc('patrone').set({
-            'first_name': firstName?.trim(),
-            'email': email,
-            'last_name': lastName?.trim(),
-            'username': username?.trim(),
-            'dob': dob,
-            'gender': gender,
-          }).then((value) => {
-                updateDisplayName(username?.trim()),
-                auth.currentUser!.updateEmail(email!),
-              }));
+      currentUserPatroneProfile.get().then((value) async {
+        if (value.exists) {
+        currentUserPatroneProfile.update({
+          'first_name': firstName?.trim(),
+          'email': email,
+          'profile_picture': profilePic,
+          'cover_photo': coverPic,
+          'last_name': lastName?.trim(),
+          'username': username?.trim(),
+          'dob': dob,
+          'gender': gender,
+        }).then((value) => {
+                  updateDisplayName(username?.trim()),
+                  auth.currentUser!.updateEmail(email!),
+                });
+        } else {
+          await currentUserProfile.update({'is_patrone': true}).then(
+        (value) => currentUserProfile
+            .collection('account_type')
+            .doc('patrone')
+            .set({
+              'createdAt': DateTime.now(),
+          'first_name': firstName?.trim(),
+          'email': email,
+          'profile_picture': profilePic,
+          'cover_photo': coverPic,
+          'last_name': lastName?.trim(),
+          'username': username?.trim(),
+          'dob': dob,
+          'gender': gender,
+        }).then((value) => {
+                  updateDisplayName(username?.trim()),
+                  auth.currentUser!.updateEmail(email!),
+                }),
+      );
+        }
+      });
     } on db.FirebaseException catch (e) {
       log(e.code);
       log(e.message ?? 'No message');

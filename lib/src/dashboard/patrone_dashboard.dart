@@ -32,23 +32,17 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   TabController? _exploreController;
 
   bool? confirmedPayment;
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _smsController = TextEditingController();
-  GlobalKey<FormState> _emailKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _smsController = TextEditingController();
+  final GlobalKey<FormState> _emailKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    uploadLocation();
+    uploadCurrentLocation();
     _exploreController = TabController(length: 2, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
     });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    Provider.of<Patrone>(context).getCurrentUserPatroneInformation();
   }
 
   List<Widget> views(BuildContext context) {
@@ -80,11 +74,11 @@ class _PatroneDashboardState extends State<PatroneDashboard>
         child: Column(
           children: [
             Expanded(
-                child: StreamBuilder<DocumentSnapshot>(
-                    stream: null,
+                child: FutureBuilder<void>(
+                    future: Provider.of<Patrone>(context).getCurrentUserPatroneInformation(),
                     builder: (context, snapshot) {
-                      bool isFreeTrial = !(Provider.of<Patrone>(context)
-                          .createdTime!
+                      bool isFreeTrial = !((Provider.of<Patrone>(context)
+                          .createdTime?? DateTime(2000))
                           .add(const Duration(days: 14))
                           .isBefore(DateTime.now()));
                       if (isFreeTrial ||
