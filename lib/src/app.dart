@@ -10,7 +10,6 @@ import '../authorization/authorization.dart';
 import 'dashboard/feed.dart';
 import 'dashboard/igniter_dashboard.dart';
 import 'dashboard/patrone_dashboard.dart';
-import 'dashboard/search.dart';
 import 'orders/confirmed_order.dart';
 import 'orders/orders.dart';
 import 'registration/home.dart';
@@ -135,7 +134,6 @@ class MyApp extends StatelessWidget {
               'confirmed': (context) => const ConfirmedOrder(),
               'dashboard': (context) => const Dashboard(),
               'igniter_dashboard': (context) => const IgniterDashboard(),
-              'search': (context) => Search(),
               // 'place_order': (context) => PlaceOrder(),
             },
           );

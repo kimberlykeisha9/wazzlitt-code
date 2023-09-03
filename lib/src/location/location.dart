@@ -11,11 +11,12 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-Future<BusinessPlace?> searchBuilding(String query) async {
+Future<List<BusinessPlace?>> searchBuildings(String query) async {
   final apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
   final apiUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
 
   try {
+    List<BusinessPlace> _results = [];
     final response =
         await http.get(Uri.parse('$apiUrl?address=$query&key=$apiKey'));
 
@@ -24,22 +25,27 @@ Future<BusinessPlace?> searchBuilding(String query) async {
       print(data);
 
       if (data['status'] == 'OK' && data['results'].isNotEmpty) {
-        final location = data['results'][0]['geometry']['location'];
-        final buildingName = data['results'][0]['name'];
-        final streetName = data['results'][0]['address_components'].firstWhere(
-            (component) => component['types'].contains('route'))['long_name'];
-
-        final latitude = location['lat'];
-        final longitude = location['lng'];
-
-        return BusinessPlace(location: GeoPoint(latitude, longitude), placeName: buildingName);
+        for (var result in (data['results'] as List<dynamic>)) {
+          final location = result['geometry']['location'];
+          final streetName = result['formatted_address'];
+          final latitude = location['lat'];
+          final longitude = location['lng'];
+          print(location);
+          print(streetName);
+          _results.add(BusinessPlace(
+              location: GeoPoint(latitude, longitude),
+              placeName: streetName));
+        }
+        return _results;
       } else {
         // No results found
-        return null;
+        print('No result found');
+        return _results;
       }
     } else {
       // Handle HTTP error
-      return null;
+      print('No result found cause of HTTP error');
+      return _results;
     }
   } catch (e) {
     // Handle other exceptions, e.g., network errors
@@ -57,11 +63,11 @@ Stream<List<DocumentSnapshot>> getNearbyPeople(
   var usersLocations = firestore.collectionGroup('account_type');
   print(geo
       .collection(collectionRef: usersLocations)
-      .within(center: place, radius: 5000, field: 'current_location')
+      .within(center: place, radius: 5, field: 'current_location')
       .length);
   return geo
       .collection(collectionRef: usersLocations)
-      .within(center: place, radius: 5000, field: 'current_location');
+      .within(center: place, radius: 5, field: 'current_location');
 }
 
 Future<String> getLocationForPlace(DocumentReference place) async {

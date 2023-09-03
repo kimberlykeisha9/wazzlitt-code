@@ -2,9 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/src/dashboard/feed_image.dart';
-import 'package:wazzlitt/user_data/payments.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
-import '../../authorization/authorization.dart';
 import '../app.dart';
 import '../../user_data/patrone_data.dart';
 import 'conversation_screen.dart';
@@ -25,7 +23,6 @@ class _ProfileScreenState extends State<ProfileScreen>  with
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
   }

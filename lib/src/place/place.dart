@@ -6,13 +6,14 @@ import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wazzlitt/src/dashboard/conversation_screen.dart';
 import 'package:wazzlitt/src/location/location.dart';
+import 'package:wazzlitt/user_data/business_owner_data.dart';
 import '../app.dart';
 import 'place_order.dart';
 
 class Place extends StatefulWidget {
   Place({super.key, required this.place});
 
-  final Map<String, dynamic> place;
+  final BusinessPlace place;
 
   @override
   State<Place> createState() => _PlaceState();
@@ -21,7 +22,7 @@ class Place extends StatefulWidget {
 class _PlaceState extends State<Place> {
   late GoogleMapController mapController;
 
-  static LatLng _initialPosition = LatLng(37.7749, -122.4194);
+  static LatLng _initialPosition = const LatLng(37.7749, -122.4194);
 
   // Future<int> inRadius() {
 
@@ -34,7 +35,7 @@ class _PlaceState extends State<Place> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    GeoPoint location = widget.place['location']?['geopoint'] ?? GeoPoint(0,0 );
+    GeoPoint location = widget.place.location ?? const GeoPoint(0, 0);
     _initialPosition = LatLng(location.latitude, location.longitude);
     nearby = getNearbyPeople(_initialPosition.latitude, _initialPosition
         .longitude);
@@ -52,7 +53,7 @@ class _PlaceState extends State<Place> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.place['place_name'] ?? 'Null'),
+        title: Text(widget.place.placeName ?? 'Null'),
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
@@ -107,11 +108,11 @@ class _PlaceState extends State<Place> {
                       height: 150,
                       decoration: BoxDecoration(
                           color: Colors.grey,
-                          image: widget.place.containsKey('cover_image')
+                          image: widget.place.coverImage != null
                               ? DecorationImage(
                                   fit: BoxFit.cover,
                                   image: NetworkImage(
-                                    widget.place['cover_image'],
+                                    widget.place.coverImage!,
                                   ),
                                 )
                               : null),
@@ -124,11 +125,11 @@ class _PlaceState extends State<Place> {
                         decoration: BoxDecoration(
                           color: Colors.grey[800],
                           shape: BoxShape.circle,
-                            image: widget.place.containsKey('image')
+                            image: widget.place.image != null
                                 ? DecorationImage(
                               fit: BoxFit.cover,
                               image: NetworkImage(
-                                widget.place['image'],
+                                widget.place.image!,
                               ),
                             )
                                 : null
@@ -142,24 +143,24 @@ class _PlaceState extends State<Place> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Text(widget.place['place_name'] ?? 'Null',
+                    Text(widget.place.placeName ?? 'Null',
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         )),
-                    Chip(label: Text(widget.place['category'] ?? 'Null')),
-                    Text('Open - ${DateFormat('hh:mm a').format(((widget.place['opening_time']) as Timestamp).toDate())} to ${DateFormat('hh:mm a').format(((widget.place['closing_time']) as Timestamp).toDate())}'),
+                    Chip(label: Text(widget.place.category ?? 'Unknown')),
+                    Text('Open - ${DateFormat('hh:mm a').format(((widget.place.openingTime ?? DateTime(0, 0, 0, 0 ,0))))} to ${DateFormat('hh:mm a').format(((widget.place.closingTime ?? DateTime(0, 0, 0, 0 ,0))))}'),
                     const SizedBox(height: 5),
                     StreamBuilder<List<DocumentSnapshot>>(
                       stream: nearby,
                       builder: (context, snapshot) {
                         return Text('${snapshot.data?.length ?? 0} Patrones '
                             'around here',
-                            style: TextStyle(fontWeight: FontWeight.bold));
+                            style: const TextStyle(fontWeight: FontWeight.bold));
                       }
                     ),
                     const SizedBox(height: 30),
-                    Row(
+                    widget.place.placeReference != null ? Row(
                       children: [
                         Expanded(
                           flex: 10,
@@ -182,7 +183,7 @@ class _PlaceState extends State<Place> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                   padding: const EdgeInsets.all(5)),
-                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: widget.place['chat_room']))),
+                              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: widget.place.chatroom!))),
                               child: const Text('Chat Room',
                                   style: TextStyle(fontSize: 12)),
                             ),
@@ -203,7 +204,8 @@ class _PlaceState extends State<Place> {
                           ),
                         ),
                       ],
-                    ),
+                    )
+                    : const Center(child: Text('This place is not officially listed on WazzLitt so no chatrooms are currently available')),
                     const SizedBox(height: 30),
                     Container(
                       padding: const EdgeInsets.all(30),
@@ -213,34 +215,33 @@ class _PlaceState extends State<Place> {
                       ),
                       child: Column(
                         children: [
-                          Text('About ${widget.place['place_name'] ?? 'Null'}',
+                          Text('About ${widget.place.placeName ?? 'Null'}',
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               )),
                           const SizedBox(height: 10),
-                          Text(widget.place['place_description'],
+                          Text(widget.place.description ?? 'No description available',
                               textAlign: TextAlign.center),
                         ],
                       ),
                     ),
                     const SizedBox(height: 20),
-                    widget.place.containsKey('services') ? TextButton(
+                    widget.place.placeReference != null ? widget.place.services != null ? TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PlaceOrder(
-                                place: widget.place),
-                          ),
-                        );
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => PlaceOrder(
+                        //         place: widget.place.placeReference!),
+                        //   ),
+                        // );
                       },
                       child: const Text('Check out our services'),
-                    ) : const SizedBox(),
-                    widget.place.containsKey('services') ? const SizedBox(height: 10) : const SizedBox(),
+                    ) : const SizedBox(): const SizedBox(),
+                    widget.place.services != null ? const SizedBox(height: 10) : const SizedBox(),
                     const Text('Location',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    const Text('Street Name', style: TextStyle(fontSize: 12)),
                   ],
                 ),
               ),
@@ -250,7 +251,7 @@ class _PlaceState extends State<Place> {
                 color: Colors.grey,
                 child: GoogleMap(
                   markers: {
-                    Marker(markerId: MarkerId('place'), position: _initialPosition)
+                    Marker(markerId: const MarkerId('place'), position: _initialPosition)
                   },
                   initialCameraPosition: CameraPosition(target:
                   _initialPosition, zoom: 12),
