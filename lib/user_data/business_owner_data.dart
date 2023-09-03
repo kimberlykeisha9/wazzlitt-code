@@ -5,92 +5,98 @@ import 'package:flutter/material.dart';
 import 'order_data.dart' as wz;
 
 import '../src/location/location.dart';
-import 'igniter_data.dart';
-import 'order_data.dart';
 import 'user_data.dart';
 
 var firestore = FirebaseFirestore.instance;
 
 class BusinessOwner extends ChangeNotifier {
   List<BusinessPlace> get listings => _listings;
-  // ignore: prefer_final_fields
-  List<BusinessPlace> _listings = [];
+  final List<BusinessPlace> _listings = [];
 
-  Future<void> getListedBusinesses() async {
-    var doc = await currentUserIgniterProfile.get();
-    var data = doc.data();
-    List<dynamic> listings = data?['listings'];
+  Future<List<BusinessPlace>> getListedBusiness() async {
+    try {
+      final doc = await currentUserIgniterProfile.get();
+      final data = doc.data();
+      final List<BusinessPlace> listedBusinesses = [];
+      final List<dynamic> listings = data?['listings'];
 
-    for (DocumentReference listing in listings) {
-      var place = await listing.get();
-      var placeData = place.data() as Map<String, dynamic>?;
-      List<Service>? servicesList = [];
-      List<wz.Order>? placeOrders = [];
+      for (DocumentReference listing in listings) {
+        final place = await listing.get();
+        final placeData = place.data() as Map<String, dynamic>?;
+        final List<Service> servicesList = [];
+        final List<wz.Order> placeOrders = [];
 
-      var orders = await firestore
-          .collection('orders')
-          .where('place', isEqualTo: listing)
-          .get();
+        final orders = await firestore
+            .collection('orders')
+            .where('place', isEqualTo: listing)
+            .get();
 
         for (QueryDocumentSnapshot<Map<String, dynamic>> order in orders.docs) {
-          var orderData = order.data();
+          final orderData = order.data();
           placeOrders.add(
             wz.Order(
               datePlaced: (orderData['date_placed'] as Timestamp).toDate(),
-              details: orderData['ticket'],
+              details: orderData['service'],
               orderID: orderData['order_id'],
               paymentType: orderData['payment_type'],
-              orderType: wz.OrderType.ticket,
-              reference: orderData['event'],
+              orderType: wz.OrderType.service,
+              reference: orderData['place'],
             ),
           );
         }
 
-      if (placeData!.containsKey('services')) {
-        for (Map<String, dynamic> service
-            in (placeData['services'] as List<dynamic>)) {
-          servicesList.add(Service(
-            available: service['available'],
-            title: service['service_name'],
-            price: service['price'],
-            image: service['image'],
-            description: service['service_description'],
-            quantity: service['quantity'],
-          ));
+        if (placeData!.containsKey('services')) {
+          for (Map<String, dynamic> service
+              in (placeData['services'] as List<dynamic>)) {
+            servicesList.add(Service(
+              available: service['available'],
+              title: service['service_name'],
+              price: service['price'],
+              image: service['image'],
+              description: service['service_description'],
+              quantity: service['quantity'],
+            ));
+          }
+        }
+
+        final BusinessPlace foundBusinessPlace = BusinessPlace(
+          placeName: placeData['place_name'],
+          location: placeData['location']['geopoint'],
+          category: placeData['category'],
+          placeType: placeData['place_type'],
+          closingTime: (placeData['closing_time'] as Timestamp?)?.toDate(),
+          openingTime: (placeData['opening_time'] as Timestamp?)?.toDate(),
+          emailAddress: placeData['email_address'],
+          image: placeData['image'],
+          coverImage: placeData['cover_image'],
+          description: placeData['place_description'],
+          lister: placeData['lister'],
+          placeReference: listing,
+          chatroom: placeData['chat_room'],
+          phoneNumber: placeData['phone_number'],
+          website: placeData['website'],
+          services: servicesList,
+          orders: placeOrders,
+        );
+
+        if (listedBusinesses.contains(foundBusinessPlace)) {
+          listedBusinesses
+              .where((place) =>
+                  place.placeReference == foundBusinessPlace.placeReference)
+              .toList()
+              .forEach((removablePlace) {
+            listedBusinesses.remove(removablePlace);
+          });
+          print('Removed listing. New value is ${listedBusinesses.length}');
+        } else {
+          listedBusinesses.add(foundBusinessPlace);
+          print('Added listing. New value is ${listedBusinesses.length}');
         }
       }
-
-      BusinessPlace foundBusinessPlace = BusinessPlace(
-        placeName: placeData['place_name'],
-        location: placeData['location']['geopoint'],
-        category: placeData['category'],
-        placeType: placeData['place_type'],
-        closingTime: (placeData['closing_time'] as Timestamp?)?.toDate(),
-        openingTime: (placeData['opening_time'] as Timestamp?)?.toDate(),
-        emailAddress: placeData['email_address'],
-        image: placeData['image'],
-        coverImage: placeData['cover_image'],
-        description: placeData['place_description'],
-        lister: placeData['lister'],
-        placeReference: listing,
-        chatroom: placeData['chat_room'],
-        phoneNumber: placeData['phone_number'],
-        website: placeData['website'],
-        services: servicesList,
-        orders: placeOrders,
-      );
-
-
-      if((_listings.contains(foundBusinessPlace))) {
-        _listings.where((place) => place.placeReference ==
-    foundBusinessPlace
-            .placeReference).toList().forEach((removablePlace) {
-              _listings.remove(removablePlace);
-        });
-        notifyListeners();
-      } else {
-        _listings.add(foundBusinessPlace);
-      }
+      return listedBusinesses;
+    } catch (e) {
+      log(e.toString());
+      throw Exception(e);
     }
   }
 }
@@ -134,25 +140,24 @@ class BusinessPlace {
   List<Service>? services = [];
   List<wz.Order>? orders = [];
 
-  // Saves a place profile
-
-  Future<void> savePlaceProfile(
-      {DocumentReference? place,
-      String? businessName,
-      String? website,
-      String? category,
-      String? description,
-      String? emailAddress,
-      String? phoneNumber,
-      String? profilePhoto,
-      String? coverPhoto,
-      double? latitude,
-      double? longitude,
-      Timestamp? openingTime,
-      Timestamp? closingTime,
-      String? placeType}) async {
+  Future<void> savePlaceProfile({
+    DocumentReference? place,
+    String? businessName,
+    String? website,
+    String? category,
+    String? description,
+    String? emailAddress,
+    String? phoneNumber,
+    String? profilePhoto,
+    String? coverPhoto,
+    double? latitude,
+    double? longitude,
+    Timestamp? openingTime,
+    Timestamp? closingTime,
+    String? placeType,
+  }) async {
     try {
-      var placeData = {
+      final placeData = {
         'place_name': businessName?.trim(),
         'website': website,
         'category': category,
@@ -230,30 +235,26 @@ class Service {
   String? description;
   int? quantity;
 
-  Service(
-      {this.title,
-      this.price,
-      this.image,
-      this.available,
-      this.description,
-      this.quantity});
+  Service({
+    this.title,
+    this.price,
+    this.image,
+    this.available,
+    this.description,
+    this.quantity,
+  });
 
-  // Updates a service
-
-  Future<void> updateService(
-      {required DocumentReference place,
-      required Map<String, dynamic> service,
-      required String serviceName,
-      required String description,
-      String? image,
-      required double price,
-      required int available}) async {
+  Future<void> updateService({
+    required DocumentReference place,
+    required Map<String, dynamic> service,
+    required String serviceName,
+    required String description,
+    String? image,
+    required double price,
+    required int available,
+  }) async {
     bool? isAvailable() {
-      if (available == 1) {
-        return true;
-      } else {
-        return false;
-      }
+      return available == 1;
     }
 
     try {
@@ -266,7 +267,7 @@ class Service {
                 'service_description': description,
                 'image': image,
                 'price': price,
-                'available': isAvailable()
+                'available': isAvailable(),
               }
             ]),
           }));
@@ -275,21 +276,16 @@ class Service {
     }
   }
 
-  // Adds a new service
-
-  Future<void> addNewService(
-      {required DocumentReference place,
-      String? serviceName,
-      String? description,
-      String? image,
-      double? price,
-      int? available}) async {
+  Future<void> addNewService({
+    required DocumentReference place,
+    String? serviceName,
+    String? description,
+    String? image,
+    double? price,
+    int? available,
+  }) async {
     bool? isAvailable() {
-      if (available == 1) {
-        return true;
-      } else {
-        return false;
-      }
+      return available == 1;
     }
 
     try {
@@ -300,7 +296,7 @@ class Service {
             'service_description': description,
             'image': image,
             'price': price,
-            'available': isAvailable()
+            'available': isAvailable(),
           }
         ]),
       });
@@ -308,8 +304,6 @@ class Service {
       print(e);
     }
   }
-
-// Deletes a service
 
   Future<void> deleteService(
       Map<String, dynamic> service, DocumentReference place) async {

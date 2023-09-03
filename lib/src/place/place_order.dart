@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/user_data/payments.dart';
 import '../../user_data/order_data.dart';
-import '../../user_data/user_data.dart';
 import '../app.dart';
 
 class PlaceOrder extends StatefulWidget {

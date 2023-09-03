@@ -119,9 +119,6 @@ class _NewServiceState extends State<NewService> {
                     if (val == null) {
                       return 'Please enter a price';
                     }
-                    if (val == null) {
-                      return 'Please enter a price';
-                    }
                     const digitPattern = r'^\d+$';
                     if(!RegExp(digitPattern).hasMatch(val)) {
                       return 'Please enter a digit';
