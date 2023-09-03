@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/business_owner_data.dart';
+import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/igniter_data.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 
 import 'firebase_options.dart';
 import 'src/app.dart';
@@ -12,7 +14,6 @@ import 'src/settings/settings_service.dart';
 import '../../user_data/patrone_data.dart';
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
   // Set up the SettingsController, which will glue user settings to multiple
   // Flutter Widgets.
@@ -27,17 +28,16 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-
-
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
-  Stripe.publishableKey = 'pk_test_51N6MV7Aw4gbUiKSO9S7epyOYDxLjQxzQjUUP4cwPaTpMAIFX6cccpePl4vlPyBDQLL3uKycqBaVKRDD0LoteysiN00pGKIfRjG';
-  runApp(MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => Patrone()),
-        ChangeNotifierProvider(create: (_) => Igniter()),
-        ChangeNotifierProvider(create: (_) => BusinessOwner()),
-      ],
-      child: MyApp(settingsController: settingsController)));
+  Stripe.publishableKey =
+      'pk_test_51N6MV7Aw4gbUiKSO9S7epyOYDxLjQxzQjUUP4cwPaTpMAIFX6cccpePl4vlPyBDQLL3uKycqBaVKRDD0LoteysiN00pGKIfRjG';
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => Patrone()),
+    ChangeNotifierProvider(create: (_) => Igniter()),
+    ChangeNotifierProvider(create: (_) => BusinessOwner()),
+    ChangeNotifierProvider(create: (_) => EventOrganizer()),
+    ChangeNotifierProvider(create: (_) => DataSendingNotifier()),
+  ], child: MyApp(settingsController: settingsController)));
 }

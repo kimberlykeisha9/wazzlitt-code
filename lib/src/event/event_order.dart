@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/order_data.dart';
 import 'package:wazzlitt/user_data/payments.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
 class EventOrder extends StatefulWidget {
@@ -27,6 +29,7 @@ class _EventOrderState extends State<EventOrder> {
   }
   @override
   Widget build(BuildContext context) {
+    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Tickets for ${widget.event['event_name']}'),
@@ -182,15 +185,30 @@ class _EventOrderState extends State<EventOrder> {
                                                                           2)}'),
                                                                   onPressed:
                                                                       () {
-                                                                    payFromBalance(double.parse(_selectedTicket!['price'].toString()), context).then((paymentStatus) {
-                                                                      print(paymentStatus ?? 'No payment info found');
-                                                                      if (paymentStatus == 'paid') {
-                                                                        Order().uploadEventOrder(_selectedTicket!,_selectedIndex!, widget.event, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(context, 'confirmed'));
-                                                                      } else {
-                                                                        Navigator.pop(context);
-                                                                        showSnackbar(context, 'Something went wrong with your payment. Please check your balance or try again later');
-                                                                      }
-                                                                    });
+                                                                    try {
+                                                                      dataSendingNotifier.startLoading();
+ if (dataSendingNotifier.isLoading) {
+   showDialog(
+    barrierDismissible: false,
+       context: context,
+    builder: (_) => const Center(
+    child: CircularProgressIndicator()));
+ }
+
+  payFromBalance(double.parse(_selectedTicket!['price'].toString()), context).then((paymentStatus) {
+    print(paymentStatus ?? 'No payment info found');
+    if (paymentStatus == 'paid') {
+      Order().uploadEventOrder(_selectedTicket!,_selectedIndex!, widget.event, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(context, 'confirmed'));
+    } else {
+      Navigator.pop(context);
+      dataSendingNotifier.stopLoading();
+      showSnackbar(context, 'Something went wrong with your payment. Please check your balance or try again later');
+    }
+  });
+  dataSendingNotifier.stopLoading();
+} on Exception catch (e) {
+  dataSendingNotifier.stopLoading();
+}
                                                                   },
                                                                 )),
                                                             TextButton(

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../authorization/authorization.dart';
 import '../../user_data/business_owner_data.dart';
@@ -46,6 +47,7 @@ class _EditServiceState extends State<EditService> {
   }
   @override
   Widget build(BuildContext context) {
+    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
         appBar: AppBar(title: Text(_name!), actions: [
           TextButton(
@@ -53,10 +55,24 @@ class _EditServiceState extends State<EditService> {
                 if(_servicePhoto != null || _networkServicePhoto != null) {
                   if(available == 1 || available == 2) {
                     if (_formKey.currentState!.validate()) {
-                      uploadImageToFirebase(_servicePhoto, 'users/${auth.currentUser!.uid}/patrone/services/').then((value) => Service().updateService(
-                        place: widget.place, service: widget.service,
-                        serviceName: _name!, description: _description!, image: value, available: available, price: double.parse(_price!),
-                      ).then((value) => Navigator.pop(context)));
+                      try {
+                        dataSendingNotifier.startLoading();
+ if (dataSendingNotifier.isLoading) {
+   showDialog(
+    barrierDismissible: false,
+       context: context,
+    builder: (_) => const Center(
+    child: CircularProgressIndicator()));
+ }
+
+  uploadImageToFirebase(_servicePhoto, 'users/${auth.currentUser!.uid}/patrone/services/').then((value) => Service().updateService(
+    place: widget.place, service: widget.service,
+    serviceName: _name!, description: _description!, image: value, available: available, price: double.parse(_price!),
+  ).then((value) => Navigator.pop(context)));
+  dataSendingNotifier.stopLoading();
+} on Exception catch (e) {
+  dataSendingNotifier.stopLoading();
+}
                     }
                   } else {
                     showSnackbar(context, 'Please choose if your service is currently available');

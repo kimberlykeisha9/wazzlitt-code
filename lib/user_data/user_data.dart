@@ -8,6 +8,25 @@ import 'package:uuid/uuid.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
+import 'package:flutter/foundation.dart';
+
+class DataSendingNotifier with ChangeNotifier {
+  bool _isLoading = false;
+
+  bool get isLoading => _isLoading;
+
+  void startLoading() {
+    _isLoading = true;
+    notifyListeners();
+  }
+
+  void stopLoading() {
+    _isLoading = false;
+    notifyListeners();
+  }
+}
+
+
 
 Future<String?> uploadImageToFirebase(File? imageFile, String path) async {
   if (imageFile != null) {

@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
@@ -32,6 +33,7 @@ class _NewTicketState extends State<NewTicket> {
 
   @override
   Widget build(BuildContext context) {
+    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
         appBar: AppBar(title: const Text('New Ticket Details'), actions: [
           TextButton(
@@ -39,10 +41,24 @@ class _NewTicketState extends State<NewTicket> {
 
                   if(available == 1 || available == 2) {
                     if (_formKey.currentState!.validate()) {
-                      Ticket().addNewTicket(
-                        event: widget.event,
-                        ticketName: _nameController?.text, description: _descriptionController?.text, available: available, price: double.parse(_priceController!.text),
-                      ).then((value) => Navigator.pop(context));
+                      try {
+                        dataSendingNotifier.startLoading();
+ if (dataSendingNotifier.isLoading) {
+   showDialog(
+    barrierDismissible: false,
+       context: context,
+    builder: (_) => const Center(
+    child: CircularProgressIndicator()));
+ }
+
+  Ticket().addNewTicket(
+    event: widget.event,
+    ticketName: _nameController?.text, description: _descriptionController?.text, available: available, price: double.parse(_priceController!.text),
+  ).then((value) => Navigator.pop(context));
+  dataSendingNotifier.stopLoading();
+} on Exception catch (e) {
+  dataSendingNotifier.stopLoading();
+}
                     }
                   } else {
                     showSnackbar(context, 'Please choose if your service is currently available');

@@ -92,6 +92,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
 
   @override
   Widget build(BuildContext context) {
+    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -373,22 +374,33 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                           actions: [
                             TextButton(
                               onPressed: () {
-                                Patrone().saveUserPatroneInformation(
-                                  firstName: firstNameController.text,
-                                  lastName: lastNameController.text,
-                                  username: usernameController.text,
-                                  dob: selectedDOB,
-                                  email: emailController.text,
-                                  gender: _selectedGender,
-                                ).then(
-                                    (value) => payForPatrone(context).then(
-                                        (value) => Navigator.popAndPushNamed(
-                                            context, 'interests')),
-                                    onError: (e) => showSnackbar(
-                                        context,
-                                        'An error has occured. '
-                                        'Please try again later.'));
-                                payForPatrone(context);
+                                try {
+                                  dataSendingNotifier.startLoading();
+ if (dataSendingNotifier.isLoading) {
+   showDialog(
+    barrierDismissible: false,
+       context: context,
+    builder: (_) => const Center(
+    child: CircularProgressIndicator()));
+ }
+
+  Patrone().saveUserPatroneInformation(
+    firstName: firstNameController.text,
+    lastName: lastNameController.text,
+    username: usernameController.text,
+    dob: selectedDOB,
+    email: emailController.text,
+    gender: _selectedGender,
+  ).then((value) => Navigator.popAndPushNamed(
+              context, 'interests'),
+      onError: (e) => showSnackbar(
+          context,
+          'An error has occured. '
+          'Please try again later.'));
+          dataSendingNotifier.stopLoading();
+} on Exception catch (e) {
+ dataSendingNotifier.stopLoading();
+}
                               },
                               child:
                                   Text(AppLocalizations.of(context)!.proceed),

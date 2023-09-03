@@ -34,6 +34,7 @@ class _InterestsState extends State<Interests> {
 
   @override
   Widget build(BuildContext context) {
+    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
       appBar: AppBar(),
       body: Consumer<CategoryProvider>(builder: (context, categoryProvider, _) {
@@ -113,9 +114,23 @@ class _InterestsState extends State<Interests> {
                             showSnackbar(context,
                                 'Please select at least 3 categories to proceed');
                           } else {
-                            Patrone().saveUserInterests(interests: categoryProvider
-                                .selectedCategories).then((value) =>
-                            Navigator.pushNamed(context, 'patrone_dashboard'));
+                            try {
+                              dataSendingNotifier.startLoading();
+ if (dataSendingNotifier.isLoading) {
+   showDialog(
+    barrierDismissible: false,
+       context: context,
+    builder: (_) => const Center(
+    child: CircularProgressIndicator()));
+ }
+
+  Patrone().saveUserInterests(interests: categoryProvider
+      .selectedCategories).then((value) =>
+  Navigator.pushNamed(context, 'patrone_dashboard'));
+  dataSendingNotifier.stopLoading();
+} on Exception catch (e) {
+  dataSendingNotifier.stopLoading();
+}
                           }
                         },
                         child: Text(AppLocalizations.of(context)!.proceed)))

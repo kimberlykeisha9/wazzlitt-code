@@ -51,10 +51,12 @@ class EventOrganizer extends ChangeNotifier {
     try {
       final doc = await currentUserIgniterProfile.get();
       final data = doc.data();
-      final List<dynamic> userEvents = data?['events'];
+      final List<dynamic> userEvents = data?['events'] ?? [];
       final List<EventData> listedEvents = [];
 
-      for (DocumentReference eventRef in userEvents) {
+
+      if (userEvents.isNotEmpty) {
+        for (DocumentReference eventRef in userEvents) {
         final event = await eventRef.get();
         var eventData = event.data() as Map<String, dynamic>?;
         List<Ticket>? ticketsList = [];
@@ -120,6 +122,7 @@ class EventOrganizer extends ChangeNotifier {
           log('Added event. New value is ${listedEvents.length}');
         }
       }
+      } 
       return listedEvents;
     } catch (e) {
       log(e.toString());

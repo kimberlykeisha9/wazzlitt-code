@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
@@ -35,16 +36,32 @@ class _EditTicketState extends State<EditTicket> {
 
   @override
   Widget build(BuildContext context) {
+    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
         appBar: AppBar(title: const Text('Edit Ticket Details'), actions: [
           TextButton(
               onPressed: () {
                   if(available == 1 || available == 2) {
                     if (_formKey.currentState!.validate()) {
-                      Ticket().updateTicket(
-                        event: widget.event, ticket: widget.ticket,
-                        ticketName: _nameController.text, description: _descriptionController.text, expiry: _expiryDate, available: available, price: double.parse(_priceController.text),
-                      ).then((value) => Navigator.pop(context));
+                      try {
+                        dataSendingNotifier.startLoading();
+ if (dataSendingNotifier.isLoading) {
+   showDialog(
+    barrierDismissible: false,
+       context: context,
+    builder: (_) => const Center(
+    child: CircularProgressIndicator()));
+ }
+
+  Ticket().updateTicket(
+    
+    event: widget.event, ticket: widget.ticket,
+    ticketName: _nameController.text, description: _descriptionController.text, expiry: _expiryDate, available: available, price: double.parse(_priceController.text),
+  ).then((value) => Navigator.pop(context));
+  dataSendingNotifier.stopLoading();
+} on Exception catch (e) {
+  dataSendingNotifier.stopLoading();
+}
                     }
                   } else {
                     showSnackbar(context, 'Please choose if your service is currently available');
@@ -105,9 +122,6 @@ class _EditTicketState extends State<EditTicket> {
                     const SizedBox(height: 20),
                     TextFormField(
                       validator: (val) {
-                        if (val == null) {
-                          return 'Please enter a price';
-                        }
                         if (val == null) {
                           return 'Please enter a price';
                         }

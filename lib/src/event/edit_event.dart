@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
@@ -49,13 +50,14 @@ class _EditEventState extends State<EditEvent> {
     WidgetsFlutterBinding.ensureInitialized();
     widget.event?.get().then((value) {
       if (value.exists) {
-        Map<String, dynamic>? eventData =
-            value.data() as Map<String, dynamic>?;
+        Map<String, dynamic>? eventData = value.data() as Map<String, dynamic>?;
         _nameController.text = eventData?['event_name'] ?? '';
         _descriptionController.text = eventData?['event_description'] ?? '';
-        _locationController.text = eventData?['location']?? '';
+        _locationController.text = eventData?['location'] ?? '';
         _date = eventData?['date'] as Timestamp?;
-        _date != null ? _dateController.text = DateFormat.yMEd().format(_date!.toDate()) : null;
+        _date != null
+            ? _dateController.text = DateFormat.yMEd().format(_date!.toDate())
+            : null;
         _selectedChip = eventData?['category'];
         networkEventImage = eventData?['image'];
       }
@@ -87,24 +89,26 @@ class _EditEventState extends State<EditEvent> {
 
   @override
   Widget build(BuildContext context) {
+    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('Edit Event'),
-          actions: [
-            widget.event != null ? TextButton(
-              child: const Text('Delete'),
-              onPressed: () {
-                if (widget.event != null) {
-                  widget.event?.delete().then((value) => Navigator.pop(context));
-                }
-              }
-            ) : const SizedBox(),
-          ]
-        ),
+        appBar: AppBar(title: const Text('Edit Event'), actions: [
+          widget.event != null
+              ? TextButton(
+                  child: const Text('Delete'),
+                  onPressed: () {
+                    if (widget.event != null) {
+                      widget.event
+                          ?.delete()
+                          .then((value) => Navigator.pop(context));
+                    }
+                  })
+              : const SizedBox(),
+        ]),
         body: FutureBuilder<DocumentSnapshot>(
             future: widget.event?.get(),
             builder: (context, snapshot) {
-              if (snapshot.hasData || snapshot.connectionState == ConnectionState.none) {
+              if (snapshot.hasData ||
+                  snapshot.connectionState == ConnectionState.none) {
                 return SafeArea(
                   child: Column(
                     children: [
@@ -122,17 +126,17 @@ class _EditEventState extends State<EditEvent> {
                                 color: Colors.grey,
                                 image: networkEventImage != null
                                     ? DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: NetworkImage(networkEventImage!))
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(networkEventImage!))
                                     : _localEventImage == null
-                                    ? null
-                                    : DecorationImage(
-                                  fit: BoxFit.cover,
-                                    image:
-                                    FileImage(_localEventImage!)),
+                                        ? null
+                                        : DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image:
+                                                FileImage(_localEventImage!)),
                               ),
                               child: (_localEventImage != null ||
-                                  networkEventImage != null)
+                                      networkEventImage != null)
                                   ? const SizedBox()
                                   : const Icon(Icons.add_photo_alternate),
                             ),
@@ -159,10 +163,10 @@ class _EditEventState extends State<EditEvent> {
                                     },
                                     decoration: InputDecoration(
                                         labelText:
-                                        AppLocalizations.of(context)!.name),
+                                            AppLocalizations.of(context)!.name),
                                     keyboardType: TextInputType.text,
                                     textCapitalization:
-                                    TextCapitalization.words,
+                                        TextCapitalization.words,
                                   ),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
@@ -175,15 +179,9 @@ class _EditEventState extends State<EditEvent> {
                                         initialDate: DateTime.now(),
                                         firstDate: DateTime.now(),
                                         lastDate: DateTime(
-                                          DateTime
-                                              .now()
-                                              .year + 1,
-                                          DateTime
-                                              .now()
-                                              .month,
-                                          DateTime
-                                              .now()
-                                              .day,
+                                          DateTime.now().year + 1,
+                                          DateTime.now().month,
+                                          DateTime.now().day,
                                         ),
                                       ).then((selectedDate) {
                                         if (selectedDate != null) {
@@ -191,8 +189,8 @@ class _EditEventState extends State<EditEvent> {
                                             _date = Timestamp.fromDate(
                                                 selectedDate);
                                             _dateController.text =
-                                                DateFormat.yMEd().format(
-                                                    selectedDate);
+                                                DateFormat.yMEd()
+                                                    .format(selectedDate);
                                           });
                                         }
                                       });
@@ -208,7 +206,7 @@ class _EditEventState extends State<EditEvent> {
                                     ),
                                     keyboardType: TextInputType.text,
                                     textCapitalization:
-                                    TextCapitalization.words,
+                                        TextCapitalization.words,
                                   ),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
@@ -223,11 +221,10 @@ class _EditEventState extends State<EditEvent> {
                                     child: Row(
                                       children: categories
                                           .map(
-                                            (chip) =>
-                                            Padding(
+                                            (chip) => Padding(
                                               padding:
-                                              const EdgeInsets.symmetric(
-                                                  horizontal: 5),
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 5),
                                               child: ChoiceChip(
                                                 label: Text(chip.display),
                                                 selected: _selectedChip ==
@@ -241,7 +238,7 @@ class _EditEventState extends State<EditEvent> {
                                                 },
                                               ),
                                             ),
-                                      )
+                                          )
                                           .toList(),
                                     ),
                                   ),
@@ -276,7 +273,7 @@ class _EditEventState extends State<EditEvent> {
                                             .description),
                                     keyboardType: TextInputType.text,
                                     textCapitalization:
-                                    TextCapitalization.sentences,
+                                        TextCapitalization.sentences,
                                   ),
                                 ],
                               ),
@@ -293,21 +290,39 @@ class _EditEventState extends State<EditEvent> {
                                 _localEventImage != null)) {
                               if (_selectedChip != null) {
                                 if (_formKey.currentState!.validate()) {
-                                  uploadImageToFirebase(_localEventImage,
-                                      'event/${widget.event?.id}/event_image')
-                                      .then((eventPic) {
-                                    EventData().saveEvent(
-                                      event: widget.event,
-                                      eventName: _nameController.text,
-                                      location: _locationController.text,
-                                      category: _selectedChip,
-                                      date: _date,
-                                      description: _descriptionController.text,
-                                      eventPhoto: eventPic ?? networkEventImage,
-                                    ).then((value) =>
-                                        Navigator.popAndPushNamed(
-                                            context, 'igniter_dashboard'));
-                                  });
+                                  try {
+                                    dataSendingNotifier.startLoading();
+                                    if (dataSendingNotifier.isLoading) {
+                                      showDialog(
+                                          barrierDismissible: false,
+                                          context: context,
+                                          builder: (_) => const Center(
+                                              child:
+                                                  CircularProgressIndicator()));
+                                    }
+                                    uploadImageToFirebase(_localEventImage,
+                                            'event/${widget.event?.id}/event_image')
+                                        .then((eventPic) {
+                                      EventData()
+                                          .saveEvent(
+                                            event: widget.event,
+                                            eventName: _nameController.text,
+                                            location: _locationController.text,
+                                            category: _selectedChip,
+                                            date: _date,
+                                            description:
+                                                _descriptionController.text,
+                                            eventPhoto:
+                                                eventPic ?? networkEventImage,
+                                          )
+                                          .then((value) =>
+                                              Navigator.popAndPushNamed(context,
+                                                  'igniter_dashboard'));
+                                      dataSendingNotifier.stopLoading();
+                                    });
+                                  } on Exception catch (e) {
+                                    dataSendingNotifier.stopLoading();
+                                  }
                                 }
                               } else {
                                 showSnackbar(

@@ -6,9 +6,11 @@ import 'package:google_places_autocomplete_text_field/model/prediction.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:provider/provider.dart';
 import 'package:wazzlitt/src/location/location.dart';
 import 'package:wazzlitt/user_data/user_data.dart' as ud;
 import '../../user_data/business_owner_data.dart';
+import '../../user_data/user_data.dart';
 import '../app.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -135,6 +137,7 @@ class _EditPlaceState extends State<EditPlace> {
 
   @override
   Widget build(BuildContext context) {
+    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
         appBar: AppBar(
           title: const Text('Edit Igniter Profile'),
@@ -529,94 +532,55 @@ class _EditPlaceState extends State<EditPlace> {
                               if (selectedOption != null) {
                                 if (_selectedChip != null) {
                                   if (_formKey.currentState!.validate()) {
-                                    placeData == null
-                                        ? showDialog(
-                                            context: context,
-                                            builder: (_) => AlertDialog(
-                                              title: Text(
-                                                AppLocalizations.of(context)!
-                                                    .createIgniter,
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              content: Text(
-                                                AppLocalizations.of(context)!
-                                                    .igniterTrial,
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
-                                                    uploadPlaceLocation(widget
-                                                      .place!,
-                                                      double.parse(generatedPrediction
-                                                      !.lat!),
-                                                      double.parse
-                                                        (generatedPrediction!.lng!));
-                                                    BusinessPlace().savePlaceProfile(
-                                                      businessName:
-                                                    _nameController.text,
-                                                website:
-                                                    _websiteController.text,
-                                                category: _selectedChip,
-                                                description:
-                                                    _descriptionController.text,
-                                                emailAddress:
-                                                    _emailController.text,
-                                                latitude: double.parse
-                                                  (generatedPrediction!.lat!),
-                                                longitude: double.parse
-                                                  (generatedPrediction!.lng!),
-                                                phoneNumber:
-                                                    _phoneController.text,
-                                                    ).then((value) => Navigator
-                                                        .pushReplacementNamed(
-                                                            context,
-                                                            'igniter_dashboar'
-                                                                'd'));
-                                                  },
-                                                  child: Text(
-                                                      AppLocalizations.of(
-                                                              context)!
-                                                          .proceed),
-                                                ),
-                                              ],
-                                            ),
-                                          )
-                                        : ud.uploadImageToFirebase(_coverPhoto,
-                                                'places/${widget.place!.id}/coverPhoto')
-                                            .then((coverPic) {
-                                            ud.uploadImageToFirebase(
-                                                    _profilePicture,
-                                                    'places/${widget.place?.id}/profile_photo')
-                                                .then((profilePic) {
-                                                  uploadPlaceLocation(widget
-                                                      .place!,
-                                                      double.parse(generatedPrediction
-                                                      !.lat!),
-                                                      double.parse
-                                                        (generatedPrediction!.lng!));
-                                              BusinessPlace().savePlaceProfile(
-                                                businessName:
-                                                    _nameController.text,
-                                                website:
-                                                    _websiteController.text,
-                                                category: _selectedChip,
-                                                description:
-                                                    _descriptionController.text,
-                                                emailAddress:
-                                                    _emailController.text,
-                                                latitude: double.parse
-                                                  (generatedPrediction!.lat!),
-                                                longitude: double.parse
-                                                  (generatedPrediction!.lng!),
-                                                phoneNumber:
-                                                    _phoneController.text,
-                                              ).then((value) =>
-                                                  Navigator.popAndPushNamed(
-                                                      context,
-                                                      'igniter_dashboard'));
-                                            });
-                                          });
+                                    try {
+                                      dataSendingNotifier.startLoading();
+ if (dataSendingNotifier.isLoading) {
+   showDialog(
+    barrierDismissible: false,
+       context: context,
+    builder: (_) => const Center(
+    child: CircularProgressIndicator()));
+ }
+
+  ud.uploadImageToFirebase(_coverPhoto,
+              'places/${widget.place!.id}/coverPhoto')
+          .then((coverPic) {
+          ud.uploadImageToFirebase(
+                  _profilePicture,
+                  'places/${widget.place?.id}/profile_photo')
+              .then((profilePic) {
+                uploadPlaceLocation(widget
+                    .place!,
+                    double.parse(generatedPrediction
+                    !.lat!),
+                    double.parse
+                      (generatedPrediction!.lng!));
+            BusinessPlace().savePlaceProfile(
+              businessName:
+                  _nameController.text,
+              website:
+                  _websiteController.text,
+              category: _selectedChip,
+              description:
+                  _descriptionController.text,
+              emailAddress:
+                  _emailController.text,
+              latitude: double.parse
+                (generatedPrediction!.lat!),
+              longitude: double.parse
+                (generatedPrediction!.lng!),
+              phoneNumber:
+                  _phoneController.text,
+            ).then((value) =>
+                Navigator.popAndPushNamed(
+                    context,
+                    'igniter_dashboard'));
+          });
+        });
+        dataSendingNotifier.stopLoading();
+} on Exception catch (e) {
+  dataSendingNotifier.stopLoading();
+}
                                   }
                                 } else {
                                   showSnackbar(

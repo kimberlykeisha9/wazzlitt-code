@@ -125,7 +125,7 @@ class MyApp extends StatelessWidget {
             initialRoute: isLoggedIn ? 'dashboard' : 'home',
             routes: {
               'home': (context) => const Home(),
-              'signup': (context) => const SignUp(),
+              'signup': (context) => SignUp(),
               'patrone_registration': (context) => const PatroneRegistration(),
               'interests': (context) => const Interests(),
               'igniter_registration': (context) => const IgniterRegistration(),
