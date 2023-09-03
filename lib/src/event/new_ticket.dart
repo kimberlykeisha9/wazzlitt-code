@@ -10,7 +10,7 @@ import '../app.dart';
 class NewTicket extends StatefulWidget {
   const NewTicket({super.key, required this.event});
 
-  final DocumentReference event;
+  final EventData event;
 
   @override
   State<NewTicket> createState() => _NewTicketState();
@@ -52,7 +52,7 @@ class _NewTicketState extends State<NewTicket> {
  }
 
   Ticket().addNewTicket(
-    event: widget.event,
+    event: widget.event.eventReference!,
     ticketName: _nameController?.text, description: _descriptionController?.text, available: available, price: double.parse(_priceController!.text),
   ).then((value) => Navigator.pop(context));
   dataSendingNotifier.stopLoading();
@@ -89,7 +89,7 @@ class _NewTicketState extends State<NewTicket> {
                     TextFormField(
                       controller: _expiryDateController,
                       readOnly: true,
-                      onTap: () => showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: DateTime(DateTime.now().year + 1)).then((value) {
+                      onTap: () => showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: widget.event.date!).then((value) {
                         setState(() {
                           _expiry = value;
                           if (value != null) {

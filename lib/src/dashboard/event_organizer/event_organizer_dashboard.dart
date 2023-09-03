@@ -261,15 +261,15 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                 child: ElevatedButton(
                                   child: Text('Add a new ticket'),
                                   onPressed: () {
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: (context) =>
-                                    //         NewTicket(
-                                    //       event: ,
-                                    //     ),
-                                    //   ),
-                                    // );
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            NewTicket(
+                                          event: event,
+                                        ),
+                                      ),
+                                    );
                                   },
                                 ),
                               ),

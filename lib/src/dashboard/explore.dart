@@ -56,7 +56,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
     );
   }
 
-  void _navigateToEvent(BuildContext context, Map<String, dynamic> eventData) {
+  void _navigateToEvent(BuildContext context, EventData eventData) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -331,7 +331,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
               child: TabBarView(
                 controller: _exploreController,
                 children: [
-                  const LitTab(),
+                  LitTab(),
                   PlacesTab(categories: categories),
                 ],
               ),
@@ -527,11 +527,69 @@ class PlacesTab extends StatelessWidget {
 }
 
 class LitTab extends StatelessWidget {
-  const LitTab({
+  LitTab({
     Key? key,
   }) : super(key: key);
 
-  void _navigateToEvent(BuildContext context, Map<String, dynamic> eventData) {
+  List<EventData> allEvents = [];
+
+  Future<List<EventData>> getAllEvents() async {
+    try {
+  List<EventData> _events = [];
+  await firestore.collection('events').get().then((events) {
+    for (var event in events.docs) {
+    var eventData = event.data() as Map<String, dynamic>?;
+    List<Ticket>? ticketsList = [];
+  
+    if (eventData!.containsKey('tickets')) {
+            for (Map<String, dynamic> ticket
+                in (eventData['tickets'] as List<dynamic>)) {
+              ticketsList.add(Ticket(
+                available: ticket['available'],
+                title: ticket['ticket_name'],
+                price: ticket['price'],
+                image: ticket['image'],
+                description: ticket['ticket_description'],
+                quantity: ticket['quantity'],
+              ));
+            }
+          }
+  
+    final EventData foundEvent = EventData(
+            eventName: eventData['event_name'],
+            location: eventData['location']?['geopoint'],
+            category: eventData['category'],
+            date: (eventData['date'] as Timestamp?)?.toDate(),
+            image: eventData['image'],
+            description: eventData['event_description'],
+            eventOrganizer: eventData['lister'],
+            eventReference: event.reference,
+            tickets: ticketsList,
+          );
+  
+    if (_events.contains(foundEvent)) {
+            _events
+                .where((event) =>
+                    event.eventReference == foundEvent.eventReference)
+                .toList()
+                .forEach((element) {
+              _events.remove(element);
+            });
+          } else {
+            _events.add(foundEvent);
+          }
+        }
+  });
+  
+  return _events;
+} on Exception catch (e) {
+  print(e);
+  throw Exception(e);
+}
+  }
+
+
+  void _navigateToEvent(BuildContext context, EventData eventData) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -542,11 +600,14 @@ class LitTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<QuerySnapshot>(
-      future: firestore.collection('events').get(),
+    return FutureBuilder<List<EventData>>(
+      future: getAllEvents(),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final docList = snapshot.data!.docs;
+              if (!(snapshot.hasData) || snapshot.data == null || snapshot.data!.isEmpty) {
+                return Center(child: Text('No events found'));
+              }
+              else {
+                allEvents = snapshot.data!;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -558,19 +619,19 @@ class LitTab extends StatelessWidget {
                       crossAxisCount: 2,
                       childAspectRatio: 2 / 3,
                     ),
-                    itemCount: docList.length,
+                    itemCount: allEvents.length,
                     itemBuilder: (context, index) {
-                      final result =
-                          docList[index].data() as Map<String, dynamic>;
+                      final event =
+                          allEvents[index];
                       return GestureDetector(
-                        onTap: () => _navigateToEvent(context, result),
+                        onTap: () => _navigateToEvent(context, event),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 0),
                           child: Container(
                             decoration: BoxDecoration(
                               image: DecorationImage(
                                 fit: BoxFit.cover,
-                                image: NetworkImage(result['image']),
+                                image: NetworkImage(event.image!),
                               ),
                             ),
                             padding: const EdgeInsets.all(20),
@@ -585,8 +646,7 @@ class LitTab extends StatelessWidget {
                                         Theme.of(context).colorScheme.primary,
                                     child: Text(
                                       DateFormat.yMMMd().format(
-                                          (result['date'] ?? Timestamp.now())
-                                              .toDate()),
+                                          (event.date!)),
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -599,7 +659,7 @@ class LitTab extends StatelessWidget {
                                 Container(
                                   color: Theme.of(context).colorScheme.primary,
                                   child: Text(
-                                    result['event_name'],
+                                    event.eventName ?? '',
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -612,7 +672,7 @@ class LitTab extends StatelessWidget {
                                   color:
                                       Theme.of(context).colorScheme.secondary,
                                   child: Text(
-                                    result['category'],
+                                    event.category ?? 'Unknown',
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,

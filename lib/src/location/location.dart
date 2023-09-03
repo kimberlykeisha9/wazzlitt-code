@@ -67,7 +67,7 @@ Stream<List<DocumentSnapshot>> getNearbyPeople(
       .length);
   return geo
       .collection(collectionRef: usersLocations)
-      .within(center: place, radius: 5, field: 'current_location');
+      .within(center: place, radius: 5, field: 'current_location', strictMode: true);
 }
 
 Future<String> getLocationForPlace(DocumentReference place) async {

@@ -35,7 +35,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
   @override
   Widget build(BuildContext context) {
     var igniterData = Provider.of<Igniter>(context);
-    bool isFreeTrial = !(igniterData.dateCreated!
+    bool isFreeTrial = !((igniterData.dateCreated ?? DateTime(2000))
         .add(const Duration(days: 14))
         .isBefore(DateTime.now()));
     return Scaffold(

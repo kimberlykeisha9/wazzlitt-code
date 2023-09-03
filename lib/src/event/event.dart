@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/user_data/event_organizer_data.dart';
 
 import '../app.dart';
 import 'event_order.dart';
@@ -8,22 +9,22 @@ import 'event_order.dart';
 class Event extends StatelessWidget {
   const Event({super.key, required this.event});
 
-  final Map<String, dynamic> event;
+  final EventData event;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(event['event_name']),
+        title: Text(event.eventName ?? ''),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(height: height(context)*0.5, width: width(context),child:
             Hero(
-              tag: event['event_name'],
+              tag: event.eventName ?? '',
               child: Image
-                  .network(event['image'], fit: BoxFit
+                  .network(event.image!, fit: BoxFit
                   .cover),
             )),
             Container(
@@ -35,49 +36,35 @@ class Event extends StatelessWidget {
                     height: height(context)*0.36,
                     child: Column(
                       children: [
-                        Text(event['event_name'],
+                        Text(event.eventName ?? '',
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold)),
                         const SizedBox(height: 20),
                         Text(
-                          '${event['event_name']} location',
+                          '${event.eventName} location',
                         ),
                         const Text('0 km away',
                             style: TextStyle(fontSize: 14)),
                         const SizedBox(height: 10),
                         Text(
-                          (event.containsKey('date')) ?
-                          DateFormat.yMEd().format((event['date'] as Timestamp)
-                              .toDate())
+                          (event.date != null) ?
+                          DateFormat.yMEd().format((event.date!))
                               : 'Date TBA',
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                            (event.containsKey('price')) ? '\$'
-                                '${double.parse(event['price'].toString()).toStringAsFixed(2)}'
-                                : 'Free',
-                        ),
-                        Text((event.containsKey('price')) ? '\$'
-                            '${((event['price'] * 1.25) as double).toStringAsFixed(2)}'
-                            : 'N/A',
-                            style: const TextStyle(
-                                fontSize: 14,
-                                decoration:
-                                TextDecoration.lineThrough)),
                         const SizedBox(height: 30),
                         SizedBox(
                           width: width(context),
                           child: ElevatedButton(
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        EventOrder(
-                                            event: event),
-                                  ),
-                                );
+                                // Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (context) =>
+                                //         EventOrder(
+                                //             event: event.eventReference!),
+                                //   ),
+                                // );
                               },
                               child: const Text('Buy Tickets')),
                         ),
@@ -94,24 +81,24 @@ class Event extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('About ${event['event_name']}',
+                        Text('About ${event.eventName}',
                             style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold)),
                         const SizedBox(height: 15),
-                        Text(event['event_description'],),
+                        Text(event.description ?? '',),
                       ],
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Center(child: Chip(label: Text(event['category']))),
+                  Center(child: Chip(label: Text(event.category ?? 'Unkown'))),
                   const SizedBox(height: 20),
                   const Text('Organizer',
                       style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold)),
                   FutureBuilder<DocumentSnapshot>(
-                    future: (event['lister'] as DocumentReference?)?.collection('account_type').doc('igniter').get(),
+                    future: (event.eventOrganizer)?.collection('account_type').doc('igniter').get(),
                     builder: (context, snapshot) {
                       Map<String, dynamic>? organizerData = snapshot.data?.data() as Map<String, dynamic>?;
                       if (snapshot.hasData) {
