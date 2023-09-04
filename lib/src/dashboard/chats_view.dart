@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
+import '../../user_data/patrone_data.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 import 'package:intl/intl.dart';
@@ -90,12 +91,19 @@ class _ChatsViewState extends State<ChatsView> {
                                                             title: Text(
                                                                 '${senderData['first_name'] ?? ''} ${senderData['last_name'] ?? ''}'),
                                                           ),
-                                                          body: ProfileScreen(
-                                                              userProfile: receiver
-                                                                  .collection(
-                                                                      'account_type')
-                                                                  .doc(
-                                                                      'patrone'))))),
+                                                          body:
+                                                          FutureBuilder<Patrone>(
+                                                            future: Patrone()
+                                                                .getPatroneInformation(receiver
+                                                                .collection(
+                                                                'account_type')
+                                                                .doc(
+                                                                'patrone')),
+                                                            builder: (context, snapshot) {
+                                                              return ProfileScreen(
+                                                                  userProfile: snapshot.data!);
+                                                            }
+                                                          )))),
                                           child: CircleAvatar(
                                             radius: 30,
                                             foregroundImage: NetworkImage(

@@ -53,7 +53,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       ),
       const ChatsView(chatType: ChatRoomType.individual),
       ProfileScreen(
-        userProfile: Provider.of<Patrone>(context).currentUserPatroneProfile,
+        userProfile: Provider.of<Patrone>(context),
       ),
     ];
   }

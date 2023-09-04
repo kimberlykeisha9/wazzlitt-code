@@ -10,24 +10,41 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import 'order_data.dart';
 
 class Patrone extends ChangeNotifier {
+  Patrone({
+    this.firstNameSet,
+    this.lastNameSet,
+    this.profilePictureSet,
+    this.coverPictureSet,
+    this.bioSet,
+    this.dobSet,
+    this.genderSet,
+    this.currentLocationSet,
+    this.patroneReferenceSet,
+    this.usernameSet,
+    this.phoneNumberSet,
+    this.interestsSet,
+    this.createdPostsSet,
+    this.followersSet,
+    this.followingSet,
+  });
   // First name
-  String? _firstName;
-  String? get firstName => _firstName;
+  String? firstNameSet;
+  String? get firstName => firstNameSet;
   // Last name
-  String? _lastName;
-  String? get lastName => _lastName;
+  String? lastNameSet;
+  String? get lastName => lastNameSet;
   // Profile Picture
-  String? _profilePicture;
-  String? get profilePicture => _profilePicture;
+  String? profilePictureSet;
+  String? get profilePicture => profilePictureSet;
   // Cover Picture
-  String? get coverPicture => _coverPicture;
-  String? _coverPicture;
+  String? get coverPicture => coverPictureSet;
+  String? coverPictureSet;
   // User description
-  String? get bio => _bio;
-  String? _bio;
+  String? get bio => bioSet;
+  String? bioSet;
   // Date of birth
-  DateTime? get dob => _dob;
-  DateTime? _dob;
+  DateTime? get dob => dobSet;
+  DateTime? dobSet;
   // Date of creation
   DateTime? get createdTime => _createdTime;
   DateTime? _createdTime;
@@ -35,41 +52,41 @@ class Patrone extends ChangeNotifier {
   Map<String, dynamic>? get patronePayment => _patronePayment;
   Map<String, dynamic>? _patronePayment;
   // Gender
-  String? get gender => _gender;
-  String? _gender;
+  String? get gender => genderSet;
+  String? genderSet;
   // Account Balance
   double? get accountBalance => _accountBalance;
   double? _accountBalance;
   // User current location
-  db.GeoPoint? get currentLocation => _currentLocation;
-  db.GeoPoint? _currentLocation;
+  db.GeoPoint? get currentLocation => currentLocationSet;
+  db.GeoPoint? currentLocationSet;
   // User's document reference
-  db.DocumentReference? get patroneReference => _patroneReference;
-  db.DocumentReference? _patroneReference;
+  db.DocumentReference? get patroneReference => patroneReferenceSet;
+  db.DocumentReference? patroneReferenceSet;
   // Username
-  String? get username => _username;
-  String? _username;
+  String? get username => usernameSet;
+  String? usernameSet;
   // Phone Number
-  String? get phoneNumber => _phoneNumber;
-  String? _phoneNumber;
+  String? get phoneNumber => phoneNumberSet;
+  String? phoneNumberSet;
   // Email Address
   String? get emailAddress => _emailAddress;
   String? _emailAddress;
   // Created Posts
-  List<dynamic> get createdPosts => _createdPosts;
-  List<dynamic> _createdPosts = [];
+  List<dynamic>? get createdPosts => createdPostsSet!;
+  List<dynamic>? createdPostsSet = [];
   // Placed Orders
-  List<Order> get placedOrders => _placedOrders;
-  List<Order> _placedOrders = [];
+  List<Order>? get placedOrders => _placedOrders;
+  List<Order>? _placedOrders = [];
   // User's interests
-  List<String> get interests => _interests;
-  List<String> _interests = [];
+  List<String>? get interests => interestsSet;
+  List<String>? interestsSet = [];
   // User followers
-  List<Map<String, dynamic>> get followers => _followers;
-  List<Map<String, dynamic>> _followers = [];
+  List<Map<String, dynamic>>? get followers => followersSet;
+  List<Map<String, dynamic>>? followersSet = [];
   // User following
-  List<dynamic> get following => _following;
-  List<dynamic> _following = [];
+  List<dynamic>? get following => followingSet;
+  List<dynamic>? followingSet = [];
 
   // User patrone reference
   db.DocumentReference currentUserPatroneProfile = firestore
@@ -80,24 +97,54 @@ class Patrone extends ChangeNotifier {
   // Current user uid
   String uid = auth.currentUser!.uid;
 
+  // Get user patrone profile
+  Future<Patrone> getPatroneInformation(db.DocumentReference patroneRef) async {
+    try {
+      Patrone patrone = Patrone();
+      await patroneRef.get().then((value) {
+        if (value.exists) {
+          Map<String, dynamic>? content = value.data() as Map<String, dynamic>?;
+          patrone = Patrone(
+            patroneReferenceSet: patroneRef,
+            firstNameSet: content?['first_name'],
+            lastNameSet: content?['last_name'],
+            dobSet: (content?['dob'] as db.Timestamp?)?.toDate(),
+            usernameSet: content?['username'],
+            bioSet: content?['bio'],
+            profilePictureSet: content?['profile_picture'],
+            coverPictureSet: content?['cover_photo'],
+            genderSet: content?['gender'],
+            createdPostsSet: content?['created_posts'] ?? [],
+          );
+        }
+      });
+      return patrone;
+    } on Exception catch (e) {
+      log(e.toString());
+      throw Exception(e);
+    }
+  }
+
   // Get user patrone information
-  getCurrentUserPatroneInformation() {
-    currentUserPatroneProfile.get().then((document) {
+  getCurrentUserPatroneInformation() async {
+    await currentUserPatroneProfile.get().then((document) {
       Map<String, dynamic>? content = document.data() as Map<String, dynamic>?;
       // Sets the getters
-      _firstName = content?['first_name'];
-      _lastName = content?['last_name'];
-      _createdTime = (content?['createdAt'] as db.Timestamp?)?.toDate() ?? DateTime(2000);
-      _dob = (content?['dob'] as db.Timestamp?)?.toDate();
+      firstNameSet = content?['first_name'];
+      lastNameSet = content?['last_name'];
+      _createdTime =
+          (content?['createdAt'] as db.Timestamp?)?.toDate() ?? DateTime(2000);
+      dobSet = (content?['dob'] as db.Timestamp?)?.toDate();
       _emailAddress = content?['email'];
-      _username = content?['username'];
+      usernameSet = content?['username'];
       _patronePayment = content?['patrone_payment'];
       _accountBalance = content?['balance'] ?? 0;
-      _bio = content?['bio'];
-      _profilePicture = content?['profile_picture'];
-      _coverPicture = content?['cover_photo'];
-      _gender = content?['gender'];
-      _createdPosts = content?['created_posts'] ?? [];
+      bioSet = content?['bio'];
+      patroneReferenceSet = currentUserPatroneProfile;
+      profilePictureSet = content?['profile_picture'];
+      coverPictureSet = content?['cover_photo'];
+      genderSet = content?['gender'];
+      createdPostsSet = content?['created_posts'] ?? [];
       notifyListeners();
     });
   }
@@ -111,7 +158,7 @@ class Patrone extends ChangeNotifier {
       for (var patrone in serverFollowers) {
         (patrone as db.DocumentReference).get().then((patroneDoc) {
           var data = patroneDoc.data() as Map<String, dynamic>?;
-          _followers.add({
+          followersSet?.add({
             'follower_name': '${data?['first_name']} ${data?['last_name']}',
             'follower_username': data?['username'],
             'follower_profile_picture': data?['profile_picture'],
@@ -132,7 +179,7 @@ class Patrone extends ChangeNotifier {
       for (var follow in serverFollowing) {
         (follow as db.DocumentReference).get().then((doc) {
           // var data = doc.data() as Map<String, dynamic>;
-          _following.add({
+          followingSet?.add({
             'follow_reference': follow,
           });
           notifyListeners();
@@ -151,7 +198,7 @@ class Patrone extends ChangeNotifier {
         (order as db.DocumentReference).get().then((doc) {
           var orderData = doc.data() as Map<String, dynamic>;
           if (orderData['order_type'] == 'ticket') {
-            _placedOrders.add(
+            _placedOrders?.add(
               Order(
                 datePlaced: (orderData['date_placed'] as db.Timestamp).toDate(),
                 details: orderData['ticket'],
@@ -163,7 +210,7 @@ class Patrone extends ChangeNotifier {
             );
             notifyListeners();
           } else if (orderData['order_type'] == 'service') {
-            _placedOrders.add(
+            _placedOrders?.add(
               Order(
                 datePlaced: (orderData['date_placed'] as db.Timestamp).toDate(),
                 details: orderData['service'],
@@ -380,39 +427,39 @@ class Patrone extends ChangeNotifier {
     try {
       currentUserPatroneProfile.get().then((value) async {
         if (value.exists) {
-        currentUserPatroneProfile.update({
-          'first_name': firstName?.trim(),
-          'email': email,
-          'profile_picture': profilePic,
-          'cover_photo': coverPic,
-          'last_name': lastName?.trim(),
-          'username': username?.trim(),
-          'dob': dob,
-          'gender': gender,
-        }).then((value) => {
-                  updateDisplayName(username?.trim()),
-                  auth.currentUser!.updateEmail(email!),
-                });
+          currentUserPatroneProfile.update({
+            'first_name': firstName?.trim(),
+            'email': email,
+            'profile_picture': profilePic,
+            'cover_photo': coverPic,
+            'last_name': lastName?.trim(),
+            'username': username?.trim(),
+            'dob': dob,
+            'gender': gender,
+          }).then((value) => {
+                updateDisplayName(username?.trim()),
+                auth.currentUser!.updateEmail(email!),
+              });
         } else {
           await currentUserProfile.update({'is_patrone': true}).then(
-        (value) => currentUserProfile
-            .collection('account_type')
-            .doc('patrone')
-            .set({
+            (value) => currentUserProfile
+                .collection('account_type')
+                .doc('patrone')
+                .set({
               'createdAt': DateTime.now(),
-          'first_name': firstName?.trim(),
-          'email': email,
-          'profile_picture': profilePic,
-          'cover_photo': coverPic,
-          'last_name': lastName?.trim(),
-          'username': username?.trim(),
-          'dob': dob,
-          'gender': gender,
-        }).then((value) => {
-                  updateDisplayName(username?.trim()),
-                  auth.currentUser!.updateEmail(email!),
-                }),
-      );
+              'first_name': firstName?.trim(),
+              'email': email,
+              'profile_picture': profilePic,
+              'cover_photo': coverPic,
+              'last_name': lastName?.trim(),
+              'username': username?.trim(),
+              'dob': dob,
+              'gender': gender,
+            }).then((value) => {
+                      updateDisplayName(username?.trim()),
+                      auth.currentUser!.updateEmail(email!),
+                    }),
+          );
         }
       });
     } on db.FirebaseException catch (e) {

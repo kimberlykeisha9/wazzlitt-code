@@ -8,6 +8,7 @@ import 'package:wazzlitt/src/event/event.dart';
 import 'package:wazzlitt/src/location/location.dart';
 import 'package:wazzlitt/user_data/business_owner_data.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
+import '../../user_data/patrone_data.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 import '../place/place.dart';
@@ -239,7 +240,6 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         ),
       ],
       builder: (context, transition) {
-        
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Material(
@@ -249,17 +249,19 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
               mainAxisSize: MainAxisSize.min,
               children: _searchResults.map((result) {
                 String? resultName() {
-          if(result is BusinessPlace) {
-            return result.placeName;
-          } else if (result is EventData) {
-            return result.eventName;
-          } return null;
-        };
+                  if (result is BusinessPlace) {
+                    return result.placeName;
+                  } else if (result is EventData) {
+                    return result.eventName;
+                  }
+                  return null;
+                }
+
+                ;
                 return GestureDetector(
                   onTap: () {
                     if (result is BusinessPlace) {
-                      _navigateToPlace(
-                          context, result);
+                      _navigateToPlace(context, result);
                     } else if (result is EventData) {
                       // _navigateToEvent(
                       //     context, document.data() as Map<String, dynamic>);
@@ -272,9 +274,10 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                             'https://i.pinimg.com/736x/58/58/c9/5858c9e33da2df781d11a0993f9b7030.jpg',
                       ),
                     ),
-                  
                     tileColor: Theme.of(context).colorScheme.surface,
-                    title: Text(resultName() ?? 'N/A', style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+                    title: Text(resultName() ?? 'N/A',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface)),
                   ),
                 );
               }).toList(),
@@ -292,7 +295,11 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
       MaterialPageRoute(
         builder: (context) => Scaffold(
           appBar: AppBar(title: Text(username)),
-          body: ProfileScreen(userProfile: reference),
+          body: FutureBuilder<Patrone>(
+              future: Patrone().getPatroneInformation(reference),
+              builder: (context, snapshot) {
+                return ProfileScreen(userProfile: snapshot.data!);
+              }),
         ),
       ),
     );
@@ -367,66 +374,66 @@ class PlacesTab extends StatelessWidget {
 
   Future<List<BusinessPlace>> getAllPlaces() async {
     try {
-  List<BusinessPlace> _places = [];
-  await firestore.collection('places').get().then((places) {
-    for (var place in places.docs) {
-    var placeData = place.data() as Map<String, dynamic>?;
-    List<Service>? servicesList = [];
-  
-    if (placeData!.containsKey('services')) {
-      for (Map<String, dynamic> service
-          in (placeData['services'] as List<dynamic>)) {
-        servicesList.add(Service(
-          available: service['available'],
-          title: service['service_name'],
-          price: service['price'],
-          image: service['image'],
-          description: service['service_description'],
-          quantity: service['quantity'],
-        ));
-      }
-    }
-  
-    final BusinessPlace foundBusinessPlace = BusinessPlace(
-      placeName: placeData['place_name'],
-      location: placeData['location']['geopoint'],
-      category: placeData['category'],
-      placeType: placeData['place_type'],
-      closingTime: (placeData['closing_time'] as Timestamp?)?.toDate(),
-      openingTime: (placeData['opening_time'] as Timestamp?)?.toDate(),
-      emailAddress: placeData['email_address'],
-      image: placeData['image'],
-      coverImage: placeData['cover_image'],
-      description: placeData['place_description'],
-      lister: placeData['lister'],
-      placeReference: place.reference,
-      chatroom: placeData['chat_room'],
-      phoneNumber: placeData['phone_number'],
-      website: placeData['website'],
-      services: servicesList,
-    );
-  
-    if (_places.contains(foundBusinessPlace)) {
-      _places
-          .where((place) =>
-              place.placeReference == foundBusinessPlace.placeReference)
-          .toList()
-          .forEach((removablePlace) {
-          _places.remove(removablePlace);
+      List<BusinessPlace> _places = [];
+      await firestore.collection('places').get().then((places) {
+        for (var place in places.docs) {
+          var placeData = place.data() as Map<String, dynamic>?;
+          List<Service>? servicesList = [];
+
+          if (placeData!.containsKey('services')) {
+            for (Map<String, dynamic> service
+                in (placeData['services'] as List<dynamic>)) {
+              servicesList.add(Service(
+                available: service['available'],
+                title: service['service_name'],
+                price: service['price'],
+                image: service['image'],
+                description: service['service_description'],
+                quantity: service['quantity'],
+              ));
+            }
+          }
+
+          final BusinessPlace foundBusinessPlace = BusinessPlace(
+            placeName: placeData['place_name'],
+            location: placeData['location']['geopoint'],
+            category: placeData['category'],
+            placeType: placeData['place_type'],
+            closingTime: (placeData['closing_time'] as Timestamp?)?.toDate(),
+            openingTime: (placeData['opening_time'] as Timestamp?)?.toDate(),
+            emailAddress: placeData['email_address'],
+            image: placeData['image'],
+            coverImage: placeData['cover_image'],
+            description: placeData['place_description'],
+            lister: placeData['lister'],
+            placeReference: place.reference,
+            chatroom: placeData['chat_room'],
+            phoneNumber: placeData['phone_number'],
+            website: placeData['website'],
+            services: servicesList,
+          );
+
+          if (_places.contains(foundBusinessPlace)) {
+            _places
+                .where((place) =>
+                    place.placeReference == foundBusinessPlace.placeReference)
+                .toList()
+                .forEach((removablePlace) {
+              _places.remove(removablePlace);
+            });
+            print('Removed listing. New value is ${_places.length}');
+          } else {
+            _places.add(foundBusinessPlace);
+            print('Added listing. New value is ${_places.length}');
+          }
+        }
       });
-      print('Removed listing. New value is ${_places.length}');
-    } else {
-        _places.add(foundBusinessPlace);
-      print('Added listing. New value is ${_places.length}');
+
+      return _places;
+    } on Exception catch (e) {
+      print(e);
+      throw Exception(e);
     }
-  }
-  });
-  
-  return _places;
-} on Exception catch (e) {
-  print(e);
-  throw Exception(e);
-}
   }
 
   @override
@@ -443,10 +450,11 @@ class PlacesTab extends StatelessWidget {
           child: FutureBuilder<List<BusinessPlace>>(
             future: getAllPlaces(),
             builder: (context, snapshot) {
-              if (!(snapshot.hasData) || snapshot.data == null || snapshot.data!.isEmpty) {
+              if (!(snapshot.hasData) ||
+                  snapshot.data == null ||
+                  snapshot.data!.isEmpty) {
                 return Center(child: Text('No places found'));
-              }
-              else {
+              } else {
                 allPlaces = snapshot.data!;
                 return GridView.builder(
                   shrinkWrap: true,
@@ -456,9 +464,8 @@ class PlacesTab extends StatelessWidget {
                   ),
                   itemCount: allPlaces.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final place =
-                        allPlaces[index];
-                        
+                    final place = allPlaces[index];
+
                     return GestureDetector(
                       onTap: () => _navigateToPlace(context, place),
                       child: Container(
@@ -526,22 +533,28 @@ class PlacesTab extends StatelessWidget {
   }
 }
 
-class LitTab extends StatelessWidget {
+class LitTab extends StatefulWidget {
   LitTab({
     Key? key,
   }) : super(key: key);
 
+  @override
+  State<LitTab> createState() => _LitTabState();
+}
+
+class _LitTabState extends State<LitTab> {
   List<EventData> allEvents = [];
 
   Future<List<EventData>> getAllEvents() async {
     try {
-  List<EventData> _events = [];
-  await firestore.collection('events').get().then((events) {
-    for (var event in events.docs) {
-    var eventData = event.data() as Map<String, dynamic>?;
-    List<Ticket>? ticketsList = [];
-  
-    if (eventData!.containsKey('tickets')) {
+      List<EventData> listedEvents = [];
+      await firestore.collection('events').get().then((events) {
+        print(events.size);
+        for (var event in events.docs) {
+          var eventData = event.data();
+          List<Ticket>? ticketsList = [];
+
+          if (eventData.containsKey('tickets')) {
             for (Map<String, dynamic> ticket
                 in (eventData['tickets'] as List<dynamic>)) {
               ticketsList.add(Ticket(
@@ -554,40 +567,32 @@ class LitTab extends StatelessWidget {
               ));
             }
           }
-  
-    final EventData foundEvent = EventData(
-            eventName: eventData['event_name'],
-            location: eventData['location']?['geopoint'],
-            category: eventData['category'],
-            date: (eventData['date'] as Timestamp?)?.toDate(),
-            image: eventData['image'],
-            description: eventData['event_description'],
-            eventOrganizer: eventData['lister'],
-            eventReference: event.reference,
-            tickets: ticketsList,
-          );
-  
-    if (_events.contains(foundEvent)) {
-            _events
-                .where((event) =>
-                    event.eventReference == foundEvent.eventReference)
-                .toList()
-                .forEach((element) {
-              _events.remove(element);
-            });
-          } else {
-            _events.add(foundEvent);
-          }
-        }
-  });
-  
-  return _events;
-} on Exception catch (e) {
-  print(e);
-  throw Exception(e);
-}
-  }
 
+          setState(() {
+            listedEvents.add(EventData(
+              eventName: eventData['event_name'],
+              location: eventData['location']?['geopoint'],
+              category: eventData['category'],
+              date: (eventData['date'] as Timestamp?)?.toDate(),
+              image: eventData['image'],
+              description: eventData['event_description'],
+              eventOrganizer: eventData['lister'],
+              eventReference: event.reference,
+              tickets: ticketsList,
+            ));
+          });
+          print('Added an event');
+        }
+      });
+      return listedEvents;
+    } on Exception catch (e) {
+      print(e);
+      throw Exception(e);
+    } catch (e) {
+  print("Error fetching events: $e");
+  throw Exception(e);
+  }
+  }
 
   void _navigateToEvent(BuildContext context, EventData eventData) {
     Navigator.push(
@@ -603,11 +608,10 @@ class LitTab extends StatelessWidget {
     return FutureBuilder<List<EventData>>(
       future: getAllEvents(),
       builder: (context, snapshot) {
-              if (!(snapshot.hasData) || snapshot.data == null || snapshot.data!.isEmpty) {
-                return Center(child: Text('No events found'));
-              }
-              else {
-                allEvents = snapshot.data!;
+        if (snapshot.data == null || snapshot.data!.isEmpty) {
+          return Center(child: Text('No events found'));
+        } else {
+          allEvents = snapshot.data!;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -621,8 +625,7 @@ class LitTab extends StatelessWidget {
                     ),
                     itemCount: allEvents.length,
                     itemBuilder: (context, index) {
-                      final event =
-                          allEvents[index];
+                      final event = allEvents[index];
                       return GestureDetector(
                         onTap: () => _navigateToEvent(context, event),
                         child: Padding(
@@ -645,8 +648,7 @@ class LitTab extends StatelessWidget {
                                     color:
                                         Theme.of(context).colorScheme.primary,
                                     child: Text(
-                                      DateFormat.yMMMd().format(
-                                          (event.date!)),
+                                      DateFormat.yMMMd().format((event.date!)),
                                       style: const TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -697,4 +699,3 @@ class LitTab extends StatelessWidget {
     );
   }
 }
-

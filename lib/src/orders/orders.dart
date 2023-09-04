@@ -31,7 +31,8 @@ class _OrdersState extends State<Orders> {
         body: FutureBuilder(
           future: null,
           builder: (context, snapshot) {
-              List<Order> orders =Provider.of<Patrone>(context).placedOrders;
+              List<Order> orders =Provider.of<Patrone>(context).placedOrders
+            ?? [];
               return SafeArea(
                 child: SingleChildScrollView(
                   child: Column(

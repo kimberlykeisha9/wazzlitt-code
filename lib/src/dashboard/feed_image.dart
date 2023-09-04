@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
+import '../../user_data/patrone_data.dart';
 import '../app.dart';
 
 class PostData {
@@ -157,61 +159,87 @@ class _FeedImageState extends State<FeedImage> with SingleTickerProviderStateMix
                             .snapshots(),
                         builder: (context, creatorSnapshot) {
                           if (creatorSnapshot.hasData) {
-                            return Container(
-                              width: width(context),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondary
-                                    .withOpacity(0.25),
-                              ),
-                              child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    CircleAvatar(
-                                      foregroundImage: NetworkImage(
-                                          (creatorSnapshot.data!.get
-                                        ('profile_picture') as
-                                      String)),
-                                      radius: 20,
-                                      child:(creatorSnapshot.data?.get
-                                        ('profile_picture') as
-                                      String?) !=
-                                          null ? null :
-                                      const Icon(Icons
-                                          .account_circle, size: 40,),
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Scaffold(
+                                      appBar: AppBar(title: Text((creatorSnapshot.data!.get
+                                        ('username') as
+                                      String?)
+                                          ?? 'null')),
+                                      body: FutureBuilder<Patrone>(
+                                          future: Patrone()
+                                              .getPatroneInformation
+                                            (widget.snapshot.get
+                                            ('creator_uid').collection
+                                            ('account_type').doc('patrone')),
+                                          builder: (context, snapshot) {
+                                            return ProfileScreen(
+                                                userProfile: snapshot.data!);
+                                          }
+                                      ),
                                     ),
-                                    const SizedBox(width: 10),
-                                    Wrap(
-                                      direction: Axis.vertical,
-                                      alignment: WrapAlignment.start,
-                                      children: [
-                                        Text((creatorSnapshot.data!.get
-                                          ('username') as
-                                        String?)
-                                            ?? 'null',
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold)),
-                                        Text(DateFormat('hh:mm, EEE d MMM').format
-                                          ((widget.snapshot.get
-                                          ('date_created') as
-                                        Timestamp).toDate()),
-                                            style: const TextStyle(
-                                                color: Colors.white, fontSize: 14)),
-                                      ],
-                                    ),
-                                    const Spacer(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: width(context),
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondary
+                                      .withOpacity(0.25),
+                                ),
+                                child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      CircleAvatar(
+                                        foregroundImage: NetworkImage(
+                                            (creatorSnapshot.data!.get
+                                          ('profile_picture') as
+                                        String)),
+                                        radius: 20,
+                                        child:(creatorSnapshot.data?.get
+                                          ('profile_picture') as
+                                        String?) !=
+                                            null ? null :
+                                        const Icon(Icons
+                                            .account_circle, size: 40,),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Wrap(
+                                        direction: Axis.vertical,
+                                        alignment: WrapAlignment.start,
+                                        children: [
+                                          Text((creatorSnapshot.data!.get
+                                            ('username') as
+                                          String?)
+                                              ?? 'null',
+                                              style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold)),
+                                          Text(DateFormat('hh:mm, EEE d MMM').format
+                                            ((widget.snapshot.get
+                                            ('date_created') as
+                                          Timestamp).toDate()),
+                                              style: const TextStyle(
+                                                  color: Colors.white, fontSize: 14)),
+                                        ],
+                                      ),
+                                      const Spacer(),
 
-                                    IconButton(
-                                      icon:
-                                          const Icon(Icons.more_vert, color: Colors.white),
-                                      onPressed: () {
-                                        showPopupMenu(context);
-                                      },
-                                    ),
-                                  ]),
+                                      IconButton(
+                                        icon:
+                                            const Icon(Icons.more_vert, color: Colors.white),
+                                        onPressed: () {
+                                          showPopupMenu(context);
+                                        },
+                                      ),
+                                    ]),
+                              ),
                             );
                           } else {
                             return const SizedBox();
