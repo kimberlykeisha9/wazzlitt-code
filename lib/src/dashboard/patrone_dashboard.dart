@@ -90,11 +90,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                   .toDate()
                                   .isAfter(DateTime.now()))) {
                         confirmedPayment = true;
-                        if (isFreeTrial == true) {
-                          print('User is on free trial');
-                        } else {
-                          print('Trial period ended for the user');
-                        }
+                        
                         return views(context)[_currentIndex];
                       } else {
                         confirmedPayment = false;
@@ -287,10 +283,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           icon: const Icon(Icons.photo_camera),
         );
       case 1:
-        return IconButton(
-          onPressed: () => Navigator.pushNamed(context, 'search'),
-          icon: const Icon(Icons.search),
-        );
+        return null;
     }
     return null;
   }

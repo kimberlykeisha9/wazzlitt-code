@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -196,10 +197,11 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   List<dynamic> _searchResults = [];
 
   Future<void> _performSearch(String searchQuery) async {
+    _searchResults.clear();
     await _performPlacesSearch(searchQuery);
     await _performEventsSearch(searchQuery);
     var googleSearch = await searchBuildings(searchQuery);
-    _searchResults.addAll(googleSearch);
+    _searchResults.addAll(googleSearch ?? []);
   }
 
   Future<QuerySnapshot> _getSnapshot(
@@ -257,7 +259,15 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                   return null;
                 }
 
-                ;
+                String? resultSubtitle() {
+                  if (result is BusinessPlace) {
+                    return result.formattedAddress;
+                  } else if (result is EventData) {
+                    return null;
+                  }
+                  return null;
+                }
+
                 return GestureDetector(
                   onTap: () {
                     if (result is BusinessPlace) {
@@ -275,6 +285,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                       ),
                     ),
                     tileColor: Theme.of(context).colorScheme.surface,
+                    subtitle: Text(resultSubtitle() ?? 'N/A'),
                     title: Text(resultName() ?? 'N/A',
                         style: TextStyle(
                             color: Theme.of(context).colorScheme.onSurface)),
@@ -310,40 +321,47 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: categories
-                    .map(
-                      (chip) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: ChoiceChip(
-                          label: Text(chip.display),
-                          selected: _selectedChip == chip.display,
-                          onSelected: (selected) {
-                            setState(() {
-                              _selectedChip = selected ? chip.display : '';
-                            });
-                          },
+        Container(
+          height: height(context),
+          width: width(context),
+          decoration: BoxDecoration(
+            image: moon,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              /* SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: categories
+                      .map(
+                        (chip) => Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: ChoiceChip(
+                            label: Text(chip.display),
+                            selected: _selectedChip == chip.display,
+                            onSelected: (selected) {
+                              setState(() {
+                                _selectedChip = selected ? chip.display : '';
+                              });
+                            },
+                          ),
                         ),
-                      ),
-                    )
-                    .toList(),
+                      )
+                      .toList(),
+                ),
+              ), */
+              Expanded(
+                child: TabBarView(
+                  controller: _exploreController,
+                  children: [
+                    LitTab(),
+                    PlacesTab(categories: categories),
+                  ],
+                ),
               ),
-            ),
-            Expanded(
-              child: TabBarView(
-                controller: _exploreController,
-                children: [
-                  LitTab(),
-                  PlacesTab(categories: categories),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
         _buildSearchBar(context, _performSearch),
       ],
@@ -549,18 +567,17 @@ class _LitTabState extends State<LitTab> {
     try {
       List<EventData> listedEvents = [];
       await firestore.collection('events').get().then((events) {
-        print(events.size);
-        for (var event in events.docs) {
+        for (QueryDocumentSnapshot<Map<String, dynamic>> event in events.docs) {
           var eventData = event.data();
           List<Ticket>? ticketsList = [];
 
-          if (eventData.containsKey('tickets')) {
+          if (eventData.containsKey('tickets') && eventData['tickets'] != []) {
             for (Map<String, dynamic> ticket
                 in (eventData['tickets'] as List<dynamic>)) {
               ticketsList.add(Ticket(
                 available: ticket['available'],
                 title: ticket['ticket_name'],
-                price: ticket['price'],
+                price: double.tryParse(ticket['price'].toString() ?? ''),
                 image: ticket['image'],
                 description: ticket['ticket_description'],
                 quantity: ticket['quantity'],
@@ -568,30 +585,28 @@ class _LitTabState extends State<LitTab> {
             }
           }
 
-          setState(() {
-            listedEvents.add(EventData(
-              eventName: eventData['event_name'],
-              location: eventData['location']?['geopoint'],
-              category: eventData['category'],
-              date: (eventData['date'] as Timestamp?)?.toDate(),
-              image: eventData['image'],
-              description: eventData['event_description'],
-              eventOrganizer: eventData['lister'],
-              eventReference: event.reference,
-              tickets: ticketsList,
-            ));
-          });
-          print('Added an event');
+          listedEvents.add(EventData(
+            eventName: eventData['event_name'],
+            location: eventData['location']?['geopoint'],
+            category: eventData['category'],
+            date: (eventData['date'] as Timestamp?)?.toDate(),
+            image: eventData['image'],
+            description: eventData['event_description'],
+            eventOrganizer: eventData['lister'],
+            eventReference: event.reference,
+            tickets: ticketsList,
+          ));
         }
       });
       return listedEvents;
     } on Exception catch (e) {
       print(e);
       throw Exception(e);
-    } catch (e) {
-  print("Error fetching events: $e");
-  throw Exception(e);
-  }
+    }
+    // catch (e) {
+    //   print("Error fetching events: $e");
+    //   throw Exception(e);
+    // }
   }
 
   void _navigateToEvent(BuildContext context, EventData eventData) {
@@ -626,63 +641,66 @@ class _LitTabState extends State<LitTab> {
                     itemCount: allEvents.length,
                     itemBuilder: (context, index) {
                       final event = allEvents[index];
-                      return GestureDetector(
-                        onTap: () => _navigateToEvent(context, event),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: NetworkImage(event.image!),
+                      return ZoomIn(
+                        child: GestureDetector(
+                          onTap: () => _navigateToEvent(context, event),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 0),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(event.image!),
+                                ),
                               ),
-                            ),
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Align(
-                                  alignment: Alignment.topRight,
-                                  child: Container(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: Container(
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      child: Text(
+                                        DateFormat.yMMMd().format(
+                                            (event.date ?? DateTime(2000))),
+                                        style: const TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Container(
+                                    color: Theme.of(context).colorScheme.primary,
                                     child: Text(
-                                      DateFormat.yMMMd().format((event.date!)),
+                                      event.eventName ?? '',
                                       style: const TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
                                       ),
                                     ),
                                   ),
-                                ),
-                                const Spacer(),
-                                Container(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  child: Text(
-                                    event.eventName ?? '',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    color:
+                                        Theme.of(context).colorScheme.secondary,
+                                    child: Text(
+                                      event.category ?? 'Unknown',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                Container(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                  child: Text(
-                                    event.category ?? 'Unknown',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),

@@ -137,9 +137,6 @@ class _UploadImageState extends State<UploadImage> {
                                       }
                                   ),
                     const SizedBox(height: 20),
-                    const Text('Suggestions'),
-                    
-                    const SizedBox(height: 10),
                     SizedBox(
                         width: width(context),
                         child: ElevatedButton(
@@ -220,14 +217,12 @@ class _UploadImageState extends State<UploadImage> {
                           text: 'Vibing at ',
                           style: const TextStyle(
                             fontSize: 16,
-                            color: Colors.black,
                           ),
                           children: [
                             TextSpan(
-                              text: generatedPrediction?.reference ?? '',
+                              text: generatedPrediction?.description ?? '',
                               style: const TextStyle(
                                 fontSize: 16,
-                                color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

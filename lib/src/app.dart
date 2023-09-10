@@ -134,7 +134,6 @@ class MyApp extends StatelessWidget {
               'confirmed': (context) => const ConfirmedOrder(),
               'dashboard': (context) => const Dashboard(),
               'igniter_dashboard': (context) => const IgniterDashboard(),
-              // 'place_order': (context) => PlaceOrder(),
             },
           );
         },
@@ -156,7 +155,6 @@ Future<String?> getData(String key) async {
   return val;
 }
 
-enum OrderType { event, service }
 
 enum ChatRoomType { individual, business }
 
@@ -185,84 +183,6 @@ class Message {
     required this.time,
   });
 }
-
-// Sample chat data
-final List<Chat> chatData = [
-  Chat(
-    senderName: 'John Doe',
-    senderImage: 'assets/images/john_doe_avatar.jpg',
-    chatType: ChatRoomType.individual,
-    messages: [
-      Message(
-        senderName: 'John Doe',
-        content: 'Hello, how are you?',
-        time: '10:30 AM',
-      ),
-      Message(
-        senderName: 'You',
-        content: 'I\'m good, thanks! How about you?',
-        time: '10:35 AM',
-      ),
-    ],
-  ),
-  Chat(
-    senderName: 'Jane Smith',
-    senderImage: 'assets/images/jane_smith_avatar.jpg',
-    chatType: ChatRoomType.individual,
-    messages: [
-      Message(
-        senderName: 'Jane Smith',
-        content: 'I will be there soon.',
-        time: '9:45 AM',
-      ),
-      Message(
-        senderName: 'You',
-        content: 'Great, see you soon!',
-        time: '9:50 AM',
-      ),
-    ],
-  ),
-  Chat(
-    senderName: 'David Johnson',
-    chatType: ChatRoomType.individual,
-    senderImage: 'assets/images/david_johnson_avatar.jpg',
-    messages: [
-      Message(
-        senderName: 'You',
-        content: 'Can you please send me the document?',
-        time: 'Yesterday',
-      ),
-      Message(
-        senderName: 'David Johnson',
-        content: 'Sure, I will send it to you shortly.',
-        time: 'Yesterday',
-      ),
-    ],
-  ),
-  Chat(
-    senderName: 'Business',
-    chatType: ChatRoomType.business,
-    senderImage: 'assets/images/david_johnson_avatar.jpg',
-    messages: [
-      Message(
-        senderName: 'You',
-        content: 'How is everything going',
-        time: 'Yesterday',
-      ),
-      Message(
-        senderName: 'David Johnson',
-        content: 'Everything is cool over here',
-        time: 'Yesterday',
-      ),
-      Message(
-        senderName: 'Moses Mbuva',
-        content: 'Want to go grab a drink?',
-        time: 'Yesterday',
-      ),
-    ],
-  ),
-];
-
 void showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -271,8 +191,6 @@ void showSnackbar(BuildContext context, String message) {
   );
 }
 
-// List<String> categories = ['Ratchet', 'Free Spirit', 'Classy', 'Rock', 'Afro'];
-
 double height(context) {
   return MediaQuery.of(context).size.height;
 }
@@ -280,3 +198,12 @@ double height(context) {
 double width(context) {
   return MediaQuery.of(context).size.width;
 }
+
+DecorationImage moon = DecorationImage(
+  image: NetworkImage(moonBackground),
+  fit: BoxFit.cover,
+  opacity: 0.9,
+);
+
+String moonBackground = 'https://i.pinimg'
+    '.com/564x/17/98/1d/17981db7bc124ca6194e196e8d7bfbaa.jpg';

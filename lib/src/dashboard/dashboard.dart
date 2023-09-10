@@ -4,6 +4,8 @@ import 'package:wazzlitt/src/dashboard/igniter_dashboard.dart';
 import 'package:wazzlitt/src/dashboard/patrone_dashboard.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
+import '../app.dart';
+
 
 class Dashboard extends StatelessWidget {
   const Dashboard({super.key});
@@ -23,53 +25,60 @@ class Dashboard extends StatelessWidget {
                   data.containsKey('is_igniter')) {
                 print('User is patrone and igniter');
                 return Scaffold(
-                  body: SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 50),
-                      child: Column(children: [
-                        const Text(
-                          'Welcome to WazzLitt!\n\nChoose which profile you would like to access',
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 30),
-                        Expanded(
-                          child: Container(
-                            decoration: const BoxDecoration(
-                              image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: NetworkImage(
-                                    'https://i.pinimg.com/564x/64/61/b2/6461b26b889edc1fa4cc4016052a188e.jpg'),
-                              ),
-                            ),
-                            child: Center(
-                                child: TextButton(
-                              child: const Text('Patrone Profile',
-                                  style: TextStyle(
-                                      fontSize: 30, color: Colors.white)),
-                              onPressed: () => Navigator.popAndPushNamed(
-                                  context, 'patrone_dashboard'),
-                            )),
+                  body: Container(
+                    height: height(context),
+                    width: width(context),
+                    decoration: BoxDecoration(
+                      image: moon,
+                    ),
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 50),
+                        child: Column(children: [
+                          const Text(
+                            'Welcome to WazzLitt!\n\nChoose which profile you would like to access',
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        Expanded(
-                          child: Container(
+                          const SizedBox(height: 30),
+                          Expanded(
+                            child: Container(
                               decoration: const BoxDecoration(
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
                                   image: NetworkImage(
-                                      'https://i.pinimg.com/564x/d3/86/c4/d386c4ab5f1fe835952e46fc198ba240.jpg'),
+                                      'https://i.pinimg.com/564x/64/61/b2/6461b26b889edc1fa4cc4016052a188e.jpg'),
                                 ),
                               ),
                               child: Center(
                                   child: TextButton(
-                                child: const Text('Igniter Profile',
+                                child: const Text('Patrone Profile',
                                     style: TextStyle(
                                         fontSize: 30, color: Colors.white)),
                                 onPressed: () => Navigator.popAndPushNamed(
-                                    context, 'igniter_dashboard'),
-                              ))),
-                        ),
-                      ]),
+                                    context, 'patrone_dashboard'),
+                              )),
+                            ),
+                          ),
+                          Expanded(
+                            child: Container(
+                                decoration: const BoxDecoration(
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(
+                                        'https://i.pinimg.com/564x/d3/86/c4/d386c4ab5f1fe835952e46fc198ba240.jpg'),
+                                  ),
+                                ),
+                                child: Center(
+                                    child: TextButton(
+                                  child: const Text('Igniter Profile',
+                                      style: TextStyle(
+                                          fontSize: 30, color: Colors.white)),
+                                  onPressed: () => Navigator.popAndPushNamed(
+                                      context, 'igniter_dashboard'),
+                                ))),
+                          ),
+                        ]),
+                      ),
                     ),
                   ),
                 );
@@ -82,71 +91,78 @@ class Dashboard extends StatelessWidget {
               }
             } else {
               return Scaffold(
-                body: SafeArea(
-                  child: Column(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.all(40),
-                        child: Column(
-                          children: [
-                            Text(
-                              'You did not finish setting up your account',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                body: Container(
+                  height: height(context),
+                  width: width(context),
+                  decoration: BoxDecoration(
+                    image: moon,
+                  ),
+                  child: SafeArea(
+                    child: Column(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(40),
+                          child: Column(
+                            children: [
+                              Text(
+                                'You did not finish setting up your account',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 30),
-                            Text(
-                              'Which account type would you like to create?',
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                              SizedBox(height: 30),
+                              Text(
+                                'Which account type would you like to create?',
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(
-                                'https://i.pinimg.com/564x/64/61/b2/6461b26b889edc1fa4cc4016052a188e.jpg',
+                        Expanded(
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(
+                                  'https://i.pinimg.com/564x/64/61/b2/6461b26b889edc1fa4cc4016052a188e.jpg',
+                                ),
+                              ),
+                            ),
+                            child: Center(
+                              child: TextButton(
+                                child: const Text('Patrone Profile',
+                                    style: TextStyle(
+                                        fontSize: 30, color: Colors.white)),
+                                onPressed: () => Navigator.popAndPushNamed(
+                                    context, 'patrone_registration'),
                               ),
                             ),
                           ),
-                          child: Center(
-                            child: TextButton(
-                              child: const Text('Patrone Profile',
-                                  style: TextStyle(
-                                      fontSize: 30, color: Colors.white)),
-                              onPressed: () => Navigator.popAndPushNamed(
-                                  context, 'patrone_registration'),
+                        ),
+                        Expanded(
+                          child: Container(
+                            decoration: const BoxDecoration(
+                              image: DecorationImage(
+                                fit: BoxFit.cover,
+                                image: NetworkImage(
+                                    'https://i.pinimg.com/564x/d3/86/c4/d386c4ab5f1fe835952e46fc198ba240.jpg'),
+                              ),
+                            ),
+                            child: Center(
+                              child: TextButton(
+                                child: const Text('Igniter Profile',
+                                    style: TextStyle(
+                                        fontSize: 30, color: Colors.white)),
+                                onPressed: () => Navigator.popAndPushNamed(
+                                    context, 'igniter_registration'),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(
-                                  'https://i.pinimg.com/564x/d3/86/c4/d386c4ab5f1fe835952e46fc198ba240.jpg'),
-                            ),
-                          ),
-                          child: Center(
-                            child: TextButton(
-                              child: const Text('Igniter Profile',
-                                  style: TextStyle(
-                                      fontSize: 30, color: Colors.white)),
-                              onPressed: () => Navigator.popAndPushNamed(
-                                  context, 'igniter_registration'),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );

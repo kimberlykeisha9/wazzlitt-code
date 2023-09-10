@@ -92,7 +92,16 @@ class _PlaceState extends State<Place> {
               fontSize: 20,
             ),
           ),
+          SizedBox(height: 10),
+          Text(
+            widget.place.formattedAddress ?? 'Address not listed',
+            style: const TextStyle(
+              fontSize: 12,
+            ),
+          ),
+          SizedBox(height: 10),
           Chip(label: Text(widget.place.category ?? 'Unknown')),
+          SizedBox(height: 10),
           Text(
             'Open - ${DateFormat('hh:mm a').format(widget.place.openingTime ?? DateTime(0, 0, 0, 0, 0))} to ${DateFormat('hh:mm a').format(widget.place.closingTime ?? DateTime(0, 0, 0, 0, 0))}',
           ),
