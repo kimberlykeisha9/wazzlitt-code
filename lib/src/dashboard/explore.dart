@@ -41,12 +41,12 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         await firestore.collection('app_data').doc('categories').get();
     final data = value.data() as Map<String, dynamic>;
 
-    setState(() {
+
       categories = data.entries.map((entry) {
         final itemData = entry.value as Map<String, dynamic>;
         return Category(entry.key, itemData['image']);
       }).toList();
-    });
+  
   }
 
   void _navigateToPlace(BuildContext context, BusinessPlace placeData) {

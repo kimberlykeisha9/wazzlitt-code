@@ -193,7 +193,7 @@ class Patrone extends ChangeNotifier {
   getCurrentUserOrders() {
     currentUserPatroneProfile.get().then((document) {
       Map<String, dynamic>? content = document.data() as Map<String, dynamic>?;
-      List<dynamic> serverOrders = content?['orders'];
+      List<dynamic> serverOrders = content?['orders'] ?? [];
       for (var order in serverOrders) {
         (order as db.DocumentReference).get().then((doc) {
           var orderData = doc.data() as Map<String, dynamic>;

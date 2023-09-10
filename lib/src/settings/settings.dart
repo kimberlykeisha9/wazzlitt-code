@@ -15,9 +15,7 @@ class Settings extends StatelessWidget {
         body: Container(
           height: height(context),
           width: width(context),
-          decoration: BoxDecoration(
-            image: moon
-          ),
+          decoration: BoxDecoration(image: moon),
           child: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
@@ -77,7 +75,9 @@ class Settings extends StatelessWidget {
                             }).toList(),
                           )
                         ]),
-                        SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -85,30 +85,52 @@ class Settings extends StatelessWidget {
                         const Text('0'),
                       ],
                     ),
-                    SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Text(AppLocalizations.of(context)!.dataUsage),
-                    SizedBox(height: 50,),
+                    const SizedBox(
+                      height: 50,
+                    ),
                     const Text('Notification Settings',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text('Push Notifications'),
-                    SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text('Email Notifications'),
-                    SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text('SMS Notifications'),
-                    SizedBox(height: 50,),
+                    const SizedBox(
+                      height: 50,
+                    ),
                     const Text('Language and Localizations',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text('Language'),
-                    SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text('Date format'),
-                    SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text('Currency'),
-                    SizedBox(height: 50,),
+                    const SizedBox(
+                      height: 50,
+                    ),
                     const Text('Connected Accounts',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -137,17 +159,27 @@ class Settings extends StatelessWidget {
                         Switch(value: false, onChanged: (val) => val = true),
                       ],
                     ),
-                    SizedBox(height: 50,),
+                    const SizedBox(
+                      height: 50,
+                    ),
                     const Text('Help and Support',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text('FAQ and Help Centre'),
-                    SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text('Contact Support'),
-                    SizedBox(height: 50,),
+                    const SizedBox(
+                      height: 50,
+                    ),
                     const Text('About and Legal Information',
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -155,7 +187,9 @@ class Settings extends StatelessWidget {
                         Text('1.0.0'),
                       ],
                     ),
-                    SizedBox(height: 20,),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     const Text('Terms of Service'),
                   ],
                 ),
