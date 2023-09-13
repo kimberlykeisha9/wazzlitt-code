@@ -12,7 +12,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<List<BusinessPlace?>> searchBuildings(String query) async {
-  final apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
+  final apiKey = "MAPS_API_KEY";
   final apiUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
 
   try {

@@ -62,7 +62,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ',
+    apiKey: 'MAPS_API_KEY
     appId: '1:1016492729672:ios:aab3b965fbc4da45e93f7d',
     messagingSenderId: '1016492729672',
     projectId: 'wazzlitt-d7c47',
@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ',
+    apiKey: 'MAPS_API_KEY
     appId: '1:1016492729672:ios:6b76ce4928d056d2e93f7d',
     messagingSenderId: '1016492729672',
     projectId: 'wazzlitt-d7c47',

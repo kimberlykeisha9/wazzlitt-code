@@ -449,7 +449,7 @@ class _EditPlaceState extends State<EditPlace> {
                                       decoration: const InputDecoration(
                                         hintText: 'Location',
                                           labelText: 'Location'),
-                                      googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
+                                      googleAPIKey: "MAPS_API_KEY",
                                       debounceTime: 400, // defaults to 600 ms,
                                       countries: ["us"], // optional, by
                                       // default the list is empty (no restrictions)
