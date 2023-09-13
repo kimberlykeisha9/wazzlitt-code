@@ -11,46 +11,121 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-Future<List<BusinessPlace?>> searchBuildings(String query) async {
-  final apiKey = "MAPS_API_KEY";
-  final apiUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
+Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
+  final apiUrl = 'https://maps.googleapis.com/maps/api/place/details/json';
+  final apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
 
-  try {
-    List<BusinessPlace> _results = [];
-    final response =
-        await http.get(Uri.parse('$apiUrl?address=$query&key=$apiKey'));
+  BusinessPlace googlePlace = BusinessPlace();
+  final response =
+      await http.get(Uri.parse('$apiUrl?place_id=$placeID&key=$apiKey'));
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      print(data);
+  print(response.statusCode);
 
-      if (data['status'] == 'OK' && data['results'].isNotEmpty) {
-        for (var result in (data['results'] as List<dynamic>)) {
-          final location = result['geometry']['location'];
-          final streetName = result['formatted_address'];
-          final latitude = location['lat'];
-          final longitude = location['lng'];
-          print(location);
-          print(streetName);
-          _results.add(BusinessPlace(
-              location: GeoPoint(latitude, longitude),
-              placeName: streetName));
-        }
-        return _results;
-      } else {
-        // No results found
-        print('No result found');
-        return _results;
-      }
+  print('Place response is: ${json.decode(response.body)}');
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    print(data);
+
+    String imagesURL = 'https://maps.googleapis'
+        '.com/maps/api/place/photo/?key=$apiKey&photo_reference=';
+
+    if (data['status'] == 'OK' && data['result'].isNotEmpty) {
+      var result = data['result'];
+      final location = result['geometry']['location'];
+      final streetName = result['name'];
+      final latitude = location['lat'];
+      final longitude = location['lng'];
+      final firstPhoto = result['photos']?[0]?['photo_reference'];
+      // final secondPhoto = result['photos']?[1]?['photo_reference'];
+
+      print(location);
+      print(streetName);
+      googlePlace = BusinessPlace(
+          phoneNumber: result['international_phone_number'],
+          formattedAddress: result['formatted_address'],
+          website: result['website'],
+          openingTime: DateTime(
+              1,
+              1,
+              1,
+              (int.tryParse((result['current_opening_hours']?['periods']?[0]
+                          ['open']?['time'])
+                      .toString()
+                      .substring(0, 2)) ??
+                  0),
+              int.tryParse((result['current_opening_hours']?['periods']?[0]
+                          ['open']?['time'])
+                      .toString()
+                      .substring(2)) ??
+                  0),
+          closingTime: DateTime(
+              1,
+              1,
+              1,
+              (int.tryParse((result['current_opening_hours']?['periods']?[0]
+                          ['close']?['time'])
+                      .toString()
+                      .substring(0, 2)) ??
+                  0),
+              int.tryParse((result['current_opening_hours']?['periods']?[0]
+                          ['close']?['time'])
+                      .toString()
+                      .substring(2)) ??
+                  0),
+          image: firstPhoto != null ? 
+          'https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
+           : null,
+           coverImage: firstPhoto != null ? 
+          'https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
+           : null,
+          location: GeoPoint(latitude, longitude),
+          placeName: streetName);
+      return googlePlace;
     } else {
-      // Handle HTTP error
-      print('No result found cause of HTTP error');
+      // No results found
+      print('No result found');
+      return googlePlace;
+    }
+  } else {
+    // Handle HTTP error
+    print('No result found cause of HTTP error');
+    return googlePlace;
+  }
+}
+
+Future<List<BusinessPlace?>?> searchBuildings(String query) async {
+  final apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
+  final apiUrl = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
+
+  List<BusinessPlace> _results = [];
+  final response =
+      await http.get(Uri.parse('$apiUrl?query=$query&key=$apiKey&maxresults=10'));
+
+  print(response.statusCode);
+
+  print('Search response is: ${json.decode(response.body)}');
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+
+    if (data['status'] == 'OK' && data['results'].isNotEmpty) {
+      for (var result in (data['results'] as List<dynamic>)) {
+        print(result['place_id']);
+
+        await getPlaceDetailsFromGoogle(result['place_id'])
+            .then((place) => _results.add(place));
+      }
+      return _results;
+    } else {
+      // No results found
+      print('No result found');
       return _results;
     }
-  } catch (e) {
-    // Handle other exceptions, e.g., network errors
-    print(e);
-    throw Exception(e);
+  } else {
+    // Handle HTTP error
+    print('No result found cause of HTTP error');
+    return _results;
   }
 }
 
@@ -65,9 +140,8 @@ Stream<List<DocumentSnapshot>> getNearbyPeople(
       .collection(collectionRef: usersLocations)
       .within(center: place, radius: 5, field: 'current_location')
       .length);
-  return geo
-      .collection(collectionRef: usersLocations)
-      .within(center: place, radius: 5, field: 'current_location', strictMode: true);
+  return geo.collection(collectionRef: usersLocations).within(
+      center: place, radius: 5, field: 'current_location', strictMode: true);
 }
 
 Future<String> getLocationForPlace(DocumentReference place) async {

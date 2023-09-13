@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
+import '../../user_data/patrone_data.dart';
 import '../../user_data/user_data.dart';
 
 class ConversationScreen extends StatefulWidget {
@@ -99,14 +100,22 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                                                         title: Text(
                                                                             '${senderData['first_name'] ?? ''} ${senderData['last_name'] ?? ''}'),
                                                                       ),
-                                                                      body: ProfileScreen(
-                                                                          userProfile: (message[
-                                                                          'senderID']
-                                                                          as DocumentReference)
-                                                                              .collection(
-                                                                              'account_type')
-                                                                              .doc(
-                                                                              'patrone'))))),
+                                                                      body:
+                                                                      FutureBuilder<Patrone>(
+                                                                        future:
+                                                                        Patrone().getPatroneInformation((message[
+                                                                        'senderID']
+                                                                        as DocumentReference)
+                                                                            .collection(
+                                                                            'account_type')
+                                                                            .doc(
+                                                                            ''
+                                                                                'patrone')),
+                                                                        builder: (context, snapshot) {
+                                                                          return ProfileScreen(
+                                                                              userProfile: snapshot.data!);
+                                                                        }
+                                                                      )))),
                                                       child: CircleAvatar(
                                                         radius: 30,
                                                         foregroundImage: NetworkImage(

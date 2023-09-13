@@ -16,9 +16,12 @@ class EventOrganizerProfile extends StatelessWidget {
 
     return SafeArea(
       child: SingleChildScrollView(
-        child: SizedBox(
-          width: width(context),
+        child: Container(
           height: height(context),
+          width: width(context),
+          decoration: BoxDecoration(
+            image: moon,
+          ),
           child: FutureBuilder<void>(
             future: eventOrganizer.getCurrentUserEventOrganizerInformation(),
             builder: (context, snapshot) {

@@ -48,18 +48,21 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        child: SizedBox(
-          width: width(context),
+        child: Container(
           height: height(context),
+          width: width(context),
+          decoration: BoxDecoration(
+            image: moon,
+          ),
           child: FutureBuilder<List<EventData>>(
             future: EventOrganizer().getListedEvents(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No events available.'));
+                return const Center(child: Text('No events available.'));
               } else {
                 events = snapshot.data!;
                 return PageView.builder(
@@ -87,48 +90,48 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                             ),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Text(event.eventName ?? 'null',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
                             )),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 10),
                         Text(DateFormat('E, dd MMM yy').format(event.date!)),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Card(
                           elevation: 10,
                           child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: Column(
                               children: [
-                                Text('Daily Stats Overview',
+                                const Text('Daily Stats Overview',
                                     style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                     )),
-                                SizedBox(height: 20),
+                                const SizedBox(height: 20),
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
                                     Column(
                                       children: [
-                                        Text('Tickets Sold',
+                                        const Text('Tickets Sold',
                                             style: TextStyle(fontSize: 12)),
                                         Text('${event.orders?.length ?? 0}',
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                             )),
-                                        SizedBox(height: 20),
-                                        Text('Revenue Earned',
+                                        const SizedBox(height: 20),
+                                        const Text('Revenue Earned',
                                             style: TextStyle(fontSize: 12)),
-                                        Text('\$0.00',
+                                        const Text('\$0.00',
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                             )),
                                       ],
                                     ),
-                                    Column(
+                                    const Column(
                                       children: [
                                         Text('Daily Chats',
                                             style: TextStyle(fontSize: 12)),
@@ -145,7 +148,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                             )),
                                       ],
                                     ),
-                                    Column(
+                                    const Column(
                                       children: [
                                         Text('Daily Impressions',
                                             style: TextStyle(fontSize: 12)),
@@ -168,16 +171,16 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                             ),
                           ),
                         ),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.all(20),
                           child: Column(
                             children: [
-                              Text('Tickets Overview',
+                              const Text('Tickets Overview',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                   )),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               event.orders != null
                                   ? Column(
                                       children: [
@@ -190,11 +193,11 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                             TextButton(
                                               onPressed: () =>
                                                   _selectDate(context),
-                                              child: Text('Change Period'),
+                                              child: const Text('Change Period'),
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: 10),
+                                        const SizedBox(height: 10),
                                         ListView.builder(
                                           shrinkWrap: true,
                                           itemCount: event.tickets?.length ?? 0,
@@ -219,32 +222,32 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   Text(ticket.title ?? 'null',
-                                                      style: TextStyle(
+                                                      style: const TextStyle(
                                                           fontWeight:
                                                               FontWeight.bold)),
-                                                  SizedBox(height: 5),
+                                                  const SizedBox(height: 5),
                                                   Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
                                                             .spaceBetween,
                                                     children: [
-                                                      Text('Sales'),
+                                                      const Text('Sales'),
                                                       Text(
                                                           '\$${(ticket.price! * (event.orders?.length ?? 0)).toStringAsFixed(2)}')
                                                     ],
                                                   ),
-                                                  SizedBox(height: 5),
+                                                  const SizedBox(height: 5),
                                                   Row(
                                                     mainAxisAlignment:
                                                         MainAxisAlignment
                                                             .spaceBetween,
                                                     children: [
-                                                      Text('Tickets Sold'),
+                                                      const Text('Tickets Sold'),
                                                       Text(
                                                           '${event.orders?.length ?? 0}'),
                                                     ],
                                                   ),
-                                                  SizedBox(height: 10),
+                                                  const SizedBox(height: 10),
                                                 ],
                                               ),
                                             );
@@ -252,14 +255,14 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                         ),
                                       ],
                                     )
-                                  : Center(
+                                  : const Center(
                                       child: Text(
                                           'You have not listed any tickets')),
-                              SizedBox(height: 10),
+                              const SizedBox(height: 10),
                               SizedBox(
                                 width: width(context),
                                 child: ElevatedButton(
-                                  child: Text('Add a new ticket'),
+                                  child: const Text('Add a new ticket'),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -273,30 +276,30 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                   },
                                 ),
                               ),
-                              SizedBox(height: 20),
-                              Text('Performance Overview',
+                              const SizedBox(height: 20),
+                              const Text('Performance Overview',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
-                              SizedBox(height: 20),
-                              Row(
+                              const SizedBox(height: 20),
+                              const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [Text('Reports received'), Text('0')],
                               ),
-                              SizedBox(height: 5),
-                              Row(
+                              const SizedBox(height: 5),
+                              const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [Text('Tagged posts'), Text('0')],
                               ),
-                              SizedBox(height: 5),
-                              Row(
+                              const SizedBox(height: 5),
+                              const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [Text('Followers'), Text('0')],
                               ),
-                              SizedBox(height: 5),
-                              Row(
+                              const SizedBox(height: 5),
+                              const Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [

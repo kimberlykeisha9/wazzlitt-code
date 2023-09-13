@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
+import '../../user_data/patrone_data.dart';
 import '../app.dart';
 
 class PostData {
@@ -17,9 +19,13 @@ class PostData {
   DocumentReference postCreator;
   GeoPoint location;
 
-  PostData({required this.postImage, required this.caption, required this
-      .timeCreated, required this.likes, required this.location, required
-  this.postCreator});
+  PostData(
+      {required this.postImage,
+      required this.caption,
+      required this.timeCreated,
+      required this.likes,
+      required this.location,
+      required this.postCreator});
 }
 
 class Creator {
@@ -32,15 +38,14 @@ class Creator {
 class FeedImage extends StatefulWidget {
   final DocumentSnapshot snapshot;
 
-  const FeedImage({
-    super.key, required this.snapshot
-  });
+  const FeedImage({super.key, required this.snapshot});
 
   @override
   State<FeedImage> createState() => _FeedImageState();
 }
 
-class _FeedImageState extends State<FeedImage> with SingleTickerProviderStateMixin {
+class _FeedImageState extends State<FeedImage>
+    with SingleTickerProviderStateMixin {
   String? location;
   Future<String> getLocationFromGeoPoint(GeoPoint geoPoint) async {
     try {
@@ -63,17 +68,17 @@ class _FeedImageState extends State<FeedImage> with SingleTickerProviderStateMix
     return '';
   }
 
-
   @override
   void initState() {
     // TODO: implement initState
-      getLocationFromGeoPoint(widget.snapshot.get('location')).then((value) => location = value);
+    getLocationFromGeoPoint(widget.snapshot.get('location'))
+        .then((value) => location = value);
     super.initState();
   }
 
   Widget likeIcon() {
     List<dynamic> likes = widget.snapshot.get('likes');
-    if(likes.contains(currentUserProfile)) {
+    if (likes.contains(currentUserProfile)) {
       return const Icon(Icons.favorite, color: Colors.red);
     } else {
       return const Icon(Icons.favorite_outline, color: Colors.white);
@@ -82,7 +87,7 @@ class _FeedImageState extends State<FeedImage> with SingleTickerProviderStateMix
 
   Future<void> _likeImage() async {
     List<dynamic> likes = widget.snapshot.get('likes');
-    if(likes.contains(currentUserProfile)) {
+    if (likes.contains(currentUserProfile)) {
       await widget.snapshot.reference.update({
         'likes': FieldValue.arrayRemove([currentUserProfile])
       });
@@ -92,169 +97,197 @@ class _FeedImageState extends State<FeedImage> with SingleTickerProviderStateMix
       });
     }
   }
+
   String? selectedReason;
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
-      stream: widget.snapshot.reference.snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Column(
-            children: [
-              Expanded(
-                child: Container(
-                  width: width(context),
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: NetworkImage(snapshot.data!.get('image'))),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Flexible(
-                              child: Text((widget.snapshot.get('caption') as
-                              String?) ?? '',
-                                  style: const TextStyle(color: Colors.white)),
+        stream: widget.snapshot.reference.snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Column(
+              children: [
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      width: width(context),
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            fit: BoxFit.cover,
+                            image: NetworkImage(snapshot.data!.get('image'))),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            width: width(context),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .secondary
+                                  .withOpacity(0.75),
                             ),
-                            const SizedBox(width: 10),
-                            Column(
+                            child: Row(
                               children: [
-                                IconButton(
-                                  onPressed: () => _likeImage(),
-                                  icon: likeIcon(),
-                                ),
-                                Text('${(snapshot.data!.get('likes') as
-                                List<dynamic>)
-              .length ??
-                                    '0'}',
-                                    style:
-                                const TextStyle
-                                  (color: Colors
-                                    .white)),
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: const FaIcon(FontAwesomeIcons.message,
-                                      color: Colors.white),
-                                ),
-                                const Text('0', style: TextStyle(color: Colors.white)),
-                              ]
+                                const Icon(Icons.place, color: Colors.white),
+                                const Spacer(),
+                                Text(location ?? '',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white)),
+                                const Spacer(flex: 16),
+                                // const Text('0 km away',
+                                //     style: TextStyle(color: Colors.white)),
+                              ],
                             ),
-                          ],
-                        ),
-                      ),
-                      StreamBuilder<DocumentSnapshot>(
-                        stream: (widget.snapshot.get('creator_uid') as
-                        DocumentReference).collection('account_type').doc
-                          ('patrone')
-                            .snapshots(),
-                        builder: (context, creatorSnapshot) {
-                          if (creatorSnapshot.hasData) {
-                            return Container(
-                              width: width(context),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .secondary
-                                    .withOpacity(0.25),
-                              ),
-                              child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    CircleAvatar(
-                                      foregroundImage: NetworkImage(
-                                          (creatorSnapshot.data!.get
-                                        ('profile_picture') as
-                                      String)),
-                                      radius: 20,
-                                      child:(creatorSnapshot.data?.get
-                                        ('profile_picture') as
-                                      String?) !=
-                                          null ? null :
-                                      const Icon(Icons
-                                          .account_circle, size: 40,),
+                          ),
+                          Spacer(),
+                          Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                      (widget.snapshot.get('caption')
+                                              as String?) ??
+                                          '',
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                ),
+                                const SizedBox(width: 10),
+                                Column(children: [
+                                  IconButton(
+                                    onPressed: () => _likeImage(),
+                                    icon: likeIcon(),
+                                  ),
+                                  Text(
+                                      '${(snapshot.data!.get('likes') as List<dynamic>).length ?? 0}',
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: const FaIcon(FontAwesomeIcons.message,
+                                        color: Colors.white),
+                                  ),
+                                  const Text('0',
+                                      style: TextStyle(color: Colors.white)),
+                                ]),
+                              ],
+                            ),
+                          ),
+                          StreamBuilder<DocumentSnapshot>(
+                              stream: (widget.snapshot.get('creator_uid')
+                                      as DocumentReference)
+                                  .snapshots(),
+                              builder: (context, creatorSnapshot) {
+                                if (creatorSnapshot.hasData) {
+                                  Map<String, dynamic> data = creatorSnapshot.data!
+                                      .data() as Map<String, dynamic>;
+                                  return GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Scaffold(
+                                            appBar: AppBar(
+                                                title: Text(data['username'] ??
+                                                    'null')),
+                                            body: FutureBuilder<Patrone>(
+                                                future: Patrone()
+                                                    .getPatroneInformation(widget
+                                                        .snapshot
+                                                        .get('creator_uid')),
+                                                builder: (context, snapshot) {
+                                                  return ProfileScreen(
+                                                      userProfile:
+                                                          snapshot.data!);
+                                                }),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: width(context),
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .secondary
+                                            .withOpacity(0.25),
+                                      ),
+                                      child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            CircleAvatar(
+                                              foregroundImage: NetworkImage(
+                                                  data['profile_picture'] ?? 'https://i.pinimg.com/474x/1e/23/e5/1e23e5e6441ce2c135e1e457dcf4f06f.jpg'),
+                                              radius: 20,
+                                              child: (data['profile_picture']) !=
+                                                      null
+                                                  ? null
+                                                  : const Icon(
+                                                      Icons.account_circle,
+                                                      size: 40,
+                                                    ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Wrap(
+                                              direction: Axis.vertical,
+                                              alignment: WrapAlignment.start,
+                                              children: [
+                                                Text(
+                                                    data['username'] ??
+                                                        'null',
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                                Text(
+                                                    DateFormat('hh:mm, EEE d MMM')
+                                                        .format((widget.snapshot.get(
+                                                                    'date_created')
+                                                                as Timestamp)
+                                                            .toDate()),
+                                                    style: const TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 14)),
+                                              ],
+                                            ),
+                                            const Spacer(),
+                                            IconButton(
+                                              icon: const Icon(Icons.more_vert,
+                                                  color: Colors.white),
+                                              onPressed: () {
+                                                showPopupMenu(context);
+                                              },
+                                            ),
+                                          ]),
                                     ),
-                                    const SizedBox(width: 10),
-                                    Wrap(
-                                      direction: Axis.vertical,
-                                      alignment: WrapAlignment.start,
-                                      children: [
-                                        Text((creatorSnapshot.data!.get
-                                          ('username') as
-                                        String?)
-                                            ?? 'null',
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold)),
-                                        Text(DateFormat('hh:mm, EEE d MMM').format
-                                          ((widget.snapshot.get
-                                          ('date_created') as
-                                        Timestamp).toDate()),
-                                            style: const TextStyle(
-                                                color: Colors.white, fontSize: 14)),
-                                      ],
-                                    ),
-                                    const Spacer(),
-
-                                    IconButton(
-                                      icon:
-                                          const Icon(Icons.more_vert, color: Colors.white),
-                                      onPressed: () {
-                                        showPopupMenu(context);
-                                      },
-                                    ),
-                                  ]),
-                            );
-                          } else {
-                            return const SizedBox();
-                          }
-                        }
+                                  );
+                                } else {
+                                  return const SizedBox();
+                                }
+                              }),
+                          
+                        ],
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        width: width(context),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .secondary
-                              .withOpacity(0.75),
-                        ),
-                        child:  Row(
-                          children: [
-                            const Icon(Icons.place, color: Colors.white),
-                            const Spacer(),
-                            Text(location ?? '',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white)),
-                            const Spacer(flex: 16),
-                            const Text('0 km away', style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        } else if (
-        snapshot.hasError
-        ) {
-          return const Center(child: Text('Something went wrong'));
-        } else {
-          return const Center(child: CircularProgressIndicator());
-        }
-      }
-    );
+              ],
+            );
+          } else if (snapshot.hasError) {
+            return const Center(child: Text('Something went wrong'));
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        });
   }
 
   void showPopupMenu(BuildContext context) {

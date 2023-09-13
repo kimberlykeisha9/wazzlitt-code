@@ -117,6 +117,7 @@ class BusinessPlace {
     this.phoneNumber,
     this.website,
     this.services,
+    this.formattedAddress,
     this.orders,
   });
 
@@ -127,6 +128,7 @@ class BusinessPlace {
   DateTime? closingTime;
   DateTime? openingTime;
   String? emailAddress;
+  String? formattedAddress;
   String? image;
   String? coverImage;
   String? description;
@@ -143,6 +145,7 @@ class BusinessPlace {
     String? businessName,
     String? website,
     String? category,
+    String? formattedAddress,
     String? description,
     String? emailAddress,
     String? phoneNumber,
