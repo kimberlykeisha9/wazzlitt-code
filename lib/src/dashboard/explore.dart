@@ -517,7 +517,6 @@ class PlacesTab extends StatelessWidget {
                   },
                 );
               }
-              return const Center(child: CircularProgressIndicator());
             },
           ),
         ),
