@@ -186,7 +186,7 @@ class ProfileTab extends StatelessWidget {
                           shape: BoxShape.circle,
                         ),
                       ),
-                      SizedBox(width: 20),
+                      const SizedBox(width: 20),
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,7 +201,7 @@ class ProfileTab extends StatelessWidget {
                           const SizedBox(height: 10),
                           Text(Patrone().getStarSign(dob ?? DateTime(0, 1, 1)),
                               style: const TextStyle(fontSize: 12)),
-                          SizedBox(height: 5),
+                          const SizedBox(height: 5),
                           FutureBuilder<String>(
                             future: getCurrentLocation(userProfile),
                             builder: (context, snapshot) {
@@ -224,7 +224,7 @@ class ProfileTab extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -256,8 +256,8 @@ class ProfileTab extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
                 Text(bio ?? 'User has not set a bio',
-                    style: TextStyle(fontSize: 14)),
-                SizedBox(height: 30),
+                    style: const TextStyle(fontSize: 14)),
+                const SizedBox(height: 30),
                 Row(
                   children: [
                     Expanded(
@@ -405,8 +405,8 @@ class ActivityTab extends StatelessWidget {
       child: SizedBox(
         child: Column(
           children: [
-            TabBar(
-              tabs: const [
+            const TabBar(
+              tabs: [
                 Tab(
                   // icon: Icon(Icons.place),
                   text: 'Posts',
@@ -416,9 +416,9 @@ class ActivityTab extends StatelessWidget {
                   text: 'Likes',
                 ),
               ],
-              labelColor: Theme.of(context).colorScheme.secondary,
+              labelColor: Colors.white,
               unselectedLabelColor:
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.375),
+                  Colors.white,
             ),
             Expanded(
               child: SizedBox(
