@@ -33,108 +33,113 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(providers: [
-      ChangeNotifierProvider<Data>(create: (_) => Data()),
-    ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<Data>(create: (_) => Data()),
+      ],
       child: AnimatedBuilder(
         animation: settingsController,
         builder: (BuildContext context, Widget? child) {
-          return MaterialApp(
-            restorationScopeId: 'app',
-            localizationsDelegates: const [
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('en', ''), // English, no country code
-            ],
-            onGenerateTitle: (BuildContext context) =>
-                AppLocalizations.of(context)!.appTitle,
-            darkTheme: ThemeData(
+          return Center(
+            child: MaterialApp(
+              restorationScopeId: 'app',
+              localizationsDelegates: const [
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en', ''), // English, no country code
+              ],
+              onGenerateTitle: (BuildContext context) =>
+                  AppLocalizations.of(context)!.appTitle,
+              darkTheme: ThemeData(
                 colorScheme: ColorScheme.dark(
-                  onPrimary: Colors.white,
+                    onPrimary: Colors.white,
                     primary: Colors.orangeAccent[700]!,
                     secondary: Colors.indigo),
-              chipTheme: ChipThemeData(
-                  backgroundColor: Colors.indigo,
-                  selectedColor: Colors.indigo[800]),
-              inputDecorationTheme: InputDecorationTheme(
-                border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-              ),
-              appBarTheme: AppBarTheme(
-                color: Colors.transparent,
-                elevation: 0,
-                centerTitle: true,
-                titleTextStyle:
-                const TextStyle(color: Colors.white, fontSize: 16),
-                toolbarHeight: height(context) * 0.075,
-                iconTheme: const IconThemeData(color: Colors.white),
-              ),
-              elevatedButtonTheme: ElevatedButtonThemeData(
-                  style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.all(15),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)))),
-              textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.indigo,
-                )
-              ),
-              textTheme: const TextTheme(
-                labelLarge: TextStyle(fontSize: 16),
-                bodyMedium: TextStyle(fontSize: 16),
-              ),
-            ),
-            theme: ThemeData(
-                tabBarTheme: TabBarTheme(labelColor: Colors.orangeAccent[700]),
-                bottomNavigationBarTheme: BottomNavigationBarThemeData(
-                    backgroundColor: Colors.orangeAccent[700]),
+                chipTheme: ChipThemeData(
+                    backgroundColor: Colors.indigo,
+                    selectedColor: Colors.indigo[800]),
+                inputDecorationTheme: InputDecorationTheme(
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15)),
+                ),
                 appBarTheme: AppBarTheme(
                   color: Colors.transparent,
                   elevation: 0,
                   centerTitle: true,
                   titleTextStyle:
-                      const TextStyle(color: Colors.black, fontSize: 16),
+                      const TextStyle(color: Colors.white, fontSize: 16),
                   toolbarHeight: height(context) * 0.075,
-                  iconTheme: IconThemeData(color: Colors.orangeAccent[700]),
-                ),
-                chipTheme: ChipThemeData(
-                    backgroundColor: Colors.indigo,
-                    selectedColor: Colors.indigo[800]),
-                inputDecorationTheme: InputDecorationTheme(
-                  border:
-                      OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                ),
-                textTheme: const TextTheme(
-                  labelLarge: TextStyle(fontSize: 16),
-                  bodyMedium: TextStyle(fontSize: 16),
+                  iconTheme: const IconThemeData(color: Colors.white),
                 ),
                 elevatedButtonTheme: ElevatedButtonThemeData(
                     style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.all(15),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)))),
-                colorScheme: ColorScheme.light(
-                    primary: Colors.orangeAccent[700]!,
-                    secondary: Colors.indigo)),
-            themeMode: settingsController.themeMode,
-            initialRoute: isLoggedIn ? 'dashboard' : 'home',
-            routes: {
-              'home': (context) => const Home(),
-              'signup': (context) => SignUp(),
-              'patrone_registration': (context) => const PatroneRegistration(),
-              'interests': (context) => const Interests(),
-              'igniter_registration': (context) => const IgniterRegistration(),
-              'patrone_dashboard': (context) => const PatroneDashboard(),
-              'settings': (context) => const Settings(),
-              'orders': (context) => const Orders(),
-              'confirmed': (context) => const ConfirmedOrder(),
-              'dashboard': (context) => const Dashboard(),
-              'igniter_dashboard': (context) => const IgniterDashboard(),
-            },
+                textButtonTheme: TextButtonThemeData(
+                    style: TextButton.styleFrom(
+                  foregroundColor: Colors.indigo,
+                )),
+                textTheme: const TextTheme(
+                  labelLarge: TextStyle(fontSize: 16),
+                  bodyMedium: TextStyle(fontSize: 16),
+                ),
+              ),
+              theme: ThemeData(
+                  tabBarTheme:
+                      TabBarTheme(labelColor: Colors.orangeAccent[700]),
+                  bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                      backgroundColor: Colors.orangeAccent[700]),
+                  appBarTheme: AppBarTheme(
+                    color: Colors.transparent,
+                    elevation: 0,
+                    centerTitle: true,
+                    titleTextStyle:
+                        const TextStyle(color: Colors.black, fontSize: 16),
+                    toolbarHeight: height(context) * 0.075,
+                    iconTheme: IconThemeData(color: Colors.orangeAccent[700]),
+                  ),
+                  chipTheme: ChipThemeData(
+                      backgroundColor: Colors.indigo,
+                      selectedColor: Colors.indigo[800]),
+                  inputDecorationTheme: InputDecorationTheme(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                  ),
+                  textTheme: const TextTheme(
+                    labelLarge: TextStyle(fontSize: 16),
+                    bodyMedium: TextStyle(fontSize: 16),
+                  ),
+                  elevatedButtonTheme: ElevatedButtonThemeData(
+                      style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.all(15),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)))),
+                  colorScheme: ColorScheme.light(
+                      primary: Colors.orangeAccent[700]!,
+                      secondary: Colors.indigo)),
+              themeMode: settingsController.themeMode,
+              initialRoute: isLoggedIn ? 'dashboard' : 'home',
+              routes: {
+                'home': (context) => const Home(),
+                'signup': (context) => SignUp(),
+                'patrone_registration': (context) =>
+                    const PatroneRegistration(),
+                'interests': (context) => const Interests(),
+                'igniter_registration': (context) =>
+                    const IgniterRegistration(),
+                'patrone_dashboard': (context) => const PatroneDashboard(),
+                'settings': (context) => const Settings(),
+                'orders': (context) => const Orders(),
+                'confirmed': (context) => const ConfirmedOrder(),
+                'dashboard': (context) => const Dashboard(),
+                'igniter_dashboard': (context) => const IgniterDashboard(),
+              },
+            ),
           );
         },
       ),
@@ -154,7 +159,6 @@ Future<String?> getData(String key) async {
   log(val ?? 'Nothing there');
   return val;
 }
-
 
 enum ChatRoomType { individual, business }
 
@@ -183,6 +187,7 @@ class Message {
     required this.time,
   });
 }
+
 void showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
@@ -205,4 +210,5 @@ DecorationImage moon = DecorationImage(
   opacity: 0.9,
 );
 
-String moonBackground = 'https://images.unsplash.com/photo-1617192953933-293a94f704ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bW9vbiUyMGNsb3NlJTIwdXB8ZW58MHx8MHx8fDA%3D&w=1000&q=80';
+String moonBackground =
+    'https://images.unsplash.com/photo-1617192953933-293a94f704ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bW9vbiUyMGNsb3NlJTIwdXB8ZW58MHx8MHx8fDA%3D&w=1000&q=80';

@@ -1,9 +1,10 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:geocoding/geocoding.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:uuid/uuid.dart';
+
+import 'package:google_geocoding_api/google_geocoding_api.dart';
 
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -25,8 +26,6 @@ class DataSendingNotifier with ChangeNotifier {
     notifyListeners();
   }
 }
-
-
 
 Future<String?> uploadImageToFirebase(File? imageFile, String path) async {
   if (imageFile != null) {
@@ -54,7 +53,6 @@ String generateUniqueId() {
   var uuid = const Uuid();
   return uuid.v4(); // Returns a version 4 (random) UUID
 }
-
 
 FirebaseFirestore firestore = FirebaseFirestore.instance;
 
@@ -100,13 +98,15 @@ Future<String> getCurrentLocation(DocumentReference userProfile) async {
       Map<String, dynamic> userData = data.data() as Map<String, dynamic>;
       GeoPoint? location = userData['current_location']?['geopoint'];
       if (location != null) {
-        List<Placemark> placemarks = await placemarkFromCoordinates(
-            location.latitude, location.longitude);
-        Placemark placemark = placemarks
-            .where((placemark) => !(placemark.name!.contains('+')))
-            .toList()[0];
-
-        serverLocation = '${placemark.name}, ${placemark.country}';
+        const String googelApiKey = 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ';
+        final bool isDebugMode = true;
+        final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);
+        final reversedSearchResults = await api.reverse(
+          '${location.latitude},${location.longitude}',
+          language: 'en',
+        );
+        serverLocation = reversedSearchResults.results.first.addressComponents.first.longName;
+        
       } else {
         serverLocation = 'Not available';
       }
@@ -131,5 +131,3 @@ Future<void> sendMessage(
     log(e.toString());
   }
 }
-
-

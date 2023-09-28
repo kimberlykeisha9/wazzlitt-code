@@ -455,10 +455,15 @@ class Patrone extends ChangeNotifier {
               'username': username?.trim(),
               'dob': dob,
               'gender': gender,
-            }).then((value) => {
-                      updateDisplayName(username?.trim()),
-                      auth.currentUser!.updateEmail(email!),
-                    }),
+            }).then((value) {
+              try {
+                updateDisplayName(username?.trim()).then(
+                  (value) => auth.currentUser!.updateEmail(email!),
+                );
+              } catch (e) {
+                log(e.toString());
+              }
+            }),
           );
         }
       });

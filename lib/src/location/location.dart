@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:geocoding/geocoding.dart';
 import 'package:geoflutterfire_updated/geoflutterfire_updated.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_geocoding_api/google_geocoding_api.dart';
 import 'package:wazzlitt/user_data/business_owner_data.dart';
 import '../../user_data/patrone_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
@@ -151,13 +151,15 @@ Future<String> getLocationForPlace(DocumentReference place) async {
       Map<String, dynamic> placeData = data.data() as Map<String, dynamic>;
       GeoPoint? location = placeData['location']['geopoint'];
       if (location != null) {
-        List<Placemark> placemarks = await placemarkFromCoordinates(
-            location.latitude, location.longitude);
-        Placemark placemark = placemarks
-            .where((placemark) => !(placemark.name!.contains('+')))
-            .toList()[0];
+        const String googelApiKey = 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ';
+        final bool isDebugMode = true;
+        final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);
+        final reversedSearchResults = await api.reverse(
+          '${location.latitude},${location.longitude}',
+          language: 'en',
+        );
 
-        serverLocation = '${placemark.name}, ${placemark.country}';
+        serverLocation = reversedSearchResults.results.first.addressComponents.first.longName;
       } else {
         serverLocation = 'Not available';
       }

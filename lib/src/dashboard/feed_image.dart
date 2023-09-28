@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:google_geocoding_api/google_geocoding_api.dart';
 import 'package:intl/intl.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
@@ -50,14 +50,16 @@ class _FeedImageState extends State<FeedImage>
   Future<String> getLocationFromGeoPoint(GeoPoint geoPoint) async {
     try {
       // Reverse geocode the latitude and longitude
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        geoPoint.latitude,
-        geoPoint.longitude,
-      );
+      const String googelApiKey = 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ';
+        final bool isDebugMode = true;
+        final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);
+        final reversedSearchResults = await api.reverse(
+          '${geoPoint.latitude},${geoPoint.longitude}',
+          language: 'en',
+        );
 
-      if (placemarks.isNotEmpty) {
-        Placemark placemark = placemarks.first;
-        String readableLocation = '${placemark.street}, ${placemark.country}';
+      if (reversedSearchResults.results.isNotEmpty) {
+        String readableLocation = reversedSearchResults.results.first.formattedAddress;
 
         return readableLocation;
       }
