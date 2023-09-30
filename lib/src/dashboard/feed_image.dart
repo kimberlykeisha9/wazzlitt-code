@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -117,12 +118,17 @@ class _FeedImageState extends State<FeedImage>
                       decoration: BoxDecoration(
                         image: DecorationImage(
                             fit: BoxFit.cover,
-                            image: NetworkImage(snapshot.data!.get('image'))),
-                      ),
+image: NetworkImage((snapshot.data!.get('image'))))),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          CachedNetworkImage(
+       imageUrl: snapshot.data!.get('image'),
+       progressIndicatorBuilder: (context, url, downloadProgress) => 
+               CircularProgressIndicator(value: downloadProgress.progress),
+       errorWidget: (context, url, error) => Icon(Icons.error),
+    ),
                           Container(
                             padding: const EdgeInsets.all(10),
                             width: width(context),

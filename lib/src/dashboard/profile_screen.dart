@@ -63,7 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 // ),
 
                 SizedBox(
-                  height: height(context) * 0.4,
+                  height: height(context) * 0.5,
                   child: ProfileTab(
                     coverPhoto: coverPhoto,
                     profilePhoto: profilePhoto,
@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 Expanded(
                     child: LimitedBox(
                         maxWidth: width(context),
-                        maxHeight: height(context),
+                        maxHeight: height(context) * 0.5,
                         child: ActivityTab(
                             createdPosts: createdPosts,
                             userProfile: currentUser.patroneReferenceSet!))),

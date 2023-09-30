@@ -1,14 +1,10 @@
-import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dot_navigation_bar/dot_navigation_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
-import 'package:wazzlitt/user_data/user_data.dart';
 import '../../authorization/authorization.dart';
 import '../../user_data/payments.dart';
 import '../app.dart';
