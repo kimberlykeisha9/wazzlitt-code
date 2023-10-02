@@ -28,8 +28,8 @@ class _ChatsViewState extends State<ChatsView> {
     return Container(
       height: height(context),
       width: width(context),
-      decoration: BoxDecoration(
-        image: moon,
+      decoration: const BoxDecoration(
+        
       ),
       child: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
@@ -37,13 +37,9 @@ class _ChatsViewState extends State<ChatsView> {
           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
-            }
-
-            if (snapshot.connectionState == ConnectionState.waiting) {
+            } else if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasData) {
+            } else if (snapshot.hasData) {
               List<DocumentSnapshot>? messages = snapshot.data?.docs;
 
               log(messages.toString());
@@ -141,7 +137,7 @@ class _ChatsViewState extends State<ChatsView> {
                   ),
                 ],
               );
-            }
+            } 
             return const Center(child: CircularProgressIndicator());
           },
         ),

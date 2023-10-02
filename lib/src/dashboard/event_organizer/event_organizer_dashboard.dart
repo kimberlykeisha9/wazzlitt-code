@@ -52,7 +52,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
           height: height(context),
           width: width(context),
           decoration: BoxDecoration(
-            image: moon,
+            
           ),
           child: FutureBuilder<List<EventData>>(
             future: EventOrganizer().getListedEvents(),

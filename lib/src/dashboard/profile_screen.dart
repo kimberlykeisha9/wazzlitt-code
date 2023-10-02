@@ -49,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             height: height(context),
             width: width(context),
             decoration: BoxDecoration(
-              image: moon,
+              
             ),
             child: Column(
               children: [

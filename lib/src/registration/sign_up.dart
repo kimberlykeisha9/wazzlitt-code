@@ -27,11 +27,9 @@ class PhoneNumberPrompt extends StatefulWidget {
 }
 
 class PhoneVerification extends StatefulWidget {
-  final String direction;
   final PageController pageController;
 
   PhoneVerification({
-    required this.direction,
     required this.pageController,
   });
 
@@ -64,6 +62,7 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
           child: ZoomIn(
             duration: const Duration(milliseconds: 300),
             child: IntlPhoneField(
+            
               controller: widget.phoneController,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.phone,
@@ -108,20 +107,6 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
           ),
         ),
         const Spacer(),
-        ZoomIn(
-          duration: const Duration(milliseconds: 500),
-          child: Text(
-            AppLocalizations.of(context)!.googleSignIn,
-          ),
-        ),
-        ZoomIn(
-          duration: const Duration(milliseconds: 600),
-          child: IconButton(
-            icon: const FaIcon(FontAwesomeIcons.google),
-            onPressed: () {},
-          ),
-        ),
-        const Spacer(flex: 2),
         ZoomIn(
           duration: const Duration(milliseconds: 700),
           child: Text(
@@ -225,37 +210,15 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                       .then((value) =>
                           verifyCode(_verificationController.text, value!))
                       .then((value) {
-                    if (widget.direction == 'patrone') {
-                      Patrone().checkIfPatroneUser().then((isPatrone) {
-                        if (isPatrone == true) {
+                        if (value != null) {
                           Navigator.popAndPushNamed(
-                              context, 'patrone_dashboard');
-                        } else if (isPatrone == false) {
-                          Navigator.popAndPushNamed(
-                              context, 'patrone_registration');
+                              context, 'dashboard');
                         } else {
                           dataSendingNotifier.stopLoading();
                           showSnackbar(context,
                               'Something went wrong. Please try again later');
                         }
-                      });
-                    } else if (widget.direction == 'igniter') {
-                      checkIfIgniterUser().then((isIgniter) {
-                        if (isIgniter == true) {
-                          Navigator.popAndPushNamed(
-                              context, 'igniter_dashboard');
-                        } else if (isIgniter == false) {
-                          Navigator.popAndPushNamed(
-                              context, 'igniter_registration');
-                        } else {
-                          dataSendingNotifier.stopLoading();
-                          showSnackbar(context,
-                              'Something went wrong. Please try again later');
-                        }
-                      });
-                    } else {
-                      showSnackbar(context, 'Something went wrong.');
-                    }
+                    
                   });
                   dataSendingNotifier.stopLoading();
                 } on Exception catch (e) {
@@ -310,7 +273,6 @@ class _SignUpState extends State<SignUp> {
                 pageController: _pageController,
               ),
               PhoneVerification(
-                direction: _direction,
                 pageController: _pageController,
               )
             ],

@@ -22,9 +22,6 @@ class _FeedState extends State<Feed> {
     return Container(
       height: height(context),
       width: width(context),
-      decoration: BoxDecoration(
-        image: moon,
-      ),
       child: StreamBuilder<QuerySnapshot>(
         stream: firestore
             .collection('feed')
@@ -32,37 +29,30 @@ class _FeedState extends State<Feed> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            Provider.of<Data>(context, listen: false)
-                .updateData(snapshot.data!.docs);
-            return PageView.builder(
-                scrollDirection: Axis.vertical,
-                physics: const BouncingScrollPhysics(),
-                itemCount: Provider.of<Data>(context).feedData?.length ?? 0,
-                itemBuilder: (context, index) {
-                  QueryDocumentSnapshot doc = snapshot.data!.docs[index];
-                  if (snapshot.data!.size > 0) {
-                    return FadeIn(child: FeedImage(snapshot: doc));
-                  } else {
-                    return Center(
-                        child: Text('No images have been posted yet'));
-                  }
-                });
+            List<QueryDocumentSnapshot<Object?>>? feedData =
+                snapshot.data!.docs;
+            return SizedBox(
+              height: height(context),
+              width: width(context),
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: feedData?.length ?? 0,
+                  itemBuilder: (context, index) {
+                    QueryDocumentSnapshot doc = feedData[index];
+                    if (snapshot.data!.size > 0) {
+                      return FadeIn(child: FeedImage(snapshot: doc));
+                    } else {
+                      return Center(
+                          child: Text('No images have been posted yet'));
+                    }
+                  }),
+            );
           } else {
             return const Center(child: Text('Nothing to see here'));
           }
         },
       ),
     );
-  }
-}
-
-class Data extends ChangeNotifier {
-  List<QueryDocumentSnapshot<Object?>>? _feedData = [];
-
-  List<QueryDocumentSnapshot<Object?>>? get feedData => _feedData;
-
-  void updateData(List<QueryDocumentSnapshot<Object?>> data) {
-    _feedData = data;
-    // notifyListeners(); // Notify listeners when the state changes
   }
 }

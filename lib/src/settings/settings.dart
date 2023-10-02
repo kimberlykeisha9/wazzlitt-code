@@ -15,7 +15,6 @@ class Settings extends StatelessWidget {
         body: Container(
           height: height(context),
           width: width(context),
-          decoration: BoxDecoration(image: moon),
           child: SafeArea(
             child: SingleChildScrollView(
               child: Padding(

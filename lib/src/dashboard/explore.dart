@@ -324,7 +324,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
           height: height(context),
           width: width(context),
           decoration: BoxDecoration(
-            image: moon,
+            
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

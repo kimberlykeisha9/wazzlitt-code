@@ -270,7 +270,6 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                     controller: _websiteController,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Website is required';
                                       }
                                       return null;
                                     },
@@ -304,11 +303,10 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                     controller: _emailController,
                                     validator: (value) {
                                       if (value == null || value.isEmpty) {
-                                        return 'Email is required';
                                       }
                                       if (!RegExp(
                                               r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                          .hasMatch(value)) {
+                                          .hasMatch(value!)) {
                                         return 'Invalid email address';
                                       }
                                       return null;

@@ -20,7 +20,7 @@ class EventOrganizerProfile extends StatelessWidget {
           height: height(context),
           width: width(context),
           decoration: BoxDecoration(
-            image: moon,
+            
           ),
           child: FutureBuilder<void>(
             future: eventOrganizer.getCurrentUserEventOrganizerInformation(),

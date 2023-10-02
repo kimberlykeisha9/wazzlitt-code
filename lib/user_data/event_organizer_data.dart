@@ -153,11 +153,13 @@ class EventOrganizer extends ChangeNotifier {
         'image': profilePhoto,
         'cover_image': coverPhoto,
       };
-      if (currentUserIgniterProfile != null) {
-        await currentUserIgniterProfile.update(organizerData);
-      } else {
-        await currentUserIgniterProfile.set(organizerData);
-      }
+      currentUserIgniterProfile.get().then((value) async {
+        if (value.exists) {
+          await currentUserIgniterProfile.update(organizerData);
+        } else {
+          await currentUserIgniterProfile.set(organizerData);
+        }
+      });
     } on FirebaseException catch (e) {
       log(e.code);
       log(e.message ?? 'No message');
@@ -217,15 +219,13 @@ class EventData {
           uploadLocation(event, latitude!, longitude!);
         });
       } else {
-        await firestore
-            .collection('events')
-            .add(eventData)
-            .then((newEvent) {currentUserIgniterProfile.update({
-                  'events': FieldValue.arrayUnion([newEvent]),
-                  'igniter_type': 'event_organizer',
-                });
-                uploadLocation(newEvent, latitude!, longitude!);
-                 });
+        await firestore.collection('events').add(eventData).then((newEvent) {
+          currentUserIgniterProfile.update({
+            'events': FieldValue.arrayUnion([newEvent]),
+            'igniter_type': 'event_organizer',
+          });
+          uploadLocation(newEvent, latitude!, longitude!);
+        });
       }
     } on FirebaseException catch (e) {
       log(e.code);

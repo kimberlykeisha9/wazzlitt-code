@@ -1,5 +1,5 @@
 import 'dart:developer';
-
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -33,11 +33,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<Data>(create: (_) => Data()),
-      ],
-      child: AnimatedBuilder(
+    return AnimatedBuilder(
         animation: settingsController,
         builder: (BuildContext context, Widget? child) {
           return Center(
@@ -54,41 +50,7 @@ class MyApp extends StatelessWidget {
               ],
               onGenerateTitle: (BuildContext context) =>
                   AppLocalizations.of(context)!.appTitle,
-              darkTheme: ThemeData(
-                colorScheme: ColorScheme.dark(
-                    onPrimary: Colors.white,
-                    primary: Colors.orangeAccent[700]!,
-                    secondary: Colors.indigo),
-                chipTheme: ChipThemeData(
-                    backgroundColor: Colors.indigo,
-                    selectedColor: Colors.indigo[800]),
-                inputDecorationTheme: InputDecorationTheme(
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15)),
-                ),
-                appBarTheme: AppBarTheme(
-                  color: Colors.transparent,
-                  elevation: 0,
-                  centerTitle: true,
-                  titleTextStyle:
-                      const TextStyle(color: Colors.white, fontSize: 16),
-                  toolbarHeight: height(context) * 0.075,
-                  iconTheme: const IconThemeData(color: Colors.white),
-                ),
-                elevatedButtonTheme: ElevatedButtonThemeData(
-                    style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.all(15),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)))),
-                textButtonTheme: TextButtonThemeData(
-                    style: TextButton.styleFrom(
-                  foregroundColor: Colors.indigo,
-                )),
-                textTheme: const TextTheme(
-                  labelLarge: TextStyle(fontSize: 16),
-                  bodyMedium: TextStyle(fontSize: 16),
-                ),
-              ),
+              darkTheme: darkTheme(context).copyWith(textTheme: GoogleFonts.interTextTheme(darkTheme(context).textTheme)),
               theme: ThemeData(
                   tabBarTheme:
                       TabBarTheme(labelColor: Colors.orangeAccent[700]),
@@ -110,10 +72,7 @@ class MyApp extends StatelessWidget {
                     border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15)),
                   ),
-                  textTheme: const TextTheme(
-                    labelLarge: TextStyle(fontSize: 16),
-                    bodyMedium: TextStyle(fontSize: 16),
-                  ),
+                  textTheme: GoogleFonts.interTextTheme(Theme.of(context).textTheme),
                   elevatedButtonTheme: ElevatedButtonThemeData(
                       style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.all(15),
@@ -142,8 +101,43 @@ class MyApp extends StatelessWidget {
             ),
           );
         },
-      ),
+      
     );
+  }
+
+  ThemeData darkTheme(BuildContext context) {
+    return ThemeData(
+      brightness: Brightness.dark,
+              colorScheme: ColorScheme.dark(
+                  onPrimary: Colors.white,
+                  primary: Colors.orangeAccent[700]!,
+                  secondary: Colors.indigo),
+              chipTheme: ChipThemeData(
+                  backgroundColor: Colors.indigo,
+                  selectedColor: Colors.indigo[800]),
+              inputDecorationTheme: InputDecorationTheme(
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15)),
+              ),
+              appBarTheme: AppBarTheme(
+                color: Colors.transparent,
+                elevation: 0,
+                centerTitle: true,
+                titleTextStyle:
+                    const TextStyle(color: Colors.white, fontSize: 16),
+                toolbarHeight: height(context) * 0.075,
+                iconTheme: const IconThemeData(color: Colors.white),
+              ),
+              elevatedButtonTheme: ElevatedButtonThemeData(
+                  style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.all(20),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)))),
+              textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                foregroundColor: Colors.indigo,
+              )),
+            );
   }
 }
 
@@ -204,11 +198,3 @@ double width(context) {
   return MediaQuery.of(context).size.width;
 }
 
-DecorationImage moon = DecorationImage(
-  image: NetworkImage(moonBackground),
-  fit: BoxFit.cover,
-  opacity: 0.9,
-);
-
-String moonBackground =
-    'https://images.unsplash.com/photo-1617192953933-293a94f704ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bW9vbiUyMGNsb3NlJTIwdXB8ZW58MHx8MHx8fDA%3D&w=1000&q=80';

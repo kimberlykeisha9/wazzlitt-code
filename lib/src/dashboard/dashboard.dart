@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/src/dashboard/igniter_dashboard.dart';
 import 'package:wazzlitt/src/dashboard/patrone_dashboard.dart';
+import 'package:wazzlitt/src/registration/igniter_registration.dart';
+import 'package:wazzlitt/src/registration/patrone_registration.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
 import '../app.dart';
@@ -29,7 +31,7 @@ class Dashboard extends StatelessWidget {
                     height: height(context),
                     width: width(context),
                     decoration: BoxDecoration(
-                      image: moon,
+                      
                     ),
                     child: SafeArea(
                       child: Padding(
@@ -54,8 +56,8 @@ class Dashboard extends StatelessWidget {
                                 child: const Text('Patrone Profile',
                                     style: TextStyle(
                                         fontSize: 30, color: Colors.white)),
-                                onPressed: () => Navigator.popAndPushNamed(
-                                    context, 'patrone_dashboard'),
+                                onPressed: () => Navigator.push(
+                                    context, MaterialPageRoute(builder: (context) => PatroneDashboard())),
                               )),
                             ),
                           ),
@@ -73,8 +75,8 @@ class Dashboard extends StatelessWidget {
                                   child: const Text('Igniter Profile',
                                       style: TextStyle(
                                           fontSize: 30, color: Colors.white)),
-                                  onPressed: () => Navigator.popAndPushNamed(
-                                      context, 'igniter_dashboard'),
+                                  onPressed: () => Navigator.push(
+                                    context, MaterialPageRoute(builder: (context) => IgniterDashboard())),
                                 ))),
                           ),
                         ]),
@@ -95,7 +97,7 @@ class Dashboard extends StatelessWidget {
                   height: height(context),
                   width: width(context),
                   decoration: BoxDecoration(
-                    image: moon,
+                    
                   ),
                   child: SafeArea(
                     child: Column(
@@ -135,8 +137,8 @@ class Dashboard extends StatelessWidget {
                                 child: const Text('Patrone Profile',
                                     style: TextStyle(
                                         fontSize: 30, color: Colors.white)),
-                                onPressed: () => Navigator.popAndPushNamed(
-                                    context, 'patrone_registration'),
+                                onPressed: () => Navigator.push(
+                                    context, MaterialPageRoute(builder: (context) => PatroneRegistration())),
                               ),
                             ),
                           ),
@@ -155,8 +157,8 @@ class Dashboard extends StatelessWidget {
                                 child: const Text('Igniter Profile',
                                     style: TextStyle(
                                         fontSize: 30, color: Colors.white)),
-                                onPressed: () => Navigator.popAndPushNamed(
-                                    context, 'igniter_registration'),
+                                onPressed: () => Navigator.push(
+                                    context, MaterialPageRoute(builder: (context) => IgniterRegistration())),
                               ),
                             ),
                           ),

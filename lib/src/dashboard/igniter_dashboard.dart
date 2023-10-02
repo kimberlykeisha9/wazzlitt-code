@@ -1,3 +1,4 @@
+import 'package:dot_navigation_bar/dot_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
@@ -173,30 +174,26 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                   ],
                 ),
               ),
-      bottomNavigationBar: Theme(
-        data: ThemeData(
-          canvasColor: Theme.of(context).colorScheme.primary,
-        ),
-        child: BottomNavigationBar(
-          onTap: (int index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
+              floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+              floatingActionButton: Container(
+                constraints: const BoxConstraints(maxWidth: 375),
+                child: DotNavigationBar(
+          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
           currentIndex: _currentIndex,
-          showSelectedLabels: false,
-          showUnselectedLabels: false,
-          unselectedItemColor: Colors.white.withOpacity(0.5),
-          selectedItemColor: Colors.white,
-          items: const [
-            BottomNavigationBarItem(label: 'Home', icon: Icon(Icons.home)),
-            BottomNavigationBarItem(label: 'Messages', icon: Icon(Icons.chat)),
-            BottomNavigationBarItem(
-                label: 'Profile', icon: Icon(Icons.account_circle)),
+                  onTap: (int index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  borderRadius: 15,
+          items: [
+            DotNavigationBarItem(icon: const Icon(Icons.home)),
+            DotNavigationBarItem(icon: const Icon(Icons.chat)),
+            DotNavigationBarItem(icon: const Icon(Icons.account_circle)),
           ],
         ),
-      ),
-    );
+              ),
+       );
   }
 
   List eventOrganizerView = [EventOrganizerDashboard(), const ChatsView(chatType: ChatRoomType.business),  EventOrganizerProfile()];

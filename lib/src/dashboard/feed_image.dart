@@ -52,15 +52,16 @@ class _FeedImageState extends State<FeedImage>
     try {
       // Reverse geocode the latitude and longitude
       const String googelApiKey = 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ';
-        final bool isDebugMode = true;
-        final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);
-        final reversedSearchResults = await api.reverse(
-          '${geoPoint.latitude},${geoPoint.longitude}',
-          language: 'en',
-        );
+      final bool isDebugMode = true;
+      final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);
+      final reversedSearchResults = await api.reverse(
+        '${geoPoint.latitude},${geoPoint.longitude}',
+        language: 'en',
+      );
 
       if (reversedSearchResults.results.isNotEmpty) {
-        String readableLocation = reversedSearchResults.results.first.formattedAddress;
+        String readableLocation =
+            reversedSearchResults.results.first.formattedAddress;
 
         return readableLocation;
       }
@@ -108,183 +109,154 @@ class _FeedImageState extends State<FeedImage>
         stream: widget.snapshot.reference.snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return Column(
+            Map<String, dynamic> imageData =
+                snapshot.data!.data() as Map<String, dynamic>;
+            return Wrap(
+              direction: Axis.vertical,
               children: [
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      width: width(context),
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                            fit: BoxFit.cover,
-image: NetworkImage((snapshot.data!.get('image'))))),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CachedNetworkImage(
-       imageUrl: snapshot.data!.get('image'),
-       progressIndicatorBuilder: (context, url, downloadProgress) => 
-               CircularProgressIndicator(value: downloadProgress.progress),
-       errorWidget: (context, url, error) => Icon(Icons.error),
-    ),
-                          Container(
-                            padding: const EdgeInsets.all(10),
+                StreamBuilder<DocumentSnapshot>(
+                    stream: (imageData['creator_uid'] as DocumentReference)
+                        .snapshots(),
+                    builder: (context, creatorSnapshot) {
+                      if (creatorSnapshot.hasData) {
+                        Map<String, dynamic> data = creatorSnapshot.data!.data()
+                            as Map<String, dynamic>;
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Scaffold(
+                                  appBar: AppBar(
+                                      title: Text(data['username'] ?? 'null')),
+                                  body: FutureBuilder<Patrone>(
+                                      future: Patrone().getPatroneInformation(
+                                          widget.snapshot.get('creator_uid')),
+                                      builder: (context, snapshot) {
+                                        return ProfileScreen(
+                                            userProfile: snapshot.data!);
+                                      }),
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
                             width: width(context),
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color: Theme.of(context)
                                   .colorScheme
                                   .secondary
-                                  .withOpacity(0.75),
+                                  .withOpacity(0.25),
                             ),
                             child: Row(
-                              children: [
-                                const Icon(Icons.place, color: Colors.white),
-                                const Spacer(),
-                                Text(location ?? '',
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white)),
-                                const Spacer(flex: 16),
-                                // const Text('0 km away',
-                                //     style: TextStyle(color: Colors.white)),
-                              ],
-                            ),
-                          ),
-                          Spacer(),
-                          Padding(
-                            padding: const EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                      (widget.snapshot.get('caption')
-                                              as String?) ??
-                                          '',
-                                      style:
-                                          const TextStyle(color: Colors.white)),
-                                ),
-                                const SizedBox(width: 10),
-                                Column(children: [
-                                  IconButton(
-                                    onPressed: () => _likeImage(),
-                                    icon: likeIcon(),
-                                  ),
-                                  Text(
-                                      '${(snapshot.data!.get('likes') as List<dynamic>).length ?? 0}',
-                                      style:
-                                          const TextStyle(color: Colors.white)),
-                                  IconButton(
-                                    onPressed: () {},
-                                    icon: const FaIcon(FontAwesomeIcons.message,
-                                        color: Colors.white),
-                                  ),
-                                  const Text('0',
-                                      style: TextStyle(color: Colors.white)),
-                                ]),
-                              ],
-                            ),
-                          ),
-                          StreamBuilder<DocumentSnapshot>(
-                              stream: (widget.snapshot.get('creator_uid')
-                                      as DocumentReference)
-                                  .snapshots(),
-                              builder: (context, creatorSnapshot) {
-                                if (creatorSnapshot.hasData) {
-                                  Map<String, dynamic> data = creatorSnapshot.data!
-                                      .data() as Map<String, dynamic>;
-                                  return GestureDetector(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Scaffold(
-                                            appBar: AppBar(
-                                                title: Text(data['username'] ??
-                                                    'null')),
-                                            body: FutureBuilder<Patrone>(
-                                                future: Patrone()
-                                                    .getPatroneInformation(widget
-                                                        .snapshot
-                                                        .get('creator_uid')),
-                                                builder: (context, snapshot) {
-                                                  return ProfileScreen(
-                                                      userProfile:
-                                                          snapshot.data!);
-                                                }),
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  CircleAvatar(
+                                    foregroundImage: NetworkImage(data[
+                                            'profile_picture'] ??
+                                        'https://i.pinimg.com/474x/1e/23/e5/1e23e5e6441ce2c135e1e457dcf4f06f.jpg'),
+                                    radius: 20,
+                                    child: (data['profile_picture']) != null
+                                        ? null
+                                        : const Icon(
+                                            Icons.account_circle,
+                                            size: 40,
                                           ),
-                                        ),
-                                      );
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Wrap(
+                                    direction: Axis.vertical,
+                                    alignment: WrapAlignment.start,
+                                    children: [
+                                      Text(data['username'] ?? 'null',
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    icon: const Icon(Icons.more_vert,
+                                        color: Colors.white),
+                                    onPressed: () {
+                                      showPopupMenu(context);
                                     },
-                                    child: Container(
-                                      width: width(context),
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .secondary
-                                            .withOpacity(0.25),
-                                      ),
-                                      child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            CircleAvatar(
-                                              foregroundImage: NetworkImage(
-                                                  data['profile_picture'] ?? 'https://i.pinimg.com/474x/1e/23/e5/1e23e5e6441ce2c135e1e457dcf4f06f.jpg'),
-                                              radius: 20,
-                                              child: (data['profile_picture']) !=
-                                                      null
-                                                  ? null
-                                                  : const Icon(
-                                                      Icons.account_circle,
-                                                      size: 40,
-                                                    ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Wrap(
-                                              direction: Axis.vertical,
-                                              alignment: WrapAlignment.start,
-                                              children: [
-                                                Text(
-                                                    data['username'] ??
-                                                        'null',
-                                                    style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                Text(
-                                                    DateFormat('hh:mm, EEE d MMM')
-                                                        .format((widget.snapshot.get(
-                                                                    'date_created')
-                                                                as Timestamp)
-                                                            .toDate()),
-                                                    style: const TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 14)),
-                                              ],
-                                            ),
-                                            const Spacer(),
-                                            IconButton(
-                                              icon: const Icon(Icons.more_vert,
-                                                  color: Colors.white),
-                                              onPressed: () {
-                                                showPopupMenu(context);
-                                              },
-                                            ),
-                                          ]),
-                                    ),
-                                  );
-                                } else {
-                                  return const SizedBox();
-                                }
-                              }),
-                          
-                        ],
-                      ),
+                                  ),
+                                ]),
+                          ),
+                        );
+                      } else {
+                        return const SizedBox();
+                      }
+                    }),
+                Container(
+                  constraints: BoxConstraints(maxHeight: height(context) * 0.6),
+                  child: Image.network(
+                      imageData['image'],
+                      fit: BoxFit.fitWidth),
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  width: width(context),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .secondary
+                        .withOpacity(0.75),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.place, color: Colors.white),
+                      const Spacer(),
+                      Text(location ?? '',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white)),
+                      const Spacer(flex: 16),
+                      // const Text('0 km away',
+                      //     style: TextStyle(color: Colors.white)),
+                    ],
+                  ),
+                ),
+                Spacer(),
+                Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: SizedBox(
+                    height: 100,
+                    child: Column(
+                      // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(
+                          child: Text(
+                              (widget.snapshot.get('caption') as String?) ?? '',
+                              style: const TextStyle(color: Colors.white)),
+                        ),
+                        Row(children: [
+                          IconButton(
+                            padding: EdgeInsets.all(0),
+                            onPressed: () => _likeImage(),
+                            icon: likeIcon(),
+                          ),
+                          Text(
+                              '${(imageData['likes'] as List<dynamic>).length ?? 0}',
+                              style: const TextStyle(color: Colors.white)),
+                          IconButton(
+                            onPressed: () {},
+                            icon: const FaIcon(FontAwesomeIcons.message,
+                                color: Colors.white),
+                          ),
+                          const Text('0',
+                              style: TextStyle(color: Colors.white)),
+                        ]),
+                        Text(
+                            DateFormat('hh:mm, EEE d MMM').format(
+                                (imageData['date_created'] as Timestamp)
+                                    .toDate()),
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12)),
+                      ],
                     ),
                   ),
                 ),
