@@ -173,6 +173,10 @@ class _FeedImageState extends State<FeedImage>
                                           style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold)),
+                                              Text(location ?? '',
+                          style: const TextStyle(
+                            fontSize: 12,
+                              color: Colors.white)),
                                     ],
                                   ),
                                   const Spacer(),
@@ -191,33 +195,11 @@ class _FeedImageState extends State<FeedImage>
                       }
                     }),
                 Container(
-                  constraints: BoxConstraints(maxHeight: height(context) * 0.6),
-                  child: Image.network(
-                      imageData['image'],
-                      fit: BoxFit.fitWidth),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  width: width(context),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .secondary
-                        .withOpacity(0.75),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.place, color: Colors.white),
-                      const Spacer(),
-                      Text(location ?? '',
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white)),
-                      const Spacer(flex: 16),
-                      // const Text('0 km away',
-                      //     style: TextStyle(color: Colors.white)),
-                    ],
-                  ),
+                  constraints: BoxConstraints(maxHeight: height(context) * 0.6, minWidth: width(context)),
+                  // child: Image.network(
+                  //     imageData['image'],
+                  //     fit: BoxFit.fitWidth),
+                  child: Image.asset('assets/images/home-image.png', fit: BoxFit.fitWidth),
                 ),
                 Spacer(),
                 Padding(

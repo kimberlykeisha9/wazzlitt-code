@@ -238,55 +238,55 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       //     });
       //   },
       // ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: Container(
-        constraints: const BoxConstraints(maxWidth: 500),
-        child: DotNavigationBar(
-          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-          currentIndex: _currentIndex,
-                  onTap: (int index) {
-                    setState(() {
-                      _currentIndex = index;
-                    });
-                  },
-                  borderRadius: 15,
-          items: [
-            DotNavigationBarItem(icon: const Icon(Icons.home)),
-            DotNavigationBarItem(icon: const Icon(Icons.explore)),
-            DotNavigationBarItem(icon: const Icon(Icons.chat)),
-            DotNavigationBarItem(icon: const Icon(Icons.account_circle)),
-          ],
-        ),
-      ),
-      // bottomNavigationBar: (confirmedPayment ?? false)
-      //     ? Theme(
-      //         data: ThemeData(
-      //           canvasColor: Theme.of(context).colorScheme.primary,
-      //         ),
-      //         child: BottomNavigationBar(
-      //           onTap: (int index) {
-      //             setState(() {
-      //               _currentIndex = index;
-      //             });
-      //           },
-      //           currentIndex: _currentIndex,
-      //           showSelectedLabels: false,
-      //           showUnselectedLabels: false,
-      //           unselectedItemColor: Colors.white.withOpacity(0.5),
-      //           selectedItemColor: Colors.white,
-      //           items: const [
-      //             BottomNavigationBarItem(
-      //                 label: 'Home', icon: Icon(Icons.home)),
-      //             BottomNavigationBarItem(
-      //                 label: 'Explore', icon: Icon(Icons.explore)),
-      //             BottomNavigationBarItem(
-      //                 label: 'Messages', icon: Icon(Icons.chat)),
-      //             BottomNavigationBarItem(
-      //                 label: 'Profile', icon: Icon(Icons.account_circle)),
-      //           ],
-      //         ),
-      //       )
-      //     : const SizedBox(),
+      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      // floatingActionButton: Container(
+      //   constraints: const BoxConstraints(maxWidth: 500),
+      //   child: DotNavigationBar(
+      //     backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+      //     currentIndex: _currentIndex,
+      //             onTap: (int index) {
+      //               setState(() {
+      //                 _currentIndex = index;
+      //               });
+      //             },
+      //             borderRadius: 15,
+      //     items: [
+      //       DotNavigationBarItem(icon: const Icon(Icons.home)),
+      //       DotNavigationBarItem(icon: const Icon(Icons.explore)),
+      //       DotNavigationBarItem(icon: const Icon(Icons.chat)),
+      //       DotNavigationBarItem(icon: const Icon(Icons.account_circle)),
+      //     ],
+      //   ),
+      // ),
+      bottomNavigationBar: (confirmedPayment ?? false)
+          ? Theme(
+              data: ThemeData(
+                canvasColor: Theme.of(context).colorScheme.surface,
+              ),
+              child: BottomNavigationBar(
+                onTap: (int index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+                currentIndex: _currentIndex,
+                showSelectedLabels: false,
+                showUnselectedLabels: false,
+                unselectedItemColor: Colors.white.withOpacity(0.5),
+                selectedItemColor: Colors.white,
+                items: const [
+                  BottomNavigationBarItem(
+                      label: 'Home', icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home)),
+                  BottomNavigationBarItem(
+                      label: 'Explore', icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore)),
+                  BottomNavigationBarItem(
+                      label: 'Messages', icon: Icon(Icons.chat_outlined), activeIcon: Icon(Icons.chat)),
+                  BottomNavigationBarItem(
+                      label: 'Profile', icon: Icon(Icons.account_circle_outlined), activeIcon: Icon(Icons.account_circle)),
+                ],
+              ),
+            )
+          : const SizedBox(),
     );
   }
 
