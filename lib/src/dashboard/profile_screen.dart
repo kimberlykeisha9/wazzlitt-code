@@ -48,9 +48,6 @@ class _ProfileScreenState extends State<ProfileScreen>
           return Container(
             height: height(context),
             width: width(context),
-            decoration: BoxDecoration(
-              
-            ),
             child: Column(
               children: [
                 // TabBar(
@@ -127,6 +124,7 @@ class ProfileTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // SizedBox(
         //   child: Stack(
@@ -168,89 +166,94 @@ class ProfileTab extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          image: profilePhoto != null
-                              ? DecorationImage(
-                                  image: NetworkImage(profilePhoto!),
-                                  fit: BoxFit.cover)
-                              : null,
-                          color: Colors.grey[800],
-                          shape: BoxShape.circle,
-                        ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        image: profilePhoto != null
+                            ? DecorationImage(
+                                image: NetworkImage(profilePhoto!),
+                                fit: BoxFit.cover)
+                            : null,
+                        color: Colors.grey[800],
+                        shape: BoxShape.circle,
                       ),
-                      const SizedBox(width: 20),
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                    const SizedBox(width: 20),
+                    Container(
+                      constraints: BoxConstraints(minWidth: 300),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          const SizedBox(height: 20),
-                          Text('$firstName $lastName',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold)),
-                          const SizedBox(height: 5),
-                          Text('@$username',
-                              style: const TextStyle(fontSize: 12)),
-                          const SizedBox(height: 10),
-                          Text(Patrone().getStarSign(dob ?? DateTime(0, 1, 1)),
-                              style: const TextStyle(fontSize: 12)),
-                          const SizedBox(height: 5),
-                          FutureBuilder<String>(
-                            future: getCurrentLocation(userProfile),
-                            builder: (context, snapshot) {
-                              print(snapshot.connectionState);
-
-                              if (snapshot.hasData) {
-                                return Text(snapshot.data!,
-                                    style: const TextStyle(fontSize: 12));
-                              }
-                              if (snapshot.hasError) {
-                                return const Text('An error occured',
-                                    style: const TextStyle(fontSize: 12));
-                              }
-                              return const Text('Loading...',
-                                  style: const TextStyle(fontSize: 12));
-                            },
+                          Column(
+                            children: [
+                              Text(posts.length.toString(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18)),
+                              const Text('Posts',
+                                  style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(followers.length.toString(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18)),
+                              const Text('Followers',
+                                  style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(following.length.toString(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18)),
+                              const Text('Following',
+                                  style: TextStyle(fontSize: 14)),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
-                      children: [
-                        Text(posts.length.toString(),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18)),
-                        const Text('Posts', style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(followers.length.toString(),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18)),
-                        const Text('Followers', style: TextStyle(fontSize: 14)),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        Text(following.length.toString(),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18)),
-                        const Text('Following', style: TextStyle(fontSize: 14)),
-                      ],
+                    const SizedBox(height: 20),
+                    Text('$firstName $lastName',
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 5),
+                    Text('@$username', style: const TextStyle(fontSize: 12)),
+                    const SizedBox(height: 10),
+                    Text(Patrone().getStarSign(dob ?? DateTime(0, 1, 1)),
+                        style: const TextStyle(fontSize: 12)),
+                    const SizedBox(height: 5),
+                    FutureBuilder<String>(
+                      future: getCurrentLocation(userProfile),
+                      builder: (context, snapshot) {
+                        print(snapshot.connectionState);
+
+                        if (snapshot.hasData) {
+                          return Text(snapshot.data!,
+                              style: const TextStyle(fontSize: 12));
+                        }
+                        if (snapshot.hasError) {
+                          return const Text('An error occured',
+                              style: const TextStyle(fontSize: 12));
+                        }
+                        return const Text('Loading...',
+                            style: const TextStyle(fontSize: 12));
+                      },
                     ),
                   ],
                 ),
@@ -417,8 +420,7 @@ class ActivityTab extends StatelessWidget {
                 ),
               ],
               labelColor: Colors.white,
-              unselectedLabelColor:
-                  Colors.white,
+              unselectedLabelColor: Colors.white,
             ),
             Expanded(
               child: SizedBox(

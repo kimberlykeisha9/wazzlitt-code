@@ -1,6 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
@@ -40,12 +41,10 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         await firestore.collection('app_data').doc('categories').get();
     final data = value.data() as Map<String, dynamic>;
 
-
       categories = data.entries.map((entry) {
         final itemData = entry.value as Map<String, dynamic>;
         return Category(entry.key, itemData['image']);
       }).toList();
-  
   }
 
   void _navigateToPlace(BuildContext context, BusinessPlace placeData) {
@@ -323,7 +322,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         Container(
           height: height(context),
           width: width(context),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             
           ),
           child: Column(
@@ -470,15 +469,24 @@ class PlacesTab extends StatelessWidget {
               if (!(snapshot.hasData) ||
                   snapshot.data == null ||
                   snapshot.data!.isEmpty) {
-                return Center(child: Text('No places found'));
+                return const Center(child: Text('No places found'));
               } else {
                 allPlaces = snapshot.data!;
                 return GridView.builder(
                   shrinkWrap: true,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 2 / 3,
-                  ),
+                  gridDelegate: SliverQuiltedGridDelegate(
+    crossAxisCount: 4,
+    mainAxisSpacing: 4,
+    crossAxisSpacing: 4,
+    repeatPattern: QuiltedGridRepeatPattern.inverted,
+    pattern: [
+      const QuiltedGridTile(2, 2),
+      const QuiltedGridTile(1, 1),
+      const QuiltedGridTile(1, 1),
+      const QuiltedGridTile(1, 1),
+      const QuiltedGridTile(1, 1),
+    ],
+  ),
                   itemCount: allPlaces.length,
                   itemBuilder: (BuildContext context, int index) {
                     final place = allPlaces[index];
@@ -622,7 +630,7 @@ class _LitTabState extends State<LitTab> {
       future: getAllEvents(),
       builder: (context, snapshot) {
         if (snapshot.data == null || snapshot.data!.isEmpty) {
-          return Center(child: Text('No events found'));
+          return const Center(child: Text('No events found'));
         } else {
           allEvents = snapshot.data!;
           return Column(
@@ -632,10 +640,19 @@ class _LitTabState extends State<LitTab> {
                 child: SizedBox(
                   child: GridView.builder(
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      childAspectRatio: 2 / 3,
-                    ),
+                        SliverQuiltedGridDelegate(
+    crossAxisCount: 4,
+    mainAxisSpacing: 4,
+    crossAxisSpacing: 4,
+    repeatPattern: QuiltedGridRepeatPattern.inverted,
+    pattern: [
+      const QuiltedGridTile(2, 2),
+      const QuiltedGridTile(1, 1),
+      const QuiltedGridTile(1, 1),
+      const QuiltedGridTile(1, 1),
+      const QuiltedGridTile(1, 1),
+    ],
+  ),
                     itemCount: allEvents.length,
                     itemBuilder: (context, index) {
                       final event = allEvents[index];
