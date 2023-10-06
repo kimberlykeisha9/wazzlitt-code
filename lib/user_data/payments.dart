@@ -9,31 +9,221 @@ import 'package:provider/provider.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../user_data/patrone_data.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final apiKey = 'sk_test_51N6MV7Aw4gbUiKSOVcDYHBiDM5ibgvUiGZQQ2erLCvrDXerqrJXDY'
     'jhdc33LMfSKXgzf5doGBAtV75AIXK3u3eUw00stk6GUfw';
 
+Future<void> launchIgniterSubscription() async {
+  String? uid = auth.currentUser!.uid;
+  final Uri url = Uri.parse(
+      'https://buy.stripe.com/test_28o3dGfsh5SQeKk147?client_reference_id=$uid');
+  try {
+    await launchUrl(url, webOnlyWindowName: '_blank')
+        .then((value) => log(value.toString()));
+  } catch (e) {
+    throw Exception('Could not launch $url because of $e');
+  }
+}
+
+Future<void> launchPatroneSubscription() async {
+  String? uid = auth.currentUser!.uid;
+  final Uri url = Uri.parse(
+      'https://buy.stripe.com/test_00g01ucg5che8lW9AC?client_reference_id=$uid');
+  try {
+    await launchUrl(url, webOnlyWindowName: '_blank')
+        .then((value) => log(value.toString()));
+  } catch (e) {
+    throw Exception('Could not launch $url because of $e');
+  }
+}
+
+Future<Map<String, dynamic>?> checkIfUserIsSubscribed() async {
+  Map<String, dynamic>? session;
+  final request = await http.get(
+    Uri.parse('https://api.stripe.com/v1/checkout/sessions'),
+    headers: {
+      'Authorization': 'Bearer $apiKey',
+    },
+  );
+
+  if (request.statusCode == 200) {
+    final data = jsonDecode(request.body);
+    List listedData = data['data'];
+    var clientSessions = listedData
+        .where((session) =>
+            session['client_reference_id'] == auth.currentUser!.uid)
+        .toList()
+        .where((userSession) => userSession['payment_status'] == 'paid')
+        .toList();
+    print('Client Sessions: $clientSessions');
+    if (clientSessions.isNotEmpty) {
+      log('Found paid session');
+      session = clientSessions[0] as Map<String, dynamic>;
+    } else {
+      log('No paid session available');
+    }
+  } else {
+    log('There was an issue: ${request.statusCode} ${request.body}');
+  }
+  return session;
+}
+
+Future<bool> isIgniterSubscriptionActive() async {
+  bool isSubscribed = false;
+  await checkIfUserIsSubscribed().then((session) async {
+    if (session != null) {
+      String subscriptionID = session['subscription'];
+      final response = await http.get(
+          Uri.parse(
+            'https://api.stripe.com/v1/subscriptions/$subscriptionID',
+          ),
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+          });
+      if (response.statusCode == 200) {
+        var body = jsonDecode(response.body);
+        print(body);
+        String subscriptionStatus = body['status'];
+        if (subscriptionStatus == 'active') {
+          log('User has an active subscription');
+          isSubscribed = true;
+        } else {
+          log('User subscription is $subscriptionStatus');
+        }
+      }
+    }
+  });
+  return isSubscribed;
+}
+
+Future<bool> isPatroneSubscriptionActive() async {
+  bool isSubscribed = false;
+  await checkIfUserIsSubscribed().then((session) async {
+    if (session != null) {
+      String subscriptionID = session['subscription'];
+      final response = await http.get(
+          Uri.parse(
+            'https://api.stripe.com/v1/subscriptions/$subscriptionID',
+          ),
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+          });
+      if (response.statusCode == 200) {
+        var body = jsonDecode(response.body);
+        print(body);
+        String subscriptionStatus = body['status'];
+        if (subscriptionStatus == 'active') {
+          log('User has an active subscription');
+          isSubscribed = true;
+        } else {
+          log('User subscription is $subscriptionStatus');
+        }
+      }
+    }
+  });
+  return isSubscribed;
+}
+
+Future<void> saveIgniterSessionOnFirebase() async {
+  await checkIfUserIsSubscribed().then(
+    (session) async {
+      if (session != null) {
+        customerReference.get().then((value) async {
+          if (value.exists) {
+            log('Customer object exists');
+            await customerReference
+                .collection('sessions')
+                .add(session)
+                .then((value) {
+              currentUserIgniterProfile.update(
+                {'recentSession': value},
+              );
+            });
+          } else {
+            await customerReference.set(session['customer']).then(
+                  (value) => customerReference
+                      .update(session['customer_details'])
+                      .then(
+                    (value) async {
+                      await customerReference
+                          .collection('sessions')
+                          .add(session)
+                          .then((value) {
+                        currentUserIgniterProfile.update(
+                          {'recentSession': value},
+                        );
+                      });
+                    },
+                  ),
+                );
+          }
+        });
+      }
+    },
+  );
+}
+
+Future<void> savePatroneSessionOnFirebase() async {
+  await checkIfUserIsSubscribed().then(
+    (session) async {
+      if (session != null) {
+        customerReference.get().then((value) async {
+          if (value.exists) {
+            log('Customer object exists');
+            await customerReference
+                .collection('sessions')
+                .add(session)
+                .then((value) {
+              Patrone().currentUserPatroneProfile.update(
+                {'recentSession': value},
+              );
+            });
+          } else {
+            await customerReference.set(session['customer']).then(
+                  (value) => customerReference
+                      .update(session['customer_details'])
+                      .then(
+                    (value) async {
+                      await customerReference
+                          .collection('sessions')
+                          .add(session)
+                          .then((value) {
+                        currentUserIgniterProfile.update(
+                          {'recentSession': value},
+                        );
+                      });
+                    },
+                  ),
+                );
+          }
+        });
+      }
+    },
+  );
+}
+
 var customerReference =
     firestore.collection('customers').doc(auth.currentUser!.uid);
 
-    Future<String?> payFromBalance(double amount, BuildContext context) async {
+Future<String?> payFromBalance(double amount, BuildContext context) async {
   String? paymentStatus;
   try {
     var account = Provider.of<Patrone>(context).accountBalance;
-      if (account != null) {
-        log('Balance found');
-        if (account > amount) {
-          Patrone().currentUserPatroneProfile.update( 
-              {'balance': FieldValue.increment(double.parse('-$amount'))});
-          paymentStatus = 'paid';
-        } else {
-          log('Balance is less than amount to be deducted');
-          paymentStatus = 'unpaid';
-        }
+    if (account != null) {
+      log('Balance found');
+      if (account > amount) {
+        Patrone().currentUserPatroneProfile.update(
+            {'balance': FieldValue.increment(double.parse('-$amount'))});
+        paymentStatus = 'paid';
       } else {
-        log('Balance not found');
+        log('Balance is less than amount to be deducted');
         paymentStatus = 'unpaid';
       }
+    } else {
+      log('Balance not found');
+      paymentStatus = 'unpaid';
+    }
     return paymentStatus;
   } catch (e) {
     print(e);
@@ -72,14 +262,14 @@ Future<void> payForIgniter(BuildContext context) async {
     await Stripe.instance
         .initPaymentSheet(
             paymentSheetParameters: SetupPaymentSheetParameters(
-              billingDetailsCollectionConfiguration:
-              BillingDetailsCollectionConfiguration(
-                name: CollectionMode.automatic,
-                email: CollectionMode.always,
-              ),
-              billingDetails: BillingDetails(
-                email: auth.currentUser!.email,
-              ),
+                billingDetailsCollectionConfiguration:
+                    BillingDetailsCollectionConfiguration(
+                  name: CollectionMode.automatic,
+                  email: CollectionMode.always,
+                ),
+                billingDetails: BillingDetails(
+                  email: auth.currentUser!.email,
+                ),
                 allowsDelayedPaymentMethods: false,
                 customFlow: false,
                 customerId: customerID!,
@@ -94,7 +284,6 @@ Future<void> payForIgniter(BuildContext context) async {
     print('$e');
   }
 }
-
 
 Future<bool> doesStripeCustomerExist(String email) async {
   final url = 'https://api.stripe.com/v1/customers';
@@ -180,14 +369,14 @@ Future<void> payForPatrone(BuildContext context) async {
     await Stripe.instance
         .initPaymentSheet(
             paymentSheetParameters: SetupPaymentSheetParameters(
-              billingDetailsCollectionConfiguration:
-              BillingDetailsCollectionConfiguration(
-                name: CollectionMode.automatic,
-                email: CollectionMode.always,
-              ),
-              billingDetails: BillingDetails(
-                email: auth.currentUser!.email,
-              ),
+                billingDetailsCollectionConfiguration:
+                    BillingDetailsCollectionConfiguration(
+                  name: CollectionMode.automatic,
+                  email: CollectionMode.always,
+                ),
+                billingDetails: BillingDetails(
+                  email: auth.currentUser!.email,
+                ),
                 allowsDelayedPaymentMethods: false,
                 customFlow: false,
                 customerId: customerID!,
@@ -203,8 +392,8 @@ Future<void> payForPatrone(BuildContext context) async {
   }
 }
 
-Future<void> displayIgniterPaymentSheet(BuildContext context, var paymentIntent)
-async {
+Future<void> displayIgniterPaymentSheet(
+    BuildContext context, var paymentIntent) async {
   try {
     await Stripe.instance.presentPaymentSheet().then((value) async {
       showDialog(
@@ -234,18 +423,15 @@ async {
         'payment_intent_data': paymentIntent,
       }).then((transaction) async {
         await currentUserIgniterProfile.update({
-        'igniter_payment': {
-          'date_paid': DateTime.now(),
-          'expiration_date': DateTime.now().add(Duration(days: 30)),
-          'transaction_reference': transaction,
-        }
+          'igniter_payment': {
+            'date_paid': DateTime.now(),
+            'expiration_date': DateTime.now().add(Duration(days: 30)),
+            'transaction_reference': transaction,
+          }
         });
-      }).then((value) => 
-      // Clears the payment intent
-      paymentIntent = null);
-
-      
-      
+      }).then((value) =>
+          // Clears the payment intent
+          paymentIntent = null);
     }).onError((error, stackTrace) {
       throw Exception(error);
     });
@@ -272,9 +458,8 @@ async {
   }
 }
 
-
-Future<void> displayPatronePaymentSheet(BuildContext context, var paymentIntent)
-async {
+Future<void> displayPatronePaymentSheet(
+    BuildContext context, var paymentIntent) async {
   try {
     await Stripe.instance.presentPaymentSheet().then((value) async {
       showDialog(
@@ -304,18 +489,15 @@ async {
         'payment_intent_data': paymentIntent,
       }).then((transaction) async {
         await Patrone().currentUserPatroneProfile.update({
-        'patrone_payment': {
-          'date_paid': DateTime.now(),
-          'expiration_date': DateTime.now().add(Duration(days: 30)),
-          'transaction_reference': transaction,
-        }
+          'patrone_payment': {
+            'date_paid': DateTime.now(),
+            'expiration_date': DateTime.now().add(Duration(days: 30)),
+            'transaction_reference': transaction,
+          }
         });
-      }).then((value) => 
-      // Clears the payment intent
-      paymentIntent = null);
-
-      
-      
+      }).then((value) =>
+          // Clears the payment intent
+          paymentIntent = null);
     }).onError((error, stackTrace) {
       throw Exception(error);
     });
@@ -341,7 +523,6 @@ async {
     print('$e');
   }
 }
-
 
 createPaymentIntent(String amount, String currency) async {
   try {

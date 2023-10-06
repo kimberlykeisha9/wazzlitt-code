@@ -143,7 +143,7 @@ class EventOrganizer extends ChangeNotifier {
     String? coverPhoto,
   }) async {
     try {
-      var organizerData = {
+      Map<String, dynamic> organizerData = {
         'organizer_name': organizerName?.trim(),
         'website': website,
         'category': category,
@@ -157,7 +157,11 @@ class EventOrganizer extends ChangeNotifier {
         if (value.exists) {
           await currentUserIgniterProfile.update(organizerData);
         } else {
-          await currentUserIgniterProfile.set(organizerData);
+          
+          currentUserProfile.update({'is_igniter': true}).then((value) async {
+            await currentUserIgniterProfile.set(organizerData).then((value) => 
+            currentUserIgniterProfile.update({'createdAt': DateTime.now()}));
+          });
         }
       });
     } on FirebaseException catch (e) {

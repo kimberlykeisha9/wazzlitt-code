@@ -101,24 +101,3 @@ exports.updateFollowers = functions.firestore
       await batch.commit();
     });
 
-exports.generateEphemeralSecret =
-  functions.https.onRequest(async (req, res) => {
-    if (req.method !== "POST") {
-      res.status(400).send("Invalid request method");
-      return;
-    }
-
-    const customerId = req.body.customer_id;
-    const apiVersion = req.body.api_version;
-
-    try {
-      const key = await stripe.ephemeralKeys.create(
-          {customer: customerId},
-          {api_version: apiVersion},
-      );
-      res.status(200).json(key);
-    } catch (err) {
-      res.status(500).json({error: err.message});
-    }
-  });
-

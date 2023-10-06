@@ -42,13 +42,13 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Return a loading indicator while waiting for the data.
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   // Handle error here.
                   return Text('Error: ${snapshot.error}');
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                   // Handle case when there are no businesses available.
-                  return Center(child: Text('No businesses available.'));
+                  return const Center(child: Text('No businesses available.'));
                 } else {
                   final listings = snapshot.data!;
                   return PageView.builder(
@@ -114,14 +114,14 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
                                                   fontWeight: FontWeight.bold)),
                                         ],
                                       ),
-                                      Column(
+                                      const Column(
                                         children: [
                                           Text('Daily Chats',
                                               style: TextStyle(fontSize: 12)),
                                           Text('0',
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold)),
-                                          const SizedBox(height: 20),
+                                          SizedBox(height: 20),
                                           Text('Tagged Posts',
                                               style: TextStyle(fontSize: 12)),
                                           Text('0',
@@ -129,14 +129,14 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
                                                   fontWeight: FontWeight.bold)),
                                         ],
                                       ),
-                                      Column(
+                                      const Column(
                                         children: [
                                           Text('Daily Impressions',
                                               style: TextStyle(fontSize: 12)),
                                           Text('0',
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold)),
-                                          const SizedBox(height: 20),
+                                          SizedBox(height: 20),
                                           Text('New Followers',
                                               style: TextStyle(fontSize: 12)),
                                           Text('0',

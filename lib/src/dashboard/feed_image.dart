@@ -48,6 +48,7 @@ class FeedImage extends StatefulWidget {
 class _FeedImageState extends State<FeedImage>
     with SingleTickerProviderStateMixin {
   String? location;
+  String popUpValue = '';
   Future<String> getLocationFromGeoPoint(GeoPoint geoPoint) async {
     try {
       // Reverse geocode the latitude and longitude
@@ -122,8 +123,8 @@ class _FeedImageState extends State<FeedImage>
                           .snapshots(),
                       builder: (context, creatorSnapshot) {
                         if (creatorSnapshot.hasData) {
-                          Map<String, dynamic> data = creatorSnapshot.data!.data()
-                              as Map<String, dynamic>;
+                          Map<String, dynamic> data = creatorSnapshot.data!
+                              .data() as Map<String, dynamic>;
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(
@@ -131,7 +132,8 @@ class _FeedImageState extends State<FeedImage>
                                 MaterialPageRoute(
                                   builder: (context) => Scaffold(
                                     appBar: AppBar(
-                                        title: Text(data['username'] ?? 'null')),
+                                        title:
+                                            Text(data['username'] ?? 'null')),
                                     body: FutureBuilder<Patrone>(
                                         future: Patrone().getPatroneInformation(
                                             widget.snapshot.get('creator_uid')),
@@ -176,18 +178,123 @@ class _FeedImageState extends State<FeedImage>
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold)),
-                                                Text(location ?? '',
-                            style: const TextStyle(
-                              fontSize: 12,
-                                color: Colors.white)),
+                                        Text(location ?? '',
+                                            style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.white)),
                                       ],
                                     ),
                                     const Spacer(),
-                                    IconButton(
-                                      icon: const Icon(Icons.more_vert,
-                                          color: Colors.white),
-                                      onPressed: () {
-                                        showPopupMenu(context);
+                                    PopupMenuButton(
+                                      itemBuilder: (context) {
+                                        return [
+                                          const PopupMenuItem(
+                                            value: 'report',
+                                            child: Text('Report'),
+                                          ),
+                                          const PopupMenuItem(
+                                            value: 'block',
+                                            child: Text('Block User'),
+                                          ),
+                                        ];
+                                      },
+                                      onSelected: (value) {
+                                        setState(() {
+                                          popUpValue = value;
+                                          if (value == 'report') {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                  title: const Text(
+                                                      'Make a Report'),
+                                                  content: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      DropdownButtonFormField<
+                                                          String>(
+                                                        value: selectedReason,
+                                                        onChanged:
+                                                            (String? newValue) {
+                                                          setState(() {
+                                                            selectedReason =
+                                                                newValue;
+                                                          });
+                                                        },
+                                                        decoration:
+                                                            const InputDecoration(
+                                                          labelText:
+                                                              'Reason for Report',
+                                                          // border: OutlineInputBorder(),
+                                                        ),
+                                                        items: const [
+                                                          DropdownMenuItem(
+                                                            value: 'Spam',
+                                                            child: Text('Spam'),
+                                                          ),
+                                                          DropdownMenuItem(
+                                                            value: 'Harassment',
+                                                            child: Text(
+                                                                'Harassment'),
+                                                          ),
+                                                          DropdownMenuItem(
+                                                            value:
+                                                                'Inappropriate Content',
+                                                            child: Text(
+                                                                'Inappropriate Content'),
+                                                          ),
+                                                          DropdownMenuItem(
+                                                            value: 'Other',
+                                                            child:
+                                                                Text('Other'),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      const SizedBox(
+                                                          height: 20),
+                                                      TextFormField(
+                                                        decoration:
+                                                            const InputDecoration(
+                                                                labelText:
+                                                                    'Any further information?'),
+                                                        minLines: 1,
+                                                        maxLines: 5,
+                                                      )
+                                                    ],
+                                                  ),
+                                                  actions: [
+                                                    TextButton(
+                                                        onPressed: () {},
+                                                        child: const Text(
+                                                            'Submit Report'))
+                                                  ]),
+                                            );
+                                          } else if (value == 'block') {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                  title:
+                                                      const Text('Block User'),
+                                                  content: const Text(
+                                                      'Are you sure you want to block this user?'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: const Text(
+                                                          'Yes, I am sure'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child: const Text('No'),
+                                                    ),
+                                                  ]),
+                                            );
+                                          }
+                                        });
                                       },
                                     ),
                                   ]),
@@ -198,11 +305,14 @@ class _FeedImageState extends State<FeedImage>
                         }
                       }),
                   Container(
-                    constraints: BoxConstraints(maxHeight: height(context) * 0.6, minWidth: width(context)),
+                    constraints: BoxConstraints(
+                        maxHeight: height(context) * 0.6,
+                        minWidth: width(context)),
                     // child: Image.network(
                     //     imageData['image'],
                     //     fit: BoxFit.fitWidth),
-                    child: Image.asset('assets/images/home-image.png', fit: BoxFit.fitWidth),
+                    child: Image.asset('assets/images/home-image.png',
+                        fit: BoxFit.fitWidth),
                   ),
                   Spacer(),
                   Padding(
@@ -215,7 +325,8 @@ class _FeedImageState extends State<FeedImage>
                         children: [
                           Flexible(
                             child: Text(
-                                (widget.snapshot.get('caption') as String?) ?? '',
+                                (widget.snapshot.get('caption') as String?) ??
+                                    '',
                                 style: const TextStyle(color: Colors.white)),
                           ),
                           Row(children: [
@@ -254,101 +365,5 @@ class _FeedImageState extends State<FeedImage>
             return const Center(child: CircularProgressIndicator());
           }
         });
-  }
-
-  void showPopupMenu(BuildContext context) {
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
-    final Offset offset = Offset(overlay.size.width / 2, overlay.size.height);
-
-    showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(offset.dx, offset.dy, 0, 0),
-      items: [
-        const PopupMenuItem(
-          value: 'report',
-          child: Text('Report'),
-        ),
-        const PopupMenuItem(
-          value: 'block',
-          child: Text('Block User'),
-        ),
-      ],
-      elevation: 8,
-    ).then((value) {
-      if (value == 'report') {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-              title: const Text('Make a Report'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<String>(
-                    value: selectedReason,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedReason = newValue;
-                      });
-                    },
-                    decoration: const InputDecoration(
-                      labelText: 'Reason for Report',
-                      // border: OutlineInputBorder(),
-                    ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: 'Spam',
-                        child: Text('Spam'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Harassment',
-                        child: Text('Harassment'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Inappropriate Content',
-                        child: Text('Inappropriate Content'),
-                      ),
-                      DropdownMenuItem(
-                        value: 'Other',
-                        child: Text('Other'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                        labelText: 'Any further information?'),
-                    minLines: 1,
-                    maxLines: 5,
-                  )
-                ],
-              ),
-              actions: [
-                TextButton(onPressed: () {}, child: const Text('Submit Report'))
-              ]),
-        );
-      } else if (value == 'block') {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-              title: const Text('Block User'),
-              content: const Text('Are you sure you want to block this user?'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Yes, I am sure'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('No'),
-                ),
-              ]),
-        );
-      }
-    });
   }
 }

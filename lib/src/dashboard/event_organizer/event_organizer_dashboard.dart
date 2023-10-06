@@ -51,9 +51,6 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
         child: Container(
           height: height(context),
           width: width(context),
-          decoration: BoxDecoration(
-            
-          ),
           child: FutureBuilder<List<EventData>>(
             future: EventOrganizer().getListedEvents(),
             builder: (context, snapshot) {

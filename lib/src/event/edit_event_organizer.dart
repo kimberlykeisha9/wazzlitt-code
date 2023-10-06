@@ -327,10 +327,6 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                         width: width(context) * 0.8,
                         child: ElevatedButton(
                           onPressed: () async {
-                            if ((_profilePicture != null &&
-                                    _coverPhoto != null) ||
-                                (networkProfile != null &&
-                                    networkCoverPhoto != null)) {
                               if (_selectedChip != null) {
                                 if (_formKey.currentState!.validate()) {
                                   try {
@@ -381,10 +377,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                 showSnackbar(
                                     context, 'Please select a category');
                               }
-                            } else {
-                              showSnackbar(context,
-                                  'Please upload a profile picture and cover image');
-                            }
+                            
                           },
                           child: Text(AppLocalizations.of(context)!.save),
                         ),

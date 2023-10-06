@@ -1,11 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dot_navigation_bar/dot_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
-import '../../authorization/authorization.dart';
 import '../../user_data/payments.dart';
 import '../app.dart';
 import '../../user_data/patrone_data.dart';
@@ -29,16 +25,20 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   int _currentIndex = 0;
   TabController? _exploreController;
 
-  bool? confirmedPayment;
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _smsController = TextEditingController();
-  final GlobalKey<FormState> _emailKey = GlobalKey<FormState>();
+  bool? _isSubscribed;
 
   @override
   void initState() {
     super.initState();
     uploadCurrentLocation();
     _exploreController = TabController(length: 2, vsync: this);
+    isPatroneSubscriptionActive().then((isSubscribed) {
+      setState(() {
+        _isSubscribed = isSubscribed;
+      });
+      if (isSubscribed) {
+      } else {}
+    });
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {});
   }
 
@@ -62,7 +62,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       appBar: AppBar(
         title: titleWidget(context),
         actions: [
-          (confirmedPayment ?? false)
+          (_isSubscribed!)
               ? (trailingIcon() ?? const SizedBox())
               : const SizedBox(),
         ],
@@ -80,19 +80,9 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                   DateTime(2000))
                               .add(const Duration(days: 14))
                               .isBefore(DateTime.now()));
-                      if (isFreeTrial ||
-                          (Provider.of<Patrone>(context).patronePayment !=
-                                  null &&
-                              (Provider.of<Patrone>(context)
-                                          .patronePayment!['expiration_date']
-                                      as Timestamp)
-                                  .toDate()
-                                  .isAfter(DateTime.now()))) {
-                        confirmedPayment = true;
-
+                      if (isFreeTrial || _isSubscribed!) {
                         return views(context)[_currentIndex];
                       } else {
-                        confirmedPayment = false;
                         return Padding(
                           padding: const EdgeInsets.all(20),
                           child: Center(
@@ -104,114 +94,10 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                       'for the patrone account. You can continue the '
                                       'set up process by pressing the button below',
                                       textAlign: TextAlign.center),
-                                  auth.currentUser!.email == null
-                                      ? const SizedBox(height: 20)
-                                      : const SizedBox(),
-                                  auth.currentUser!.email == null
-                                      ? const Text(
-                                          'Please provide a valid email address below',
-                                          textAlign: TextAlign.center)
-                                      : const SizedBox(),
-                                  auth.currentUser!.email == null
-                                      ? const SizedBox(height: 30)
-                                      : const SizedBox(),
-                                  auth.currentUser!.email == null
-                                      ? Form(
-                                          key: _emailKey,
-                                          child: TextFormField(
-                                              controller: _emailController,
-                                              autovalidateMode:
-                                                  AutovalidateMode.always,
-                                              validator: (value) {
-                                                if (value == null ||
-                                                    value.isEmpty) {
-                                                  return 'Email is required';
-                                                }
-                                                final emailRegex = RegExp(
-                                                  r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)*[a-zA-Z]{2,7}$',
-                                                );
-                                                if (!(emailRegex
-                                                    .hasMatch(value))) {
-                                                  return 'Enter a valid email address';
-                                                }
-                                                return null;
-                                              },
-                                              decoration: const InputDecoration(
-                                                labelText: 'Email Address',
-                                              )),
-                                        )
-                                      : const SizedBox(),
                                   const SizedBox(height: 20),
                                   ElevatedButton(
                                       onPressed: () {
-                                        if (auth.currentUser!.email == null) {
-                                          if (_emailKey.currentState!
-                                              .validate()) {
-                                            auth.currentUser!
-                                                .updateEmail(
-                                                    _emailController.text)
-                                                .then(
-                                                    (value) => auth.currentUser!
-                                                            .reload()
-                                                            .then((value) {
-                                                          payForPatrone(
-                                                              context);
-                                                        }), onError: (e) {
-                                              signInWithPhoneNumber(
-                                                  auth.currentUser!
-                                                      .phoneNumber!,
-                                                  context,
-                                                  showDialog(
-                                                      context: context,
-                                                      builder: (_) {
-                                                        return AlertDialog(
-                                                          title: const Text(
-                                                              'Enter your '
-                                                              'verification code'),
-                                                          content:
-                                                              PinCodeTextField(
-                                                                  controller:
-                                                                      _smsController,
-                                                                  validator:
-                                                                      (val) {
-                                                                    if (val ==
-                                                                        null) {
-                                                                      return 'Please enter a value';
-                                                                    }
-                                                                    if (val.length !=
-                                                                        6) {
-                                                                      return 'Please enter a valid code';
-                                                                    }
-                                                                    return null;
-                                                                  },
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .number,
-                                                                  appContext:
-                                                                      context,
-                                                                  length: 6,
-                                                                  onChanged:
-                                                                      (val) {}),
-                                                          actions: [
-                                                            TextButton(
-                                                                child: const Text(
-                                                                    'Verify'),
-                                                                onPressed: () {
-                                                                  getData('verificationID').then((value) => verifyCode(
-                                                                          _smsController
-                                                                              .text,
-                                                                          value!)
-                                                                      .then((value) =>
-                                                                          null));
-                                                                })
-                                                          ],
-                                                        );
-                                                      }));
-                                            });
-                                          }
-                                        } else {
-                                          payForPatrone(context);
-                                        }
+                                        launchPatroneSubscription();
                                       },
                                       child: const Text(
                                           'Pay for Patrone Account')),
@@ -223,42 +109,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           ],
         ),
       ),
-      // bottomNavigationBar: AnimatedBottomNavigationBar(
-      //   backgroundColor: Theme.of(context).colorScheme.primary,
-      //   icons: [
-      //     Icons.home,
-      //     Icons.explore,
-      //     Icons.chat,
-      //     Icons.account_circle,
-      //   ],
-      //   activeIndex: _currentIndex,
-      //   onTap: (int index) {
-      //     setState(() {
-      //       _currentIndex = index;
-      //     });
-      //   },
-      // ),
-      // floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      // floatingActionButton: Container(
-      //   constraints: const BoxConstraints(maxWidth: 500),
-      //   child: DotNavigationBar(
-      //     backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-      //     currentIndex: _currentIndex,
-      //             onTap: (int index) {
-      //               setState(() {
-      //                 _currentIndex = index;
-      //               });
-      //             },
-      //             borderRadius: 15,
-      //     items: [
-      //       DotNavigationBarItem(icon: const Icon(Icons.home)),
-      //       DotNavigationBarItem(icon: const Icon(Icons.explore)),
-      //       DotNavigationBarItem(icon: const Icon(Icons.chat)),
-      //       DotNavigationBarItem(icon: const Icon(Icons.account_circle)),
-      //     ],
-      //   ),
-      // ),
-      bottomNavigationBar: (confirmedPayment ?? false)
+      bottomNavigationBar: _isSubscribed!
           ? Theme(
               data: ThemeData(
                 canvasColor: Theme.of(context).colorScheme.surface,
@@ -276,13 +127,21 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                 selectedItemColor: Colors.white,
                 items: const [
                   BottomNavigationBarItem(
-                      label: 'Home', icon: Icon(Icons.home_outlined), activeIcon: Icon(Icons.home)),
+                      label: 'Home',
+                      icon: Icon(Icons.home_outlined),
+                      activeIcon: Icon(Icons.home)),
                   BottomNavigationBarItem(
-                      label: 'Explore', icon: Icon(Icons.explore_outlined), activeIcon: Icon(Icons.explore)),
+                      label: 'Explore',
+                      icon: Icon(Icons.explore_outlined),
+                      activeIcon: Icon(Icons.explore)),
                   BottomNavigationBarItem(
-                      label: 'Messages', icon: Icon(Icons.chat_outlined), activeIcon: Icon(Icons.chat)),
+                      label: 'Messages',
+                      icon: Icon(Icons.chat_outlined),
+                      activeIcon: Icon(Icons.chat)),
                   BottomNavigationBarItem(
-                      label: 'Profile', icon: Icon(Icons.account_circle_outlined), activeIcon: Icon(Icons.account_circle)),
+                      label: 'Profile',
+                      icon: Icon(Icons.account_circle_outlined),
+                      activeIcon: Icon(Icons.account_circle)),
                 ],
               ),
             )

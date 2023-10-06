@@ -1,5 +1,6 @@
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:wazzlitt/authorization/authorization.dart';
 
 import '../app.dart';
 
@@ -134,7 +135,7 @@ class Settings extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Facebook'),
-                        Switch(value: false, onChanged: (val) => val = true),
+                        Switch(value: isFacebookActivated(), onChanged: (val) => val = true),
                       ],
                     ),
                     Row(
@@ -155,7 +156,7 @@ class Settings extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Email'),
-                        Switch(value: false, onChanged: (val) => val = true),
+                        Switch(value: isEmailActivated(), onChanged: (val) => val = true),
                       ],
                     ),
                     const SizedBox(

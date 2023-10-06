@@ -93,10 +93,6 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
                   getData('phone').then((number) => signInWithPhoneNumber(
                         number ?? '',
                         context,
-                        widget.pageController.nextPage(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeInOut,
-                        ),
                       ));
                 }
               },

@@ -682,7 +682,7 @@ class _LitTabState extends State<LitTab> {
                                         DateFormat.yMMMd().format(
                                             (event.date ?? DateTime(2000))),
                                         style: const TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 8,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),
@@ -695,7 +695,7 @@ class _LitTabState extends State<LitTab> {
                                     child: Text(
                                       event.eventName ?? '',
                                       style: const TextStyle(
-                                        fontSize: 18,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
                                       ),
@@ -708,7 +708,7 @@ class _LitTabState extends State<LitTab> {
                                     child: Text(
                                       event.category ?? 'Unknown',
                                       style: const TextStyle(
-                                        fontSize: 14,
+                                        fontSize: 8,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black,
                                       ),
@@ -727,7 +727,6 @@ class _LitTabState extends State<LitTab> {
             ],
           );
         }
-        return const Center(child: CircularProgressIndicator());
       },
     );
   }

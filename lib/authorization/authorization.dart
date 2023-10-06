@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 
 import '../src/app.dart';
 
@@ -13,8 +14,80 @@ Future<void> signOut() async {
   log('Logged user out');
 }
 
+bool isEmailActivated() {
+  return auth.currentUser!.email != null;
+}
+
+bool isGoogleActivated() {
+  // Check if Google is linked to the user's account
+  bool isGoogleLinked =
+      auth.currentUser!.providerData.any((provider) => provider.providerId == 'google.com');
+
+  if (isGoogleLinked) {
+    print('Google is linked to the user\'s account');
+  } else {
+    print('Google is not linked to the user\'s account');
+  }
+  return isGoogleLinked;
+}
+
+bool isFacebookActivated() {
+  // Check if Google is linked to the user's account
+  bool isFacebookLinked =
+      auth.currentUser!.providerData.any((provider) => provider.providerId == 'facebook.com');
+
+  if (isFacebookLinked) {
+    print('Facebook is linked to the user\'s account');
+  } else {
+    print('Facebook is not linked to the user\'s account');
+  }
+  return isFacebookLinked;
+}
+
+Future<void> verificationWidget(BuildContext context,
+    TextEditingController controller, String verificationCode) async {
+  showDialog(
+      context: context,
+      builder: (_) {
+        return AlertDialog(
+          title: const Text('Enter your '
+              'verification code'),
+          content: PinCodeTextField(
+              controller: controller,
+              validator: (val) {
+                if (val == null) {
+                  return 'Please enter a value';
+                }
+                if (val.length != 6) {
+                  return 'Please enter a valid code';
+                }
+                return null;
+              },
+              keyboardType: TextInputType.number,
+              appContext: context,
+              length: 6,
+              onChanged: (val) {}),
+          actions: [
+            TextButton(
+                child: const Text('Verify'),
+                onPressed: () async {
+                  await verifyCode(controller.text, verificationCode).then(
+                      (value) {
+                    Navigator.of(context).pop();
+                    Navigator.popAndPushNamed(context, 'dashboard');
+                  }, onError: (e) {
+                    log(e.toString());
+                    Navigator.of(context).pop();
+                  });
+                }),
+          ],
+        );
+      });
+}
+
 Future<void> signInWithPhoneNumber(
-    String phoneNumber, BuildContext context, dynamic onCodeSent) async {
+    String phoneNumber, BuildContext context) async {
+  final TextEditingController smsController = TextEditingController();
   // Function to handle the verification completed event
   void verificationCompleted(PhoneAuthCredential credential) async {
     String? verificationId = await getData('verificationID');
@@ -41,7 +114,7 @@ Future<void> signInWithPhoneNumber(
   void codeSent(String verificationId, [int? forceResendingToken]) {
     // Store the verification ID somewhere (e.g., in a global variable)
     storeData('verificationID', verificationId);
-    onCodeSent;
+    verificationWidget(context, smsController, verificationId);
     showSnackbar(context, 'Code has been sent');
   }
 
@@ -51,7 +124,7 @@ Future<void> signInWithPhoneNumber(
     ScaffoldMessenger.of(context).showMaterialBanner(MaterialBanner(actions: [
       TextButton(
           onPressed: () {
-            signInWithPhoneNumber(phoneNumber, context, onCodeSent);
+            signInWithPhoneNumber(phoneNumber, context);
             ScaffoldMessenger.of(context).clearMaterialBanners();
           },
           child: const Text('Resend Code')),
@@ -86,8 +159,8 @@ Future<void> signInWithPhoneNumber(
   }
 }
 
-Future<PhoneAuthCredential?> verifyCode(String smsCode, String verificationId)
-async {
+Future<PhoneAuthCredential?> verifyCode(
+    String smsCode, String verificationId) async {
   PhoneAuthCredential? credential;
   try {
     // Create PhoneAuthCredential with the verification ID and code
@@ -107,9 +180,9 @@ async {
     return credential;
   } catch (e) {
     log('Error verifying phone number: ${e.toString()}');
+    throw Exception(e);
   }
 }
-
 
 Future<bool> isNewUser() async {
   // Check if the phone number is already registered

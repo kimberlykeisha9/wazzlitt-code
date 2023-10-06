@@ -450,6 +450,7 @@ class _EditPlaceState extends State<EditPlace> {
                                         hintText: 'Location',
                                           labelText: 'Location'),
                                       googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
+                                      proxyURL: '47.91.88.100:1080',
                                       debounceTime: 400, // defaults to 600 ms,
                                       countries: ["us"], // optional, by
                                       // default the list is empty (no restrictions)

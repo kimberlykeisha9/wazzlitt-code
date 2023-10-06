@@ -126,49 +126,15 @@ class ProfileTab extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // SizedBox(
-        //   child: Stack(
-        //     children: [
-        //       // Container(
-        //       //   width: width(context),
-        //       //   height: 150,
-        //       //   decoration: BoxDecoration(
-        //       //       color: Colors.grey,
-        //       //       image: coverPhoto != null
-        //       //           ? DecorationImage(
-        //       //               fit: BoxFit.cover, image: NetworkImage(coverPhoto!))
-        //       //           : null),
-        //       // ),
-        //       Align(
-        //         alignment: Alignment.bottomCenter,
-        //         child: Padding(
-        //           padding: const EdgeInsets.symmetric(horizontal: 0),
-        //           child: Container(
-        //             width: 75,
-        //             height: 75,
-        //             decoration: BoxDecoration(
-        //               image: profilePhoto != null
-        //                   ? DecorationImage(
-        //                       image: NetworkImage(profilePhoto!),
-        //                       fit: BoxFit.cover)
-        //                   : null,
-        //               color: Colors.grey[800],
-        //               shape: BoxShape.circle,
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(20),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
                       width: 80,
@@ -184,42 +150,44 @@ class ProfileTab extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    Container(
-                      constraints: BoxConstraints(minWidth: 300),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Column(
-                            children: [
-                              Text(posts.length.toString(),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18)),
-                              const Text('Posts',
-                                  style: TextStyle(fontSize: 14)),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Text(followers.length.toString(),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18)),
-                              const Text('Followers',
-                                  style: TextStyle(fontSize: 14)),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              Text(following.length.toString(),
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18)),
-                              const Text('Following',
-                                  style: TextStyle(fontSize: 14)),
-                            ],
-                          ),
-                        ],
+                    Flexible(
+                      child: Container(
+                        constraints: const BoxConstraints(minWidth: 300),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: [
+                                Text(posts.length.toString(),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18)),
+                                const Text('Posts',
+                                    style: TextStyle(fontSize: 14)),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(followers.length.toString(),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18)),
+                                const Text('Followers',
+                                    style: TextStyle(fontSize: 14)),
+                              ],
+                            ),
+                            Column(
+                              children: [
+                                Text(following.length.toString(),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18)),
+                                const Text('Following',
+                                    style: TextStyle(fontSize: 14)),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -232,8 +200,8 @@ class ProfileTab extends StatelessWidget {
                     const SizedBox(height: 20),
                     Text('$firstName $lastName',
                         style: const TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 5),
-                    Text('@$username', style: const TextStyle(fontSize: 12)),
+                    // const SizedBox(height: 5),
+                    // Text('@$username', style: const TextStyle(fontSize: 12)),
                     const SizedBox(height: 10),
                     Text(Patrone().getStarSign(dob ?? DateTime(0, 1, 1)),
                         style: const TextStyle(fontSize: 12)),
@@ -249,10 +217,10 @@ class ProfileTab extends StatelessWidget {
                         }
                         if (snapshot.hasError) {
                           return const Text('An error occured',
-                              style: const TextStyle(fontSize: 12));
+                              style: TextStyle(fontSize: 12));
                         }
                         return const Text('Loading...',
-                            style: const TextStyle(fontSize: 12));
+                            style: TextStyle(fontSize: 12));
                       },
                     ),
                   ],
