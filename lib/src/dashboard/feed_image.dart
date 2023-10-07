@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -45,10 +44,10 @@ class FeedImage extends StatefulWidget {
   State<FeedImage> createState() => _FeedImageState();
 }
 
-class _FeedImageState extends State<FeedImage>
-    with SingleTickerProviderStateMixin {
+class _FeedImageState extends State<FeedImage> {
   String? location;
   String popUpValue = '';
+
   Future<String> getLocationFromGeoPoint(GeoPoint geoPoint) async {
     try {
       // Reverse geocode the latitude and longitude
@@ -73,12 +72,17 @@ class _FeedImageState extends State<FeedImage>
     return '';
   }
 
+  late final Future<Patrone> Function(Future<Patrone>) getPatrone;
+
   @override
   void initState() {
     // TODO: implement initState
     getLocationFromGeoPoint(widget.snapshot.get('location'))
         .then((value) => location = value);
     super.initState();
+    getPatrone = (val) {
+      return val;
+    };
   }
 
   Widget likeIcon() {
@@ -135,8 +139,10 @@ class _FeedImageState extends State<FeedImage>
                                         title:
                                             Text(data['username'] ?? 'null')),
                                     body: FutureBuilder<Patrone>(
-                                        future: Patrone().getPatroneInformation(
-                                            widget.snapshot.get('creator_uid')),
+                                        future: getPatrone(Patrone()
+                                            .getPatroneInformation(widget
+                                                .snapshot
+                                                .get('creator_uid'))),
                                         builder: (context, snapshot) {
                                           return ProfileScreen(
                                               userProfile: snapshot.data!);
@@ -308,12 +314,9 @@ class _FeedImageState extends State<FeedImage>
                     constraints: BoxConstraints(
                         maxHeight: height(context) * 0.6,
                         minWidth: width(context)),
-                    // child: Image.network(
-                    //     imageData['image'],
-                    //     fit: BoxFit.fitWidth),
-                    child: Image.asset('assets/images/home-image.png',
-                        fit: BoxFit.fitWidth),
-                  ),
+                    child: Image.network(
+                        imageData['image'],
+                        fit: BoxFit.fitWidth)),
                   Spacer(),
                   Padding(
                     padding: const EdgeInsets.all(10),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import '../../user_data/payments.dart';
 import '../app.dart';
@@ -26,9 +27,87 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   TabController? _exploreController;
 
   bool? _isSubscribed;
+  late TutorialCoachMark tutorialCoachMark;
+  List<TargetFocus> targets = [];
+  GlobalKey key = GlobalKey();
+  GlobalKey exploreKey = GlobalKey();
+  GlobalKey chatsKey = GlobalKey();
+  GlobalKey profileKey = GlobalKey();
+   void initTargets() {
+    void addToTarget(GlobalKey assignedKey, String target, String instruction) {
+      targets.add(
+        TargetFocus(
+          identify: target,
+          keyTarget: assignedKey,
+          color: Colors.red,
+          contents: [
+            TargetContent(
+              align: ContentAlign.bottom,
+              child: SizedBox(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Center(
+                      child: Text(
+                        instruction,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 20.0),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+          shape: ShapeLightFocus.RRect,
+          radius: 5,
+        ),
+      );
+    }
+    addToTarget(key, '1', 'This is where you will find your home feed');
+    addToTarget(exploreKey, '2', 'This is where you can search for activities and see what is in your area');
+    addToTarget(chatsKey, '3', 'This is where you can access your chats');
+    addToTarget(profileKey, '4', 'This is where you can edit your profile');
+  }
+
+  void showTutorial(BuildContext context) {
+  tutorialCoachMark = TutorialCoachMark(
+    
+    targets: targets,
+    colorShadow: Colors.pink,
+    textSkip: "SKIP",
+    paddingFocus: 10,
+    opacityShadow: 0.8,
+    onFinish: () {
+      print("finish");
+    },
+    onClickTarget: (target) {
+      print('onClickTarget: $target');
+    },
+    onSkip: () {
+      print("skip");
+    },
+    onClickOverlay: (target) {
+      print('onClickOverlay: $target');
+    },
+  )..show(context: context);
+}
+
+void _layout(BuildContext context){
+    Future.delayed(const Duration(milliseconds: 100));
+    showTutorial(context);
+  }
+
 
   @override
   void initState() {
+    initTargets();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _layout(context);
+    });
     super.initState();
     uploadCurrentLocation();
     _exploreController = TabController(length: 2, vsync: this);
@@ -39,6 +118,8 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       if (isSubscribed) {
       } else {}
     });
+    getInformation = Provider.of<Patrone>(context, listen:false)
+                        .getCurrentUserPatroneInformation();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {});
   }
 
@@ -55,6 +136,8 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     ];
   }
 
+  late final Future getInformation;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +145,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       appBar: AppBar(
         title: titleWidget(context),
         actions: [
-          (_isSubscribed!)
+          (_isSubscribed ?? false)
               ? (trailingIcon() ?? const SizedBox())
               : const SizedBox(),
         ],
@@ -72,15 +155,21 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           children: [
             Expanded(
                 child: FutureBuilder<void>(
-                    future: Provider.of<Patrone>(context)
-                        .getCurrentUserPatroneInformation(),
+                    future: getInformation,
                     builder: (context, snapshot) {
+                      while (_isSubscribed == null) {
+                        return Center(child: CircularProgressIndicator());
+                      }
                       bool isFreeTrial =
                           !((Provider.of<Patrone>(context).createdTime ??
                                   DateTime(2000))
                               .add(const Duration(days: 14))
                               .isBefore(DateTime.now()));
+                              print(isFreeTrial);
                       if (isFreeTrial || _isSubscribed!) {
+                        if (isFreeTrial) {
+                          _isSubscribed = isFreeTrial;
+                        }
                         return views(context)[_currentIndex];
                       } else {
                         return Padding(
@@ -109,8 +198,8 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           ],
         ),
       ),
-      bottomNavigationBar: _isSubscribed!
-          ? Theme(
+      bottomNavigationBar: 
+          Theme(
               data: ThemeData(
                 canvasColor: Theme.of(context).colorScheme.surface,
               ),
@@ -125,27 +214,28 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                 showUnselectedLabels: false,
                 unselectedItemColor: Colors.white.withOpacity(0.5),
                 selectedItemColor: Colors.white,
-                items: const [
+                items: [
                   BottomNavigationBarItem(
+                   
                       label: 'Home',
-                      icon: Icon(Icons.home_outlined),
-                      activeIcon: Icon(Icons.home)),
+                      icon: Icon(Icons.home_outlined, key: key),
+                      activeIcon: Icon(Icons.home, key: key)),
                   BottomNavigationBarItem(
                       label: 'Explore',
-                      icon: Icon(Icons.explore_outlined),
-                      activeIcon: Icon(Icons.explore)),
+                      icon: Icon(Icons.explore_outlined, key: exploreKey),
+                      activeIcon: Icon(Icons.explore, key: exploreKey)),
                   BottomNavigationBarItem(
                       label: 'Messages',
-                      icon: Icon(Icons.chat_outlined),
-                      activeIcon: Icon(Icons.chat)),
+                      icon: Icon(Icons.chat_outlined, key: chatsKey),
+                      activeIcon: Icon(Icons.chat, key: chatsKey)),
                   BottomNavigationBarItem(
                       label: 'Profile',
-                      icon: Icon(Icons.account_circle_outlined),
-                      activeIcon: Icon(Icons.account_circle)),
+                      icon: Icon(Icons.account_circle_outlined, key: profileKey),
+                      activeIcon: Icon(Icons.account_circle, key: profileKey)),
                 ],
               ),
             )
-          : const SizedBox(),
+         ,
     );
   }
 

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wazzlitt/user_data/business_owner_data.dart';
@@ -16,6 +17,18 @@ class BusinessOwnerProfile extends StatefulWidget {
 class _BusinessOwnerProfileState extends State<BusinessOwnerProfile> {
   List<BusinessPlace> listings = [];
 
+  late final Future<List<BusinessPlace>> getBusinessPlaces;
+  late final Future<String> Function(DocumentReference<Object?>) getPlaceLocation;
+
+  @override
+  void initState() {
+    super.initState();
+    getBusinessPlaces = BusinessOwner().getListedBusiness();
+    getPlaceLocation = (val) {
+      return getLocationForPlace(val);
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -24,7 +37,7 @@ class _BusinessOwnerProfileState extends State<BusinessOwnerProfile> {
           width: width(context),
           height: height(context),
           child: FutureBuilder<List<BusinessPlace>>(
-            future: BusinessOwner().getListedBusiness(),
+            future: getBusinessPlaces,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return Center(child: CircularProgressIndicator());
@@ -113,7 +126,7 @@ class _BusinessOwnerProfileState extends State<BusinessOwnerProfile> {
               const Text('97% Popularity'),
               const SizedBox(height: 10),
               FutureBuilder<String>(
-                future: getLocationForPlace(listing.placeReference!),
+                future: getPlaceLocation(listing.placeReference!),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Text(

@@ -10,12 +10,14 @@ import '../app.dart';
 
 
 class Dashboard extends StatelessWidget {
-  const Dashboard({super.key});
+  Dashboard({super.key});
+
+  final Future<DocumentSnapshot> getProfile = currentUserProfile.get();
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot>(
-        future: currentUserProfile.get(),
+        future: getProfile,
         builder: (context, snapshot) {
 
           if (snapshot.hasData) {

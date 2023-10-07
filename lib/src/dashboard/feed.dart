@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
 import '../app.dart';
@@ -17,6 +18,85 @@ class Feed extends StatefulWidget {
 }
 
 class _FeedState extends State<Feed> {
+  late TutorialCoachMark tutorialCoachMark;
+  List<TargetFocus> targets = [];
+
+  GlobalKey key = GlobalKey();
+
+  void initTargets() {
+    void addToTarget(GlobalKey assignedKey, String target, String instruction) {
+      targets.add(
+        TargetFocus(
+          identify: target,
+          keyTarget: assignedKey,
+          color: Colors.red,
+          contents: [
+            TargetContent(
+              align: ContentAlign.bottom,
+              child: SizedBox(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      instruction,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 20.0),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+          shape: ShapeLightFocus.RRect,
+          radius: 5,
+        ),
+      );
+    }
+    addToTarget(key, '1', 'Browse the feed');
+  }
+
+  void showTutorial(BuildContext context) {
+  tutorialCoachMark = TutorialCoachMark(
+    
+    targets: targets,
+    colorShadow: Colors.pink,
+    textSkip: "SKIP",
+    paddingFocus: 10,
+    opacityShadow: 0.8,
+    onFinish: () {
+      print("finish");
+    },
+    onClickTarget: (target) {
+      print('onClickTarget: $target');
+    },
+    onSkip: () {
+      print("skip");
+    },
+    onClickOverlay: (target) {
+      print('onClickOverlay: $target');
+    },
+  )..show(context: context);
+}
+
+void _layout(BuildContext context){
+    Future.delayed(Duration(milliseconds: 100));
+    showTutorial(context);
+  }
+
+  
+
+  @override
+  void initState() {
+    initTargets();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _layout(context);
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -43,7 +123,7 @@ class _FeedState extends State<Feed> {
                     if (snapshot.data!.size > 0) {
                       return FadeIn(child: FeedImage(snapshot: doc));
                     } else {
-                      return Center(
+                      return const Center(
                           child: Text('No images have been posted yet'));
                     }
                   }),

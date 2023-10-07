@@ -32,9 +32,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
 
   // Images from Network
   String? networkProfile;
-  String? networkCoverPhoto;
   // Local Images
-  File? _coverPhoto;
   File? _profilePicture;
 
   // Selected Category
@@ -57,7 +55,6 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
         _descriptionController.text =
             organizerData?['organizer_description'] ?? '';
         _emailController.text = organizerData?['email_address'] ?? '';
-        networkCoverPhoto = organizerData?['cover_image'] ?? '';
         networkProfile = organizerData?['image'];
         _selectedChip = organizerData?['category'];
       }
@@ -76,17 +73,6 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
     });
   }
 
-  Future<void> _pickCoverPhoto() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _coverPhoto = File(pickedImage.path);
-      });
-    }
-  }
-
   Future<void> _pickProfilePicture() async {
     final picker = ImagePicker();
     final pickedImage = await picker.pickImage(source: ImageSource.gallery);
@@ -98,6 +84,10 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
     }
   }
 
+  late final Future<DocumentSnapshot> getIgniterInfo = currentUserIgniterProfile.get();
+
+
+
   @override
   Widget build(BuildContext context) {
     final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
@@ -107,7 +97,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
           title: const Text('Edit Igniter Profile'),
         ),
         body: FutureBuilder<DocumentSnapshot>(
-            future: currentUserIgniterProfile.get(),
+            future: getIgniterInfo,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 Map<String, dynamic>? organizerData =
@@ -116,69 +106,38 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 200,
+                        height: 100,
                         width: width(context),
-                        child: Stack(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                _pickCoverPhoto(); // Function to handle cover photo selection
-                              },
-                              child: Container(
-                                width: width(context),
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey,
-                                  image: networkCoverPhoto != null
-                                      ? DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image:
-                                              NetworkImage(networkCoverPhoto!))
-                                      : _coverPhoto == null
-                                          ? null
-                                          : DecorationImage(
-                                              fit: BoxFit.cover,
-                                              image: FileImage(_coverPhoto!)),
-                                ),
-                                child: (_coverPhoto != null ||
-                                        networkCoverPhoto != null)
-                                    ? const SizedBox()
-                                    : const Icon(Icons.add_photo_alternate),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Align(
-                              alignment: Alignment.bottomCenter,
-                              child: GestureDetector(
-                                onTap: () {
-                                  _pickProfilePicture(); // Function to handle profile picture selection
-                                },
-                                child: Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[350],
-                                    shape: BoxShape.circle,
-                                    image: networkProfile != null
-                                        ? DecorationImage(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: GestureDetector(
+                            onTap: () {
+                              _pickProfilePicture(); // Function to handle profile picture selection
+                            },
+                            child: Container(
+                              width: 100,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[350],
+                                shape: BoxShape.circle,
+                                image: networkProfile != null
+                                    ? DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image:
+                                            NetworkImage(networkProfile!))
+                                    : _profilePicture == null
+                                        ? null
+                                        : DecorationImage(
                                             fit: BoxFit.cover,
-                                            image:
-                                                NetworkImage(networkProfile!))
-                                        : _profilePicture == null
-                                            ? null
-                                            : DecorationImage(
-                                                fit: BoxFit.cover,
-                                                image: FileImage(
-                                                    _profilePicture!)),
-                                  ),
-                                  child: (_profilePicture != null ||
-                                          networkProfile != null)
-                                      ? const SizedBox()
-                                      : const Icon(Icons.person),
-                                ),
+                                            image: FileImage(
+                                                _profilePicture!)),
                               ),
+                              child: (_profilePicture != null ||
+                                      networkProfile != null)
+                                  ? const SizedBox()
+                                  : const Icon(Icons.person),
                             ),
-                          ],
+                          ),
                         ),
                       ),
                       const Spacer(),
@@ -339,9 +298,6 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                               child:
                                                   CircularProgressIndicator()));
                                     }
-                                    uploadImageToFirebase(_coverPhoto,
-                                            'users/${auth.currentUser!.uid}/igniter/cover_photo')
-                                        .then((coverPic) {
                                       uploadImageToFirebase(_profilePicture,
                                               'users/${auth.currentUser!.uid}/igniter/profile_photo')
                                           .then((profilePic) {
@@ -357,8 +313,6 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                                   _emailController.text,
                                               phoneNumber:
                                                   _phoneController.text,
-                                              coverPhoto:
-                                                  coverPic ?? networkCoverPhoto,
                                               profilePhoto:
                                                   profilePic ?? networkProfile,
                                             )
@@ -367,7 +321,6 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                                     context,
                                                     'igniter_dashboard'));
                                       });
-                                    });
                                     dataSendingNotifier.stopLoading();
                                   } on Exception catch (e) {
                                     dataSendingNotifier.stopLoading();

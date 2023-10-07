@@ -53,6 +53,7 @@ class _EditEventState extends State<EditEvent> {
     _formKey = GlobalKey<FormState>();
     // Fill in the text controller values
     WidgetsFlutterBinding.ensureInitialized();
+     getEvent = widget.event?.get();
     widget.event?.get().then((value) {
       if (value.exists) {
         Map<String, dynamic>? eventData = value.data() as Map<String, dynamic>?;
@@ -91,6 +92,8 @@ class _EditEventState extends State<EditEvent> {
     }
   }
 
+  late final Future<DocumentSnapshot<Object?>>? getEvent;
+
   @override
   Widget build(BuildContext context) {
     final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
@@ -109,7 +112,7 @@ class _EditEventState extends State<EditEvent> {
               : const SizedBox(),
         ]),
         body: FutureBuilder<DocumentSnapshot>(
-            future: widget.event?.get(),
+            future: getEvent,
             builder: (context, snapshot) {
               if (snapshot.hasData ||
                   snapshot.connectionState == ConnectionState.none) {

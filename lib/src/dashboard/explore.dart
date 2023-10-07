@@ -34,17 +34,22 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
     super.initState();
     _exploreController = widget.tabController;
     _loadCategories();
+    getPatrone = (val) {
+      return val;
+    };
   }
+
+  late final Future<Patrone> Function(Future<Patrone>) getPatrone;
 
   Future<void> _loadCategories() async {
     final value =
         await firestore.collection('app_data').doc('categories').get();
     final data = value.data() as Map<String, dynamic>;
 
-      categories = data.entries.map((entry) {
-        final itemData = entry.value as Map<String, dynamic>;
-        return Category(entry.key, itemData['image']);
-      }).toList();
+    categories = data.entries.map((entry) {
+      final itemData = entry.value as Map<String, dynamic>;
+      return Category(entry.key, itemData['image']);
+    }).toList();
   }
 
   void _navigateToPlace(BuildContext context, BusinessPlace placeData) {
@@ -305,7 +310,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         builder: (context) => Scaffold(
           appBar: AppBar(title: Text(username)),
           body: FutureBuilder<Patrone>(
-              future: Patrone().getPatroneInformation(reference),
+              future: getPatrone(Patrone().getPatroneInformation(reference)),
               builder: (context, snapshot) {
                 return ProfileScreen(userProfile: snapshot.data!);
               }),
@@ -322,9 +327,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         Container(
           height: height(context),
           width: width(context),
-          decoration: const BoxDecoration(
-            
-          ),
+          decoration: const BoxDecoration(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -387,6 +390,8 @@ class PlacesTab extends StatelessWidget {
   }
 
   List<BusinessPlace> allPlaces = [];
+
+  late Future<List<BusinessPlace>> getPlaceFuture = getAllPlaces();
 
   Future<List<BusinessPlace>> getAllPlaces() async {
     try {
@@ -464,7 +469,7 @@ class PlacesTab extends StatelessWidget {
         ),
         Expanded(
           child: FutureBuilder<List<BusinessPlace>>(
-            future: getAllPlaces(),
+            future: getPlaceFuture,
             builder: (context, snapshot) {
               if (!(snapshot.hasData) ||
                   snapshot.data == null ||
@@ -475,18 +480,18 @@ class PlacesTab extends StatelessWidget {
                 return GridView.builder(
                   shrinkWrap: true,
                   gridDelegate: SliverQuiltedGridDelegate(
-    crossAxisCount: 4,
-    mainAxisSpacing: 4,
-    crossAxisSpacing: 4,
-    repeatPattern: QuiltedGridRepeatPattern.inverted,
-    pattern: [
-      const QuiltedGridTile(2, 2),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-    ],
-  ),
+                    crossAxisCount: 4,
+                    mainAxisSpacing: 4,
+                    crossAxisSpacing: 4,
+                    repeatPattern: QuiltedGridRepeatPattern.inverted,
+                    pattern: [
+                      const QuiltedGridTile(2, 2),
+                      const QuiltedGridTile(1, 1),
+                      const QuiltedGridTile(1, 1),
+                      const QuiltedGridTile(1, 1),
+                      const QuiltedGridTile(1, 1),
+                    ],
+                  ),
                   itemCount: allPlaces.length,
                   itemBuilder: (BuildContext context, int index) {
                     final place = allPlaces[index];
@@ -624,10 +629,12 @@ class _LitTabState extends State<LitTab> {
     );
   }
 
+  late final Future<List<EventData>> getEvents = getAllEvents();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<EventData>>(
-      future: getAllEvents(),
+      future: getEvents,
       builder: (context, snapshot) {
         if (snapshot.data == null || snapshot.data!.isEmpty) {
           return const Center(child: Text('No events found'));
@@ -639,20 +646,19 @@ class _LitTabState extends State<LitTab> {
               Expanded(
                 child: SizedBox(
                   child: GridView.builder(
-                    gridDelegate:
-                        SliverQuiltedGridDelegate(
-    crossAxisCount: 4,
-    mainAxisSpacing: 4,
-    crossAxisSpacing: 4,
-    repeatPattern: QuiltedGridRepeatPattern.inverted,
-    pattern: [
-      const QuiltedGridTile(2, 2),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-      const QuiltedGridTile(1, 1),
-    ],
-  ),
+                    gridDelegate: SliverQuiltedGridDelegate(
+                      crossAxisCount: 4,
+                      mainAxisSpacing: 4,
+                      crossAxisSpacing: 4,
+                      repeatPattern: QuiltedGridRepeatPattern.inverted,
+                      pattern: [
+                        const QuiltedGridTile(2, 2),
+                        const QuiltedGridTile(1, 1),
+                        const QuiltedGridTile(1, 1),
+                        const QuiltedGridTile(1, 1),
+                        const QuiltedGridTile(1, 1),
+                      ],
+                    ),
                     itemCount: allEvents.length,
                     itemBuilder: (context, index) {
                       final event = allEvents[index];
@@ -691,7 +697,8 @@ class _LitTabState extends State<LitTab> {
                                   ),
                                   const Spacer(),
                                   Container(
-                                    color: Theme.of(context).colorScheme.primary,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                     child: Text(
                                       event.eventName ?? '',
                                       style: const TextStyle(

@@ -30,6 +30,14 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
     }
   }
 
+  late final Future<List<BusinessPlace>> getBusinessPlaces;
+
+  @override
+  void initState() {
+    super.initState();
+    getBusinessPlaces = BusinessOwner().getListedBusiness();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -38,7 +46,7 @@ class _BusinessOwnerDashboardState extends State<BusinessOwnerDashboard> {
           width: width(context),
           height: height(context),
           child: FutureBuilder<List<BusinessPlace>>(
-              future: BusinessOwner().getListedBusiness(),
+              future: getBusinessPlaces,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Return a loading indicator while waiting for the data.

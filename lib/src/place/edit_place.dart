@@ -99,6 +99,9 @@ class _EditPlaceState extends State<EditPlace> {
             : '';
       }
     });
+    getPlace = (val) {
+      return val!;
+    };
     ud.firestore.collection('app_data').doc('categories').get().then((value) {
       var data = value.data() as Map<String, dynamic>;
       data.forEach((key, value) {
@@ -133,7 +136,10 @@ class _EditPlaceState extends State<EditPlace> {
         _profilePicture = File(pickedImage.path);
       });
     }
+
   }
+
+  late final Future<DocumentSnapshot> Function(Future<DocumentSnapshot<Object?>>?) getPlace;
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +149,7 @@ class _EditPlaceState extends State<EditPlace> {
           title: const Text('Edit Igniter Profile'),
         ),
         body: FutureBuilder<DocumentSnapshot>(
-            future: widget.place?.get(const GetOptions(source: Source.server)),
+            future: getPlace(widget.place?.get(const GetOptions(source: Source.server))),
             builder: (context, snapshot) {
               if (snapshot.hasData || snapshot.connectionState == ConnectionState.none) {
                 Map<String, dynamic>? placeData;

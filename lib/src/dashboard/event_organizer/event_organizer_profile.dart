@@ -2,28 +2,39 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/src/event/edit_event.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
-
-import '../../../user_data/user_data.dart';
 import '../../app.dart';
 import '../../event/edit_event_organizer.dart';
 
-class EventOrganizerProfile extends StatelessWidget {
+class EventOrganizerProfile extends StatefulWidget {
   const EventOrganizerProfile({super.key});
 
   @override
+  State<EventOrganizerProfile> createState() => _EventOrganizerProfileState();
+}
+
+class _EventOrganizerProfileState extends State<EventOrganizerProfile> {
+  late final Future getOrganizerInfo;
+
+  late final eventOrganizer;
+
+  @override
+  void initState() {
+    super.initState();
+    eventOrganizer = Provider.of<EventOrganizer>(context, listen: false);
+    getOrganizerInfo = eventOrganizer.getCurrentUserEventOrganizerInformation();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final eventOrganizer = Provider.of<EventOrganizer>(context);
+    
 
     return SafeArea(
       child: SingleChildScrollView(
         child: Container(
           height: height(context),
           width: width(context),
-          decoration: BoxDecoration(
-            
-          ),
           child: FutureBuilder<void>(
-            future: eventOrganizer.getCurrentUserEventOrganizerInformation(),
+            future: getOrganizerInfo,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
@@ -36,45 +47,29 @@ class EventOrganizerProfile extends StatelessWidget {
                 final website = eventOrganizer.website;
                 final phone = eventOrganizer.phone;
                 final email = eventOrganizer.email;
-
+                print(events);
                 return Column(
                   children: [
                     SizedBox(
-                      height: 200,
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: width(context),
-                            height: 150,
+                      height: 100,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Hero(
+                          tag: 'profile',
+                          child: Container(
+                            width: 100,
+                            height: 100,
                             decoration: BoxDecoration(
-                              color: Colors.grey,
-                              image: coverImage == null
+                              color: Colors.grey[800],
+                              shape: BoxShape.circle,
+                              image: profileImage == null
                                   ? null
                                   : DecorationImage(
                                       fit: BoxFit.cover,
-                                      image: NetworkImage(coverImage!)),
+                                      image: NetworkImage(profileImage)),
                             ),
                           ),
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            child: Hero(
-                              tag: 'profile',
-                              child: Container(
-                                width: 100,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[800],
-                                  shape: BoxShape.circle,
-                                  image: profileImage == null
-                                      ? null
-                                      : DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: NetworkImage(profileImage)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                     Padding(
@@ -126,23 +121,13 @@ class EventOrganizerProfile extends StatelessWidget {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 10),
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('About Us',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                TextButton(
-                                  child: const Text(''),
-                                  onPressed: () {},
-                                )
-                              ]),
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Text(
-                              description ?? 'null',
-                            ),
+                          const SizedBox(height: 30),
+                          const Text('About Us',
+                              style:
+                                  TextStyle(fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 20),
+                          Text(
+                            description ?? 'null',
                           ),
                           const SizedBox(height: 20),
                           const Text('Posted Events',

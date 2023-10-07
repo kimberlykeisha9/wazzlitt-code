@@ -44,6 +44,14 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
     return weekDays.map((date) => formatter.format(date)).toList();
   }
 
+  late final Future<List<EventData>> getEvents;
+
+  @override
+  void initState() {
+    super.initState();
+    getEvents = EventOrganizer().getListedEvents();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -52,7 +60,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
           height: height(context),
           width: width(context),
           child: FutureBuilder<List<EventData>>(
-            future: EventOrganizer().getListedEvents(),
+            future: getEvents,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());

@@ -95,7 +95,7 @@ class MyApp extends StatelessWidget {
                 'settings': (context) => const Settings(),
                 'orders': (context) => const Orders(),
                 'confirmed': (context) => const ConfirmedOrder(),
-                'dashboard': (context) => const Dashboard(),
+                'dashboard': (context) => Dashboard(),
                 'igniter_dashboard': (context) => const IgniterDashboard(),
               },
             ),

@@ -2,9 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' as db;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-
 import '../../user_data/order_data.dart';
-import '../../user_data/user_data.dart';
 import '../app.dart';
 import 'order_details.dart';
 import '../../user_data/patrone_data.dart';
@@ -22,7 +20,14 @@ class _OrdersState extends State<Orders> {
     // TODO: implement initState
     super.initState();
     Provider.of<Patrone>(context, listen: false).getCurrentUserOrders();
+    orderFuture = (val) {
+      return val;
+    };
   }
+
+  late final Future<db.DocumentSnapshot> Function(
+      Future<db.DocumentSnapshot<Object?>>) orderFuture;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,55 +37,58 @@ class _OrdersState extends State<Orders> {
         body: Container(
           height: height(context),
           width: width(context),
-          decoration: BoxDecoration(
-            
-          ),
+          decoration: BoxDecoration(),
           child: FutureBuilder(
-            future: null,
-            builder: (context, snapshot) {
-                List<Order> orders =Provider.of<Patrone>(context).placedOrders
-              ?? [];
+              future: null,
+              builder: (context, snapshot) {
+                List<Order> orders =
+                    Provider.of<Patrone>(context).placedOrders ?? [];
                 return SafeArea(
                   child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.all(20),
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Search orders',
-                              prefixIcon: Icon(Icons.search),
-                              border: UnderlineInputBorder(),
-                            ),
+                    child: Column(children: [
+                      const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Search orders',
+                            prefixIcon: Icon(Icons.search),
+                            border: UnderlineInputBorder(),
                           ),
                         ),
-                          GridView.builder(
-                            shrinkWrap: true,
-                            itemCount: orders.length,
-                            gridDelegate:
+                      ),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        itemCount: orders.length,
+                        gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                            ),
-                            itemBuilder: (context, index) {
-                              Order order = orders[index];
-                              return FutureBuilder(
-                                future: null,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    db.DocumentReference? orderReference = order.reference;
-                                    return FutureBuilder<db.DocumentSnapshot>(
-                                      future: orderReference!.get(),
-                                      builder: (context,snapshot) {
-                                        if(snapshot.hasData) {
-                                          Map<String, dynamic> orderTypeData = snapshot.data!.data() as Map<String, dynamic>;
+                          crossAxisCount: 2,
+                        ),
+                        itemBuilder: (context, index) {
+                          Order order = orders[index];
+                          return FutureBuilder(
+                              future: null,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  db.DocumentReference? orderReference =
+                                      order.reference;
+                                  return FutureBuilder<db.DocumentSnapshot>(
+                                      future:
+                                          orderFuture(orderReference!.get()),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData) {
+                                          Map<String, dynamic> orderTypeData =
+                                              snapshot.data!.data()
+                                                  as Map<String, dynamic>;
                                           return GestureDetector(
                                             onTap: () {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => OrderDetails(
+                                                  builder: (context) =>
+                                                      OrderDetails(
                                                     order: order,
-                                                    orderSourceData: orderTypeData,
+                                                    orderSourceData:
+                                                        orderTypeData,
                                                   ),
                                                 ),
                                               );
@@ -88,19 +96,26 @@ class _OrdersState extends State<Orders> {
                                             child: Container(
                                                 decoration: BoxDecoration(
                                                     image: DecorationImage(
-                                                        image: NetworkImage(orderTypeData['image']),
-                                                      fit: BoxFit.cover,
-                                                    )
-                                                ),
-                                                padding: const EdgeInsets.all(40),
+                                                  image: NetworkImage(
+                                                      orderTypeData['image']),
+                                                  fit: BoxFit.cover,
+                                                )),
+                                                padding:
+                                                    const EdgeInsets.all(40),
                                                 child: Column(
                                                   children: [
                                                     const Spacer(flex: 10),
                                                     Text(
-                                                      (order.orderType == OrderType.service) ? order.details!['service_name'] : order.details!['ticket_name'],
+                                                      (order.orderType ==
+                                                              OrderType.service)
+                                                          ? order.details![
+                                                              'service_name']
+                                                          : order.details![
+                                                              'ticket_name'],
                                                       style: const TextStyle(
                                                         color: Colors.white,
-                                                        fontWeight: FontWeight.bold,
+                                                        fontWeight:
+                                                            FontWeight.bold,
                                                       ),
                                                     ),
                                                     const Spacer(flex: 3),
@@ -114,7 +129,8 @@ class _OrdersState extends State<Orders> {
                                                     const Spacer(),
                                                     Text(
                                                       'Purchase Date: ${DateFormat.yMMMd().format(order.datePlaced!)}',
-                                                      textAlign: TextAlign.center,
+                                                      textAlign:
+                                                          TextAlign.center,
                                                       style: const TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 14,
@@ -124,22 +140,20 @@ class _OrdersState extends State<Orders> {
                                                   ],
                                                 )),
                                           );
-                                        } return const Center(
-                                          child: CircularProgressIndicator()
-                                        );
-                                      }
-                                    );
-                                  }
-                                  return const Center(child: CircularProgressIndicator());
+                                        }
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      });
                                 }
-                              );
-                            },
-                          ),
-                        ]),
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              });
+                        },
+                      ),
+                    ]),
                   ),
                 );
-              }
-          ),
+              }),
         ));
   }
 }

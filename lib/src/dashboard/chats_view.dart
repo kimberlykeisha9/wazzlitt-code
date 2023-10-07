@@ -23,6 +23,25 @@ class _ChatsViewState extends State<ChatsView> {
       .collection('messages')
       .where('participants', arrayContains: currentUserProfile);
 
+
+      late final Future<DocumentSnapshot<Object?>>? Function(DocumentReference<Object?>?) getMessages;
+      late final Future<DocumentSnapshot<Object?>>? Function(Future<DocumentSnapshot<Map<String, dynamic>>>) getReceiverMessage;
+      late final Future<Patrone> Function(Future<Patrone>) getPatroneData;
+
+      @override
+      void initState() {
+        super.initState();
+        getMessages = (val) {
+          return val?.get();
+        };
+        getReceiverMessage = (val) {
+          return val;
+        };
+        getPatroneData = (val) {
+          return val;
+        };
+      }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -59,17 +78,17 @@ class _ChatsViewState extends State<ChatsView> {
                         DocumentReference? messageSnapshot =
                             messageData['last_message'];
                         return FutureBuilder<DocumentSnapshot>(
-                            future: messageSnapshot?.get(),
+                            future: getMessages(messageSnapshot),
                             builder: (context, lastMessageSnapshot) {
                               if (lastMessageSnapshot.hasData) {
                                 Map<String, dynamic>? lastMessageData =
                                     lastMessageSnapshot.data?.data()
                                         as Map<String, dynamic>?;
                                 return FutureBuilder<DocumentSnapshot>(
-                                    future: receiver
+                                    future: getReceiverMessage(receiver
                                         .collection('account_type')
                                         .doc('patrone')
-                                        .get(),
+                                        .get()),
                                     builder: (context, senderSnapshot) {
                                       if (senderSnapshot.hasData) {
                                         Map<String, dynamic>? senderData =
@@ -95,12 +114,12 @@ class _ChatsViewState extends State<ChatsView> {
                                                             ),
                                                             body:
                                                             FutureBuilder<Patrone>(
-                                                              future: Patrone()
+                                                              future: getPatroneData(Patrone()
                                                                   .getPatroneInformation(receiver
                                                                   .collection(
                                                                   'account_type')
                                                                   .doc(
-                                                                  'patrone')),
+                                                                  'patrone'))),
                                                               builder: (context, snapshot) {
                                                                 return ProfileScreen(
                                                                     userProfile: snapshot.data!);

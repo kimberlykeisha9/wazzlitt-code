@@ -1,7 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:wazzlitt/src/dashboard/feed_image.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
@@ -19,14 +18,6 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
-  TabController? _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Patrone>(
@@ -50,15 +41,6 @@ class _ProfileScreenState extends State<ProfileScreen>
             width: width(context),
             child: Column(
               children: [
-                // TabBar(
-                //   tabs: const [
-                //     Tab(text: 'Profile'),
-                //     Tab(text: 'Activity'),
-                //   ],
-                //   controller: _tabController!,
-                //   indicatorColor: Theme.of(context).colorScheme.primary,
-                // ),
-
                 SizedBox(
                   height: height(context) * 0.5,
                   child: ProfileTab(
@@ -90,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 }
 
-class ProfileTab extends StatelessWidget {
+class ProfileTab extends StatefulWidget {
   const ProfileTab({
     super.key,
     required this.userProfile,
@@ -121,6 +103,25 @@ class ProfileTab extends StatelessWidget {
   final List<dynamic> followers;
 
   @override
+  State<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<ProfileTab> {
+  @override
+  void initState() {
+    super.initState();
+    isFollowing = (val) {
+      return val;
+    };
+    getLocation = (val) {
+      return val;
+    };
+  }
+
+  late final Future<bool> Function(Future<bool>) isFollowing;
+  late final Future<String> Function(Future<String>) getLocation;
+  
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -140,9 +141,9 @@ class ProfileTab extends StatelessWidget {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        image: profilePhoto != null
+                        image: widget.profilePhoto != null
                             ? DecorationImage(
-                                image: NetworkImage(profilePhoto!),
+                                image: NetworkImage(widget.profilePhoto!),
                                 fit: BoxFit.cover)
                             : null,
                         color: Colors.grey[800],
@@ -158,7 +159,7 @@ class ProfileTab extends StatelessWidget {
                           children: [
                             Column(
                               children: [
-                                Text(posts.length.toString(),
+                                Text(widget.posts.length.toString(),
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18)),
@@ -168,7 +169,7 @@ class ProfileTab extends StatelessWidget {
                             ),
                             Column(
                               children: [
-                                Text(followers.length.toString(),
+                                Text(widget.followers.length.toString(),
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18)),
@@ -178,7 +179,7 @@ class ProfileTab extends StatelessWidget {
                             ),
                             Column(
                               children: [
-                                Text(following.length.toString(),
+                                Text(widget.following.length.toString(),
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 18)),
@@ -198,16 +199,17 @@ class ProfileTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 20),
-                    Text('$firstName $lastName',
+                    Text('${widget.firstName} ${widget.lastName}',
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     // const SizedBox(height: 5),
                     // Text('@$username', style: const TextStyle(fontSize: 12)),
                     const SizedBox(height: 10),
-                    Text(Patrone().getStarSign(dob ?? DateTime(0, 1, 1)),
+                    Text(Patrone().getStarSign(widget.dob ?? DateTime(0, 1, 1)),
                         style: const TextStyle(fontSize: 12)),
                     const SizedBox(height: 5),
                     FutureBuilder<String>(
-                      future: getCurrentLocation(userProfile),
+                      future:
+                          getLocation(getCurrentLocation(widget.userProfile)),
                       builder: (context, snapshot) {
                         print(snapshot.connectionState);
 
@@ -226,7 +228,7 @@ class ProfileTab extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Text(bio ?? 'User has not set a bio',
+                Text(widget.bio ?? 'User has not set a bio',
                     style: const TextStyle(fontSize: 14)),
                 const SizedBox(height: 30),
                 Row(
@@ -238,24 +240,26 @@ class ProfileTab extends StatelessWidget {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.all(5)),
-                          onPressed: () =>
-                              userProfile == Patrone().currentUserPatroneProfile
-                                  ? Navigator.pushNamed(
-                                      context, 'patrone_registration')
-                                  : Patrone()
-                                      .isFollowingUser(userProfile)
-                                      .then((isFollowing) {
-                                      isFollowing
-                                          ? Patrone().unfollowUser(userProfile)
-                                          : Patrone().followUser(userProfile);
-                                    }),
-                          child: userProfile ==
+                          onPressed: () => widget.userProfile ==
+                                  Patrone().currentUserPatroneProfile
+                              ? Navigator.pushNamed(
+                                  context, 'patrone_registration')
+                              : Patrone()
+                                  .isFollowingUser(widget.userProfile)
+                                  .then((isFollowing) {
+                                  isFollowing
+                                      ? Patrone()
+                                          .unfollowUser(widget.userProfile)
+                                      : Patrone()
+                                          .followUser(widget.userProfile);
+                                }),
+                          child: widget.userProfile ==
                                   Patrone().currentUserPatroneProfile
                               ? const Text('Edit Profile',
                                   style: TextStyle(fontSize: 12))
                               : FutureBuilder<bool>(
-                                  future:
-                                      Patrone().isFollowingUser(userProfile),
+                                  future: isFollowing(Patrone()
+                                      .isFollowingUser(widget.userProfile)),
                                   builder: (context, snapshot) {
                                     return Text(
                                         snapshot.data! ? 'Unfollow' : 'Follow',
@@ -265,7 +269,7 @@ class ProfileTab extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    userProfile == Patrone().currentUserPatroneProfile
+                    widget.userProfile == Patrone().currentUserPatroneProfile
                         ? const SizedBox()
                         : Expanded(
                             flex: 10,
@@ -279,7 +283,7 @@ class ProfileTab extends StatelessWidget {
                                       .collection('messages')
                                       .where('participants', arrayContains: [
                                         currentUserProfile,
-                                        userProfile.parent.parent
+                                        widget.userProfile.parent.parent
                                       ])
                                       .get()
                                       .then((result) {
@@ -287,7 +291,7 @@ class ProfileTab extends StatelessWidget {
                                           firestore.collection('messages').add({
                                             'participants': [
                                               currentUserProfile,
-                                              userProfile.parent.parent
+                                              widget.userProfile.parent.parent
                                             ],
                                           }).then((messages) {
                                             Navigator.push(
@@ -338,11 +342,12 @@ class ProfileTab extends StatelessWidget {
                 Flexible(
                   child: SizedBox(
                     child: ListView.builder(
-                        itemCount: interests?.length ?? 0,
+                        itemCount: widget.interests?.length ?? 0,
                         scrollDirection: Axis.horizontal,
                         shrinkWrap: true,
                         itemBuilder: (context, index) {
-                          Map<String, dynamic> interest = interests?[index];
+                          Map<String, dynamic> interest =
+                              widget.interests?[index];
                           return Padding(
                             padding: const EdgeInsets.all(5),
                             child: Chip(label: Text(interest['display'])),
