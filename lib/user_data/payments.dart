@@ -25,6 +25,18 @@ Future<void> launchIgniterSubscription() async {
   }
 }
 
+Future<void> launchTopUpPage() async {
+  String? uid = auth.currentUser!.uid;
+  final Uri url = Uri.parse(
+      'https://buy.stripe.com/test_dR63dG5RHbda7hS6os?client_reference_id=wazzlitt-balance-$uid-patrone');
+  try {
+    await launchUrl(url, webOnlyWindowName: '_blank')
+        .then((value) => log(value.toString()));
+  } catch (e) {
+    throw Exception('Could not launch $url because of $e');
+  }
+}
+
 Future<void> launchPatroneSubscription() async {
   String? uid = auth.currentUser!.uid;
   final Uri url = Uri.parse(
@@ -35,6 +47,20 @@ Future<void> launchPatroneSubscription() async {
   } catch (e) {
     throw Exception('Could not launch $url because of $e');
   }
+}
+
+createSellerAccount() async {
+  final request = await http.post(
+    Uri.parse('https://api.stripe.com/v1/accounts'),
+    headers: {
+      'Authorization': 'Bearer $apiKey',
+      'Content-Type': 'application/x-www-form-urlencoded',
+    }, body: {
+      'type': 'express'
+    }
+  );
+  
+    print(request.body);
 }
 
 Future<Map<String, dynamic>?> checkIfIgniterUserIsSubscribed() async {

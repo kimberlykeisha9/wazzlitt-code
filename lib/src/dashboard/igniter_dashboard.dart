@@ -226,14 +226,16 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
         if (igniterType == IgniterType.businessOwner) {
           return FloatingActionButton.extended(
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const EditEvent()));
+              
               },
               label: const Text('List a new place'),
               icon: const Icon(Icons.place));
         } else {
           return FloatingActionButton.extended(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const EditEvent()));
+              },
               label: const Text('List a new event'),
               icon: const Icon(Icons.calendar_month));
         }

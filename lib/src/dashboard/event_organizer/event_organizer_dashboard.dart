@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
+import 'package:wazzlitt/user_data/payments.dart';
 
 import '../../app.dart';
 import '../../event/edit_ticket.dart';
@@ -269,15 +270,16 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                 child: ElevatedButton(
                                   child: const Text('Add a new ticket'),
                                   onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            NewTicket(
-                                          event: event,
-                                        ),
-                                      ),
-                                    );
+                                    createSellerAccount();
+                                    // Navigator.push(
+                                    //   context,
+                                    //   MaterialPageRoute(
+                                    //     builder: (context) =>
+                                    //         NewTicket(
+                                    //       event: event,
+                                    //     ),
+                                    //   ),
+                                    // );
                                   },
                                 ),
                               ),

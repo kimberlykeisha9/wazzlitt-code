@@ -5,8 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:wazzlitt/src/dashboard/conversation_screen.dart';
+import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/src/location/location.dart';
 import 'package:wazzlitt/user_data/business_owner_data.dart';
+import 'package:wazzlitt/user_data/patrone_data.dart';
 import '../app.dart';
 
 class Place extends StatefulWidget {
@@ -23,11 +25,15 @@ class _PlaceState extends State<Place> {
 
   static LatLng _initialPosition = const LatLng(37.7749, -122.4194);
 
+  late final Stream<List<DocumentSnapshot>> getPeople;
+
   @override
   void initState() {
     super.initState();
     GeoPoint location = widget.place.location ?? const GeoPoint(0, 0);
     _initialPosition = LatLng(location.latitude, location.longitude);
+    getPeople =
+        getNearbyPeople(_initialPosition.latitude, _initialPosition.longitude);
   }
 
   void _shareOnFacebook() {
@@ -107,10 +113,10 @@ class _PlaceState extends State<Place> {
           ),
           const SizedBox(height: 5),
           StreamBuilder<List<DocumentSnapshot>>(
-            stream: getNearbyPeople(
-                _initialPosition.latitude, _initialPosition.longitude),
+            stream: getPeople,
             builder: (context, snapshot) {
               final patroneCount = snapshot.data?.length ?? 0;
+          
               return Text(
                 '$patroneCount Patrones around here',
                 style: const TextStyle(fontWeight: FontWeight.bold),
@@ -199,6 +205,7 @@ class _PlaceState extends State<Place> {
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -243,41 +250,58 @@ class _PlaceState extends State<Place> {
       width: width(context),
       height: 250,
       color: Colors.grey,
-      child: GestureDetector(
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (_) => Container(
-              height: height(context) * 0.9,
-              width: width(context) * 0.9,
-              child: GoogleMap(
-                markers: {
+      child: StreamBuilder(
+        stream: getPeople,
+        builder: (context, snapshot) {
+          Set<Marker> newMarkers = {};
+          if (snapshot.hasData) {
+        
+            for (var patrone in snapshot.data!) {
+                Map<String, dynamic> data = patrone.data() as Map<String, dynamic>;
+                print(data);
+                GeoPoint location = data['current_location']['geopoint'];
+                  newMarkers.add(
                   Marker(
-                      markerId: const MarkerId('place'),
-                      position: _initialPosition),
-                  ...patroneMarkers
-                },
-                initialCameraPosition:
-                    CameraPosition(target: _initialPosition, zoom: 12),
-                onMapCreated: (controller) {
-                  mapController = controller;
-                },
-              ),
-            ),
+                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+                    infoWindow: InfoWindow(title: data['username']),
+                    position: LatLng(location.latitude, location.longitude),
+                      markerId: MarkerId(patrone.reference.parent.parent!.id),
+                      onTap: () {
+                        Patrone()
+                            .getPatroneInformation(patrone.reference)
+                            .then((value) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Scaffold(
+                                appBar: AppBar(
+                                  title: Text(value.usernameSet ?? '')
+                                ),
+                               body: ProfileScreen(
+                                  userProfile: value,
+                                ),
+                              ),
+                            ),
+                          );
+                        });
+                      }),
+                );
+              }
+          }
+          return GoogleMap(
+            onTap: (val) {
+              newMarkers.toSet();
+            },
+            markers: newMarkers,
+            initialCameraPosition:
+                CameraPosition(target: _initialPosition, zoom: 12),
+            onMapCreated: (controller) {
+              mapController = controller;
+              newMarkers.add(Marker(
+                  markerId: const MarkerId('place'), position: _initialPosition),);
+            },
           );
-        },
-        child: GoogleMap(
-          markers: {
-            Marker(
-                markerId: const MarkerId('place'), position: _initialPosition),
-            ...patroneMarkers
-          },
-          initialCameraPosition:
-              CameraPosition(target: _initialPosition, zoom: 12),
-          onMapCreated: (controller) {
-            mapController = controller;
-          },
-        ),
+        }
       ),
     );
   }
