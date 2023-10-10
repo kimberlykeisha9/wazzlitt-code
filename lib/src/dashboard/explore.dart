@@ -474,18 +474,18 @@ class PlacesTab extends StatelessWidget {
               if (!(snapshot.hasData) ||
                   snapshot.data == null ||
                   snapshot.data!.isEmpty) {
-                return const Center(child: Text('No places found'));
+                return const Center(child: Text('No places are currently available'));
               } else {
                 allPlaces = snapshot.data!;
                 return GridView.builder(
                   shrinkWrap: true,
                   gridDelegate: SliverQuiltedGridDelegate(
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 4,
-                    crossAxisSpacing: 4,
+                    crossAxisCount: 3,
+                    mainAxisSpacing: 0,
+                    crossAxisSpacing: 0,
                     repeatPattern: QuiltedGridRepeatPattern.inverted,
                     pattern: [
-                      const QuiltedGridTile(2, 2),
+                      const QuiltedGridTile(2, 1),
                       const QuiltedGridTile(1, 1),
                       const QuiltedGridTile(1, 1),
                       const QuiltedGridTile(1, 1),
@@ -508,7 +508,7 @@ class PlacesTab extends StatelessWidget {
                             ),
                           ),
                         ),
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(10),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,7 +577,7 @@ class _LitTabState extends State<LitTab> {
   Future<List<EventData>> getAllEvents() async {
     try {
       List<EventData> listedEvents = [];
-      await firestore.collection('events').get().then((events) {
+      await firestore.collection('events').where('date', isGreaterThan: DateTime.now()).get().then((events) {
         for (QueryDocumentSnapshot<Map<String, dynamic>> event in events.docs) {
           var eventData = event.data();
           List<Ticket>? ticketsList = [];
@@ -637,7 +637,7 @@ class _LitTabState extends State<LitTab> {
       future: getEvents,
       builder: (context, snapshot) {
         if (snapshot.data == null || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No events found'));
+          return const Center(child: Text('No events are currently available'));
         } else {
           allEvents = snapshot.data!;
           return Column(
@@ -646,19 +646,7 @@ class _LitTabState extends State<LitTab> {
               Expanded(
                 child: SizedBox(
                   child: GridView.builder(
-                    gridDelegate: SliverQuiltedGridDelegate(
-                      crossAxisCount: 4,
-                      mainAxisSpacing: 4,
-                      crossAxisSpacing: 4,
-                      repeatPattern: QuiltedGridRepeatPattern.inverted,
-                      pattern: [
-                        const QuiltedGridTile(2, 2),
-                        const QuiltedGridTile(1, 1),
-                        const QuiltedGridTile(1, 1),
-                        const QuiltedGridTile(1, 1),
-                        const QuiltedGridTile(1, 1),
-                      ],
-                    ),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
                     itemCount: allEvents.length,
                     itemBuilder: (context, index) {
                       final event = allEvents[index];

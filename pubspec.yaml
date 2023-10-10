@@ -47,6 +47,9 @@ dependencies:
   google_fonts: ^6.1.0
   flutter_staggered_grid_view: ^0.7.0
   tutorial_coach_mark: ^1.2.9
+  flutter_stripe: ^9.4.0
+  flutter_stripe_web: ^4.4.0
+  floating_action_bubble: ^1.1.4
 
 dev_dependencies:
   flutter_test:

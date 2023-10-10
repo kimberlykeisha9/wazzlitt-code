@@ -1,32 +1,48 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
 class Igniter extends ChangeNotifier {
-  IgniterType? get igniterType => _igniterType;
-  IgniterType? _igniterType;
-  Map<String, dynamic>? get igniterPayment => _igniterPayment;
-  Map<String, dynamic>? _igniterPayment;
-  DateTime? get dateCreated => _dateCreated;
-  DateTime? _dateCreated;
+  Igniter({this.igniterType, this.dateCreated, this.igniterPayment});
+
+  IgniterType? igniterType;
+  Map<String, dynamic>? igniterPayment;
+  DateTime? dateCreated;
 
   // Get Igniter Information
-  Future<void>getCurrentUserIgniterInformation() async {
-    await currentUserIgniterProfile.get().then((doc) {
-      Map<String, dynamic>? content = doc.data();
-      // Sets the getters
-      if (content?['igniter_type'] == 'business_owner') {
-        _igniterType = IgniterType.businessOwner;
-        notifyListeners();
-      } else if (content?['igniter_type'] == 'event_organizer') {
-        _igniterType = IgniterType.eventOrganizer;
-        notifyListeners();
+  Future<Igniter?> getCurrentUserIgniterInformation() async {
+  try {
+    final doc = await currentUserIgniterProfile.get();
+    if (doc.exists) {
+      final data = doc.data() as Map<String, dynamic>;
+      final igniterType = data['igniter_type'];
+      final createdAtTimestamp = data['createdAt'] as Timestamp?;
+      final igniterPayment = data['igniter_payment'];
+
+      if (igniterType == 'business_owner') {
+        return Igniter(
+          igniterType: IgniterType.businessOwner,
+          dateCreated: createdAtTimestamp?.toDate(),
+          igniterPayment: igniterPayment,
+        );
+      } else if (igniterType == 'event_organizer') {
+        return Igniter(
+          igniterType: IgniterType.eventOrganizer,
+          dateCreated: createdAtTimestamp?.toDate(),
+          igniterPayment: igniterPayment,
+        );
       }
-      _dateCreated = (content?['createdAt'] as Timestamp?)?.toDate();
-      _igniterPayment = content?['igniter_payment'];
-      notifyListeners();
-    });
+    }
+    // Return null if the document doesn't exist or doesn't match expected conditions.
+    return null;
+  } catch (e) {
+    log(e.toString());
+    throw Exception(e);
   }
+}
+
 }
 
 enum IgniterType { businessOwner, eventOrganizer }

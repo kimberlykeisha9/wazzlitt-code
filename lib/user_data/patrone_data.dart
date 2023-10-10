@@ -149,10 +149,22 @@ class Patrone extends ChangeNotifier {
     });
   }
 
+  // Get user posts
+
+  Future<List<dynamic>> getUserPosts(db.DocumentReference user) async {
+    List<dynamic> posts = [];
+    await user.get().then((document) {
+      Map<String, dynamic>? content = document.data() as Map<String, dynamic>?;
+      List<dynamic> createdPosts = content?['created_posts'];
+      posts = createdPosts;
+    });
+    return posts;
+  }
+
   // Get the current users followers
 
-  getCurrentUserFollowers() {
-    currentUserPatroneProfile.get().then((document) {
+  getCurrentUserFollowers(db.DocumentReference user) {
+    user.get().then((document) {
       Map<String, dynamic>? content = document.data() as Map<String, dynamic>?;
       List<dynamic> serverFollowers = content?['followers'];
       for (var patrone in serverFollowers) {
@@ -172,8 +184,8 @@ class Patrone extends ChangeNotifier {
 
   // Get the current users followers
 
-  getCurrentUserFollowing() {
-    currentUserPatroneProfile.get().then((document) {
+  getCurrentUserFollowing(db.DocumentReference user) {
+    user.get().then((document) {
       Map<String, dynamic>? content = document.data() as Map<String, dynamic>?;
       List<dynamic> serverFollowing = content?['following'];
       for (var follow in serverFollowing) {
@@ -233,7 +245,7 @@ class Patrone extends ChangeNotifier {
       double latitude, double longitude) async {
     try {
       await uploadImageToFirebase(
-              toBeUploaded, 'feed/${auth.currentUser!.uid}/')
+              toBeUploaded, 'feed/${auth.currentUser!.uid}/${generateUniqueId()}')
           .then((postImage) => firestore.collection('feed').add({
                 'caption': caption,
                 'creator_uid': currentUserPatroneProfile,

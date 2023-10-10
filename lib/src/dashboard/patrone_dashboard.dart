@@ -1,8 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:wazzlitt/src/dashboard/conversation_screen.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 import '../../user_data/payments.dart';
 import '../app.dart';
 import '../../user_data/patrone_data.dart';
@@ -26,6 +30,12 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   int _currentIndex = 0;
   TabController? _exploreController;
 
+  Future<bool> hasWatchedTutorial() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var watchedIntro = prefs.getBool('watchedPatroneIntro') ?? false;
+    return watchedIntro;
+  }
+
   bool? _isSubscribed;
   late TutorialCoachMark tutorialCoachMark;
   List<TargetFocus> targets = [];
@@ -33,7 +43,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   GlobalKey exploreKey = GlobalKey();
   GlobalKey chatsKey = GlobalKey();
   GlobalKey profileKey = GlobalKey();
-   void initTargets() {
+  void initTargets() {
     void addToTarget(GlobalKey assignedKey, String target, String instruction) {
       targets.add(
         TargetFocus(
@@ -42,20 +52,18 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           color: Colors.red,
           contents: [
             TargetContent(
-              align: ContentAlign.bottom,
+              align: ContentAlign.top,
               child: SizedBox(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Center(
-                      child: Text(
-                        instruction,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 20.0),
-                      ),
+                    Text(
+                      instruction,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 20.0),
                     ),
                   ],
                 ),
@@ -67,40 +75,47 @@ class _PatroneDashboardState extends State<PatroneDashboard>
         ),
       );
     }
+
     addToTarget(key, '1', 'This is where you will find your home feed');
-    addToTarget(exploreKey, '2', 'This is where you can search for activities and see what is in your area');
+    addToTarget(exploreKey, '2',
+        'This is where you can search for activities and see what is in your area');
     addToTarget(chatsKey, '3', 'This is where you can access your chats');
     addToTarget(profileKey, '4', 'This is where you can edit your profile');
   }
 
   void showTutorial(BuildContext context) {
-  tutorialCoachMark = TutorialCoachMark(
-    
-    targets: targets,
-    colorShadow: Colors.pink,
-    textSkip: "SKIP",
-    paddingFocus: 10,
-    opacityShadow: 0.8,
-    onFinish: () {
-      print("finish");
-    },
-    onClickTarget: (target) {
-      print('onClickTarget: $target');
-    },
-    onSkip: () {
-      print("skip");
-    },
-    onClickOverlay: (target) {
-      print('onClickOverlay: $target');
-    },
-  )..show(context: context);
-}
-
-void _layout(BuildContext context){
-    Future.delayed(const Duration(milliseconds: 100));
-    showTutorial(context);
+    tutorialCoachMark = TutorialCoachMark(
+      alignSkip: Alignment.topRight,
+      targets: targets,
+      colorShadow: Colors.pink,
+      textSkip: "SKIP",
+      paddingFocus: 10,
+      opacityShadow: 0.8,
+      onFinish: () async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('watchedPatroneIntro', true);
+        print("finish");
+      },
+      onClickTarget: (target) {
+        print('onClickTarget: $target');
+      },
+      onSkip: () {
+        print("skip");
+      },
+      onClickOverlay: (target) {
+        print('onClickOverlay: $target');
+      },
+    )..show(context: context);
   }
 
+  void _layout(BuildContext context) async {
+    Future.delayed(const Duration(milliseconds: 100));
+    await hasWatchedTutorial().then((hasWatched) {
+      if (!hasWatched) {
+        showTutorial(context);
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -118,8 +133,8 @@ void _layout(BuildContext context){
       if (isSubscribed) {
       } else {}
     });
-    getInformation = Provider.of<Patrone>(context, listen:false)
-                        .getCurrentUserPatroneInformation();
+    getInformation = Provider.of<Patrone>(context, listen: false)
+        .getCurrentUserPatroneInformation();
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {});
   }
 
@@ -158,14 +173,14 @@ void _layout(BuildContext context){
                     future: getInformation,
                     builder: (context, snapshot) {
                       while (_isSubscribed == null) {
-                        return Center(child: CircularProgressIndicator());
+                        return const Center(child: CircularProgressIndicator());
                       }
                       bool isFreeTrial =
                           !((Provider.of<Patrone>(context).createdTime ??
                                   DateTime(2000))
                               .add(const Duration(days: 14))
                               .isBefore(DateTime.now()));
-                              print(isFreeTrial);
+                      print(isFreeTrial);
                       if (isFreeTrial || _isSubscribed!) {
                         if (isFreeTrial) {
                           _isSubscribed = isFreeTrial;
@@ -198,44 +213,42 @@ void _layout(BuildContext context){
           ],
         ),
       ),
-      bottomNavigationBar: 
-          Theme(
-              data: ThemeData(
-                canvasColor: Theme.of(context).colorScheme.surface,
-              ),
-              child: BottomNavigationBar(
-                onTap: (int index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                currentIndex: _currentIndex,
-                showSelectedLabels: false,
-                showUnselectedLabels: false,
-                unselectedItemColor: Colors.white.withOpacity(0.5),
-                selectedItemColor: Colors.white,
-                items: [
-                  BottomNavigationBarItem(
-                   
-                      label: 'Home',
-                      icon: Icon(Icons.home_outlined, key: key),
-                      activeIcon: Icon(Icons.home, key: key)),
-                  BottomNavigationBarItem(
-                      label: 'Explore',
-                      icon: Icon(Icons.explore_outlined, key: exploreKey),
-                      activeIcon: Icon(Icons.explore, key: exploreKey)),
-                  BottomNavigationBarItem(
-                      label: 'Messages',
-                      icon: Icon(Icons.chat_outlined, key: chatsKey),
-                      activeIcon: Icon(Icons.chat, key: chatsKey)),
-                  BottomNavigationBarItem(
-                      label: 'Profile',
-                      icon: Icon(Icons.account_circle_outlined, key: profileKey),
-                      activeIcon: Icon(Icons.account_circle, key: profileKey)),
-                ],
-              ),
-            )
-         ,
+      floatingActionButton: floatingButton(),
+      bottomNavigationBar: Theme(
+        data: ThemeData(
+          canvasColor: Theme.of(context).colorScheme.surface,
+        ),
+        child: BottomNavigationBar(
+          onTap: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          currentIndex: _currentIndex,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          unselectedItemColor: Colors.white.withOpacity(0.5),
+          selectedItemColor: Colors.white,
+          items: [
+            BottomNavigationBarItem(
+                label: 'Home',
+                icon: Icon(Icons.home_outlined, key: key),
+                activeIcon: Icon(Icons.home, key: key)),
+            BottomNavigationBarItem(
+                label: 'Explore',
+                icon: Icon(Icons.explore_outlined, key: exploreKey),
+                activeIcon: Icon(Icons.explore, key: exploreKey)),
+            BottomNavigationBarItem(
+                label: 'Messages',
+                icon: Icon(Icons.chat_outlined, key: chatsKey),
+                activeIcon: Icon(Icons.chat, key: chatsKey)),
+            BottomNavigationBarItem(
+                label: 'Profile',
+                icon: Icon(Icons.account_circle_outlined, key: profileKey),
+                activeIcon: Icon(Icons.account_circle, key: profileKey)),
+          ],
+        ),
+      ),
     );
   }
 
@@ -251,6 +264,81 @@ void _layout(BuildContext context){
       });
       print("Image Path: ${pickedFile.path}");
     }
+  }
+
+  Widget? floatingButton() {
+    switch (_currentIndex) {
+      case 0:
+        return FloatingActionButton.extended(
+            onPressed: () {
+              _getImage().then((value) => _toBeUploaded != null
+                  ? Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            UploadImage(uploadedImage: _toBeUploaded!),
+                      ),
+                    )
+                  : null);
+            },
+            icon: const Icon(Icons.photo_camera),
+            label: const Text('Create a post'));
+      case 2:
+        return FloatingActionButton.extended(
+            onPressed: () {
+              showModalBottomSheet(
+                  context: context,
+                  builder: (_) => SizedBox(
+                      height: height(context) * 0.75,
+                      child: FutureBuilder<QuerySnapshot>(
+                          future: firestore
+                              .collectionGroup('account_type')
+                              .where('username', isNull: false)
+                              .get(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              List<QueryDocumentSnapshot<Object?>> users =
+                                  snapshot.data!.docs;
+                              return ListView.builder(
+                                  itemCount: users.length,
+                                  itemBuilder: (context, index) {
+                                    var user = users[index];
+
+                                    Map<String, dynamic> data =
+                                        user.data() as Map<String, dynamic>;
+                                    return ListTile(
+                                      onTap: () {
+                                        firestore.collection('messages').where('participants', arrayContains: [currentUserProfile, user.reference.parent.parent]).get().then((chats) {
+                                          if (chats.size > 0) {
+                                            Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: chats.docs.first.reference)));
+                                          } else {
+                                            firestore.collection('messages').add({
+                                              'participants': [currentUserProfile, user.reference.parent.parent],
+                                              'last_message': null,
+                                            }).then((newChat) {
+                                              
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: newChat)));
+                                            });
+                                          }
+                                        });
+                                      },
+                                      leading: CircleAvatar(
+                                          foregroundImage: NetworkImage(data[
+                                                  'profile_picture'] ??
+                                              'https://i.pinimg.com/474x/1e/23/e5/1e23e5e6441ce2c135e1e457dcf4f06f.jpg')),
+                                      title: Text(
+                                          '${data['first_name']} ${data['last_name']}'),
+                                      subtitle: Text('@${data['username']}'),
+                                    );
+                                  });
+                            }
+                            return const Center(child: CircularProgressIndicator());
+                          })));
+            },
+            label: const Text('New chat'),
+            icon: const Icon(Icons.add));
+    }
+    return null;
   }
 
   Widget? trailingIcon() {

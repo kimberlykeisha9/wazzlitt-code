@@ -63,7 +63,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                         maxWidth: width(context),
                         maxHeight: height(context) * 0.5,
                         child: ActivityTab(
-                            createdPosts: createdPosts,
                             userProfile: currentUser.patroneReferenceSet!))),
               ],
             ),
@@ -120,7 +119,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
   late final Future<bool> Function(Future<bool>) isFollowing;
   late final Future<String> Function(Future<String>) getLocation;
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -159,10 +158,21 @@ class _ProfileTabState extends State<ProfileTab> {
                           children: [
                             Column(
                               children: [
-                                Text(widget.posts.length.toString(),
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18)),
+                                FutureBuilder<List<dynamic>>(
+                                  future: Patrone().getUserPosts(widget.userProfile),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      return Text(snapshot.data!.length.toString(),
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18));
+                                  }
+                                  return const Text('0',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18));
+                                    }
+                                ),
                                 const Text('Posts',
                                     style: TextStyle(fontSize: 14)),
                               ],
@@ -365,14 +375,16 @@ class _ProfileTabState extends State<ProfileTab> {
 }
 
 class ActivityTab extends StatelessWidget {
-  const ActivityTab({
+  ActivityTab({
     super.key,
-    required this.createdPosts,
     required this.userProfile,
   });
 
   final DocumentReference userProfile;
-  final List? createdPosts;
+  List? createdPosts;
+
+  late final Future<List<dynamic>> getPosts =
+      Patrone().getUserPosts(userProfile);
 
   @override
   Widget build(BuildContext context) {
@@ -400,55 +412,65 @@ class ActivityTab extends StatelessWidget {
                 width: width(context),
                 child: TabBarView(
                   children: [
-                    GridView.builder(
-                      shrinkWrap: true,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2, childAspectRatio: 1),
-                      itemCount: createdPosts?.length ?? 0,
-                      itemBuilder: (BuildContext context, int index) {
-                        DocumentReference post = createdPosts?[index];
-                        return StreamBuilder<DocumentSnapshot>(
-                            stream: post.snapshots(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                return GestureDetector(
-                                  onTap: () => showDialog(
-                                      context: context,
-                                      builder: (context) => Bounce(
-                                            child: AlertDialog(
-                                              contentPadding:
-                                                  const EdgeInsets.all(0),
-                                              content: SizedBox(
-                                                height: height(context) * 0.5,
-                                                child: FeedImage(
-                                                  snapshot: snapshot.data!,
+                    FutureBuilder<List<dynamic>>(
+                        future: getPosts,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            createdPosts = snapshot.data;
+                            return GridView.builder(
+                              shrinkWrap: true,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 2, childAspectRatio: 1),
+                              itemCount: createdPosts?.length ?? 0,
+                              itemBuilder: (BuildContext context, int index) {
+                                DocumentReference post = createdPosts?[index];
+                                return StreamBuilder<DocumentSnapshot>(
+                                    stream: post.snapshots(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        return GestureDetector(
+                                          onTap: () => showDialog(
+                                              context: context,
+                                              builder: (context) => Bounce(
+                                                    child: AlertDialog(
+                                                      contentPadding:
+                                                          const EdgeInsets.all(
+                                                              0),
+                                                      content: SizedBox(
+                                                        height:
+                                                            height(context) *
+                                                                0.5,
+                                                        child: Image.network(snapshot.data!.get('image')),
+                                                        ),
+                                                      
+                                                    ),
+                                                  )),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: NetworkImage(
+                                                  snapshot.data!.get('image'),
                                                 ),
                                               ),
                                             ),
-                                          )),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: NetworkImage(
-                                          snapshot.data!.get('image'),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              } else if (snapshot.hasError) {
-                                return const Center(
-                                    child: Text('Something went '
-                                        'wrong'));
-                              } else {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
-                            });
-                      },
-                    ),
+                                          ),
+                                        );
+                                      } else if (snapshot.hasError) {
+                                        return const Center(
+                                            child: Text('Something went '
+                                                'wrong'));
+                                      } else {
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      }
+                                    });
+                              },
+                            );
+                          }
+                          return Center(child: CircularProgressIndicator());
+                        }),
                     StreamBuilder<QuerySnapshot>(
                         stream: firestore
                             .collection('feed')

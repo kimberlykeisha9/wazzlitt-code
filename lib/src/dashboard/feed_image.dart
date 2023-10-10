@@ -49,6 +49,7 @@ class _FeedImageState extends State<FeedImage> {
   String popUpValue = '';
 
   Future<String> getLocationFromGeoPoint(GeoPoint geoPoint) async {
+    String readableLocation = '';
     try {
       // Reverse geocode the latitude and longitude
       const String googelApiKey = 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ';
@@ -60,16 +61,15 @@ class _FeedImageState extends State<FeedImage> {
       );
 
       if (reversedSearchResults.results.isNotEmpty) {
-        String readableLocation =
-            reversedSearchResults.results.first.formattedAddress;
+        String readable = reversedSearchResults.results.first.formattedAddress;
 
-        return readableLocation;
+        readableLocation = readable;
       }
     } catch (e) {
       log('Error: $e');
     }
 
-    return '';
+    return readableLocation;
   }
 
   late final Future<Patrone> Function(Future<Patrone>) getPatrone;
@@ -77,8 +77,8 @@ class _FeedImageState extends State<FeedImage> {
   @override
   void initState() {
     // TODO: implement initState
-    getLocationFromGeoPoint(widget.snapshot.get('location'))
-        .then((value) => location = value);
+    // getLocationFromGeoPoint(widget.snapshot.get('location'))
+    //     .then((value) => location = value);
     super.initState();
     getPatrone = (val) {
       return val;
@@ -184,10 +184,23 @@ class _FeedImageState extends State<FeedImage> {
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold)),
-                                        Text(location ?? '',
-                                            style: const TextStyle(
-                                                fontSize: 12,
-                                                color: Colors.white)),
+                                                const SizedBox(height: 5),
+                                        Container(
+                                          constraints: BoxConstraints(maxWidth: 220),
+                                          child: FutureBuilder<String>(
+                                            future: getLocationFromGeoPoint(imageData['location']),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasData) {
+                                                return Text(snapshot.data!,
+                                                  style: const TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white), softWrap: true,);
+                                              } return const Text('...',  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Colors.white), softWrap: true);
+                                            }
+                                          ),
+                                        ),
                                       ],
                                     ),
                                     const Spacer(),
@@ -311,13 +324,12 @@ class _FeedImageState extends State<FeedImage> {
                         }
                       }),
                   Container(
-                    constraints: BoxConstraints(
-                        maxHeight: height(context) * 0.6,
-                        minWidth: width(context)),
-                    child: Image.network(
-                        imageData['image'],
-                        fit: BoxFit.fitWidth)),
-                  Spacer(),
+                      constraints: BoxConstraints(
+                          maxHeight: height(context) * 0.6,
+                          minWidth: width(context)),
+                      child: Image.network(imageData['image'],
+                          fit: BoxFit.fitWidth)),
+                  const Spacer(),
                   Padding(
                     padding: const EdgeInsets.all(10),
                     child: SizedBox(
@@ -326,15 +338,15 @@ class _FeedImageState extends State<FeedImage> {
                         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Flexible(
+                          imageData['caption'] != null ? Flexible(
                             child: Text(
-                                (widget.snapshot.get('caption') as String?) ??
+                                (imageData['caption'] as String?) ??
                                     '',
                                 style: const TextStyle(color: Colors.white)),
-                          ),
+                          ) : SizedBox(),
                           Row(children: [
                             IconButton(
-                              padding: EdgeInsets.all(0),
+                              padding: const EdgeInsets.all(0),
                               onPressed: () => _likeImage(),
                               icon: likeIcon(),
                             ),

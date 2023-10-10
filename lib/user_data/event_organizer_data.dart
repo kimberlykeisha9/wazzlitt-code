@@ -146,6 +146,7 @@ class EventOrganizer extends ChangeNotifier {
       Map<String, dynamic> organizerData = {
         'organizer_name': organizerName?.trim(),
         'website': website,
+        'igniter_type': 'event_organizer',
         'category': category,
         'organizer_description': description,
         'email_address': emailAddress,

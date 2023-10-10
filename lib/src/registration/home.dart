@@ -21,6 +21,7 @@ class Home extends StatelessWidget {
         ),
         height: height(context),
         width: width(context),
+        child: SafeArea(
         child: Column(
           children: [
             ZoomIn(
@@ -97,6 +98,7 @@ class Home extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

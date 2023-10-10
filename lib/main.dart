@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/src/registration/interests.dart';
 import 'package:wazzlitt/user_data/business_owner_data.dart';
@@ -32,8 +32,7 @@ void main() async {
   // Run the app and pass in the SettingsController. The app listens to the
   // SettingsController for changes, then passes it further down to the
   // SettingsView.
-  Stripe.publishableKey =
-      'pk_test_51N6MV7Aw4gbUiKSO9S7epyOYDxLjQxzQjUUP4cwPaTpMAIFX6cccpePl4vlPyBDQLL3uKycqBaVKRDD0LoteysiN00pGKIfRjG';
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => Patrone()),
     ChangeNotifierProvider(create: (_) => Igniter()),

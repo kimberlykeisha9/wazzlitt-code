@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
 import 'package:google_places_autocomplete_text_field/model/prediction.dart';
+import 'package:provider/provider.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 import '../registration/interests.dart';
@@ -52,19 +53,40 @@ class _UploadImageState extends State<UploadImage> {
 
   @override
   Widget build(BuildContext context) {
+    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
         appBar: AppBar(title: const Text('New Post'), actions: [
           IconButton(
             onPressed: () {
-              if (_selectedChip != null &&
-                  generatedPrediction != null) {
-                Patrone().uploadPost(
-                  widget.uploadedImage,
-                  _captionController.text,
-                  _selectedChip!,
-                  double.parse(generatedPrediction!.lat!),
-                  double.parse(generatedPrediction!.lng!),
-                ).then((value) => Navigator.of(context).pop());
+              if (_selectedChip != null && generatedPrediction != null) {
+                try {
+                  dataSendingNotifier.startLoading();
+                  if (dataSendingNotifier.isLoading) {
+                    showDialog(
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (_) => const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                  Patrone()
+                      .uploadPost(
+                        widget.uploadedImage,
+                        _captionController.text,
+                        _selectedChip!,
+                        double.parse(generatedPrediction!.lat!),
+                        double.parse(generatedPrediction!.lng!),
+                      )
+                      .then(
+                        (value) => Navigator.of(context).pop(),
+                      );
+
+                  dataSendingNotifier.stopLoading();
+                } on Exception catch (e) {
+                  log(e.toString());
+                  dataSendingNotifier.stopLoading();
+                }
               } else {
                 if (_selectedChip == null) {
                   log('No category selected');
@@ -98,43 +120,39 @@ class _UploadImageState extends State<UploadImage> {
                             fontWeight: FontWeight.bold, fontSize: 20)),
                     const SizedBox(height: 20),
                     GooglePlacesAutoCompleteTextFormField(
-                                      textEditingController:
-                                      _searchController,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return 'Location is required';
-                                        }
-                                        return null;
-                                      },
-                                      decoration: const InputDecoration(
-                                        hintText: 'Location',
-                                          labelText: 'Location'),
-                                      googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
-                                      debounceTime: 400, // defaults to 600 ms,
-                                      countries: ["us"], // optional, by
-                                      // default the list is empty (no restrictions)
-                                      isLatLngRequired: true, // if you require the coordinates from the place details
-                                      getPlaceDetailWithLatLng: (prediction) {
-                                        if(prediction != null) {
-                                          setState(() {
-                                            generatedPrediction = prediction;
-                                          });
-                                        }
-                                        print("placeDetails" + prediction.lng.toString());
-                                      }, // this callback is called when isLatLngRequired is true
-                                      itmClick: (prediction) {
-                                        if(prediction != null) {
-                                          setState(() {
-                                            _searchController.text =
-                                            prediction.description!;
-                                            _searchController.selection =
-                                                TextSelection.fromPosition
-                                                  (TextPosition(offset:
-                                                prediction.description!.length));
-                                          });
-                                        }
-                                      }
-                                  ),
+                        textEditingController: _searchController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Location is required';
+                          }
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                            hintText: 'Location', labelText: 'Location'),
+                        googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
+                        debounceTime: 400, // defaults to 600 ms,
+                        countries: ["us"], // optional, by
+                        // default the list is empty (no restrictions)
+                        isLatLngRequired:
+                            true, // if you require the coordinates from the place details
+                        getPlaceDetailWithLatLng: (prediction) {
+                          if (prediction != null) {
+                            setState(() {
+                              generatedPrediction = prediction;
+                            });
+                          }
+                          print("placeDetails" + prediction.lng.toString());
+                        }, // this callback is called when isLatLngRequired is true
+                        itmClick: (prediction) {
+                          if (prediction != null) {
+                            setState(() {
+                              _searchController.text = prediction.description!;
+                              _searchController.selection =
+                                  TextSelection.fromPosition(TextPosition(
+                                      offset: prediction.description!.length));
+                            });
+                          }
+                        }),
                     const SizedBox(height: 20),
                     SizedBox(
                         width: width(context),

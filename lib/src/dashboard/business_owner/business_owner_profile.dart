@@ -78,39 +78,23 @@ class _BusinessOwnerProfileState extends State<BusinessOwnerProfile> {
       children: [
         SizedBox(
           height: 200,
-          child: Stack(
-            children: [
-              Container(
-                width: width(context),
-                height: 150,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Hero(
+              tag: 'profile',
+              child: Container(
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
-                  color: Colors.grey,
-                  image: listing.coverImage == null
+                  color: Colors.grey[800],
+                  shape: BoxShape.circle,
+                  image: listing.image == null
                       ? null
                       : DecorationImage(
-                          fit: BoxFit.cover,
-                          image: NetworkImage(listing.coverImage!)),
+                          image: NetworkImage(listing.image!)),
                 ),
               ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Hero(
-                  tag: 'profile',
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[800],
-                      shape: BoxShape.circle,
-                      image: listing.image == null
-                          ? null
-                          : DecorationImage(
-                              image: NetworkImage(listing.image!)),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         Padding(

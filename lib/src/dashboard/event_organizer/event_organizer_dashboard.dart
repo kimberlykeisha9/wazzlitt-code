@@ -67,7 +67,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No events available.'));
+                return const Center(child: Text('You have not listed any events yet.'));
               } else {
                 events = snapshot.data!;
                 return PageView.builder(

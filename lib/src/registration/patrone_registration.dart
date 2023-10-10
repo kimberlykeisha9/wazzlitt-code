@@ -388,7 +388,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                             )
                             .then(
                                 (value) => Navigator.popAndPushNamed(
-                                    context, 'interests'),
+                                    context, 'dashboard'),
                                 onError: (e) => showSnackbar(
                                     context,
                                     'An error has occured. '

@@ -9,19 +9,19 @@ import '../app.dart';
 import 'package:intl/intl.dart';
 import 'conversation_screen.dart';
 
-class ChatsView extends StatefulWidget {
-  const ChatsView({super.key, required this.chatType});
+class IgniterChatsView extends StatefulWidget {
+  const IgniterChatsView({super.key, required this.chatType});
 
   final ChatRoomType chatType;
 
   @override
-  State<ChatsView> createState() => _ChatsViewState();
+  State<IgniterChatsView> createState() => _IgniterChatsViewState();
 }
 
-class _ChatsViewState extends State<ChatsView> {
+class _IgniterChatsViewState extends State<IgniterChatsView> {
   var messagesCollection = firestore
       .collection('messages')
-      .where('participants', arrayContains: currentUserProfile).where('last_message', isNull: false);
+      .where('participants', arrayContains: currentUserIgniterProfile).where('last_message', isNull: false);
 
 
       late final Future<DocumentSnapshot<Object?>>? Function(DocumentReference<Object?>?) getMessages;
