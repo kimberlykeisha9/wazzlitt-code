@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/user_data/business_owner_data.dart';
 import '../app.dart';
 import 'edit_service.dart';
 
 class ServiceOverview extends StatefulWidget {
   const ServiceOverview({super.key, required this.service, required this.place});
 
-  final Map<String, dynamic> service;
+  final Service service;
   final DocumentReference place;
 
   @override
@@ -36,7 +37,7 @@ class _ServiceOverviewState extends State<ServiceOverview> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.service['service_name']),
+        title: Text(widget.service.title ?? ''),
         actions: [
           TextButton(
             onPressed: () {Navigator.push(context,
@@ -56,18 +57,18 @@ class _ServiceOverviewState extends State<ServiceOverview> {
                   height: 100,
                   decoration: BoxDecoration(
                       color: Colors.grey,
-                      image: widget.service['image'] == null ? null : DecorationImage(image: NetworkImage(
-                          widget.service['image']
+                      image: widget.service.image == null ? null : DecorationImage(image: NetworkImage(
+                          widget.service.image!
                       ), fit: BoxFit.cover)
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(widget.service['service_name'], style: const TextStyle(fontWeight: FontWeight
+                Text(widget.service.title ?? '', style: const TextStyle(fontWeight: FontWeight
                     .bold, fontSize: 20)),
                 const SizedBox(height: 10),
-                Text(widget.service['service_description'], textAlign: TextAlign.center,),
+                Text(widget.service.description ?? '', textAlign: TextAlign.center,),
                 const SizedBox(height: 10),
-                Text('\$${(double.parse(widget.service['price'].toString())).toStringAsFixed(2)}'),
+                Text('\$${(double.parse(widget.service.price.toString())).toStringAsFixed(2)}'),
                 const SizedBox(height: 20),
                     const Text('Overview',
                         style: TextStyle(fontWeight: FontWeight.bold)),

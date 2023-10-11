@@ -293,10 +293,9 @@ class Ticket {
 // Updates a ticket
   Future<void> updateTicket(
       {required DocumentReference event,
-      required Map<String, dynamic> ticket,
+      required Ticket ticket,
       String? ticketName,
       String? description,
-      Timestamp? expiry,
       double? price,
       int? available}) async {
     bool? isAvailable() {
@@ -309,13 +308,12 @@ class Ticket {
 
     try {
       await event.update({
-        'tickets': FieldValue.arrayRemove([ticket]),
+        'tickets': FieldValue.arrayRemove([{'ticket_name': ticket.title, 'ticket_description': ticket.description, 'price': ticket.price, 'available': ticket.available}]),
       }).then((value) => event.update({
             'tickets': FieldValue.arrayUnion([
               {
                 'ticket_name': ticketName,
                 'ticket_description': description,
-                'expiry_date': expiry,
                 'price': price,
                 'available': isAvailable(),
               }

@@ -212,17 +212,17 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                                 event.tickets![index];
                                             return GestureDetector(
                                               onTap: () {
-                                                // Navigator.push(
-                                                //     context,
-                                                //     MaterialPageRoute(
-                                                //         builder:
-                                                //             (context) =>
-                                                //                 EditTicket(
-                                                //                   event:
-                                                //                       data,
-                                                //                   ticket:
-                                                //                       ticket,
-                                                //                 )));
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder:
+                                                            (context) =>
+                                                                EditTicket(
+                                                                  event:
+                                                                      event.eventReference!,
+                                                                  ticket:
+                                                                      ticket,
+                                                                )));
                                               },
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -270,16 +270,16 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                 child: ElevatedButton(
                                   child: const Text('Add a new ticket'),
                                   onPressed: () {
-                                    createSellerAccount();
-                                    // Navigator.push(
-                                    //   context,
-                                    //   MaterialPageRoute(
-                                    //     builder: (context) =>
-                                    //         NewTicket(
-                                    //       event: event,
-                                    //     ),
-                                    //   ),
-                                    // );
+                                    // createSellerAccount();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            NewTicket(
+                                          event: event,
+                                        ),
+                                      ),
+                                    );
                                   },
                                 ),
                               ),

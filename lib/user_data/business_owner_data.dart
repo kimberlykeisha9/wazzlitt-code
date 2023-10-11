@@ -247,7 +247,7 @@ class Service {
 
   Future<void> updateService({
     required DocumentReference place,
-    required Map<String, dynamic> service,
+    required Service service,
     required String serviceName,
     required String description,
     String? image,
@@ -260,7 +260,15 @@ class Service {
 
     try {
       await place.update({
-        'services': FieldValue.arrayRemove([service]),
+        'services': FieldValue.arrayRemove([
+          {
+            'service_name': service.title,
+            'service_description': service.description,
+            'image': service.image,
+            'price': service.price,
+            'available': service.available
+          }
+        ]),
       }).then((value) => place.update({
             'services': FieldValue.arrayUnion([
               {

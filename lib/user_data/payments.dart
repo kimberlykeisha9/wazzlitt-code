@@ -50,17 +50,46 @@ Future<void> launchPatroneSubscription() async {
 }
 
 createSellerAccount() async {
-  final request = await http.post(
-    Uri.parse('https://api.stripe.com/v1/accounts'),
-    headers: {
-      'Authorization': 'Bearer $apiKey',
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }, body: {
-      'type': 'express'
+  Future<String?> getAccountID() async {
+    try {
+      String? accountID;
+      final request = await http
+          .post(Uri.parse('https://api.stripe.com/v1/accounts'), headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }, body: {
+        'type': 'express'
+      });
+
+      var responseBody = jsonDecode(request.body);
+      if (request.statusCode == 200) {
+        accountID = responseBody['id'];
+        print(accountID);
+      }
+      return accountID;
+    } catch (e) {
+      log(e.toString());
+      throw Exception(e);
     }
-  );
-  
-    print(request.body);
+  }
+
+  await getAccountID().then((account) async {
+    if (account != null) {
+      final request = await http
+          .post(Uri.parse('https://api.stripe.com/v1/account_links'), headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }, body: {
+        'account': account,
+        'type': 'account_onboarding',
+        'refresh_url': 'https://wazzlitt-d7c47.web.app/',
+        'return_url': 'https://wazzlitt-d7c47.web.app/',
+      });
+      print(request.body);
+    } else {
+      log('Account ID was not returned');
+    }
+  });
 }
 
 Future<Map<String, dynamic>?> checkIfIgniterUserIsSubscribed() async {
@@ -77,7 +106,8 @@ Future<Map<String, dynamic>?> checkIfIgniterUserIsSubscribed() async {
     List listedData = data['data'];
     var clientSessions = listedData
         .where((session) =>
-            session['client_reference_id'] == '${auth.currentUser!.uid}-igniter')
+            session['client_reference_id'] ==
+            '${auth.currentUser!.uid}-igniter')
         .toList()
         .where((userSession) => userSession['payment_status'] == 'paid')
         .toList();
@@ -108,7 +138,8 @@ Future<Map<String, dynamic>?> checkIfPatroneUserIsSubscribed() async {
     List listedData = data['data'];
     var clientSessions = listedData
         .where((session) =>
-            session['client_reference_id'] == '${auth.currentUser!.uid}-patrone')
+            session['client_reference_id'] ==
+            '${auth.currentUser!.uid}-patrone')
         .toList()
         .where((userSession) => userSession['payment_status'] == 'paid')
         .toList();
@@ -287,7 +318,6 @@ Future<String?> payFromBalance(double amount, BuildContext context) async {
   return null;
 }
 
-
 Future<bool> doesStripeCustomerExist(String email) async {
   final url = 'https://api.stripe.com/v1/customers';
 
@@ -340,8 +370,6 @@ Future<void> createStripeCustomer(String email) async {
     print(response.body);
   }
 }
-
-
 
 createPaymentIntent(String amount, String currency) async {
   try {
