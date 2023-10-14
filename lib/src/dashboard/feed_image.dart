@@ -144,8 +144,11 @@ class _FeedImageState extends State<FeedImage> {
                                                 .snapshot
                                                 .get('creator_uid'))),
                                         builder: (context, snapshot) {
-                                          return ProfileScreen(
-                                              userProfile: snapshot.data!);
+                                          if (snapshot.hasData) {
+                                            return ProfileScreen(
+                                                userProfile: snapshot.data!);
+                                          }
+                                          return CircularProgressIndicator();
                                         }),
                                   ),
                                 ),
@@ -184,22 +187,29 @@ class _FeedImageState extends State<FeedImage> {
                                             style: const TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold)),
-                                                const SizedBox(height: 5),
+                                        const SizedBox(height: 5),
                                         Container(
-                                          constraints: BoxConstraints(maxWidth: 220),
+                                          constraints:
+                                              BoxConstraints(maxWidth: 220),
                                           child: FutureBuilder<String>(
-                                            future: getLocationFromGeoPoint(imageData['location']),
-                                            builder: (context, snapshot) {
-                                              if (snapshot.hasData) {
-                                                return Text(snapshot.data!,
-                                                  style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.green), softWrap: true,);
-                                              } return const Text('...',  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.white), softWrap: true);
-                                            }
-                                          ),
+                                              future: getLocationFromGeoPoint(
+                                                  imageData['location']),
+                                              builder: (context, snapshot) {
+                                                if (snapshot.hasData) {
+                                                  return Text(
+                                                    snapshot.data!,
+                                                    style: const TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.green),
+                                                    softWrap: true,
+                                                  );
+                                                }
+                                                return const Text('...',
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.white),
+                                                    softWrap: true);
+                                              }),
                                         ),
                                       ],
                                     ),
@@ -338,12 +348,14 @@ class _FeedImageState extends State<FeedImage> {
                         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          imageData['caption'] != null ? Flexible(
-                            child: Text(
-                                (imageData['caption'] as String?) ??
-                                    '',
-                                style: const TextStyle(color: Colors.white)),
-                          ) : SizedBox(),
+                          imageData['caption'] != null
+                              ? Flexible(
+                                  child: Text(
+                                      (imageData['caption'] as String?) ?? '',
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                )
+                              : SizedBox(),
                           Row(children: [
                             IconButton(
                               padding: const EdgeInsets.all(0),

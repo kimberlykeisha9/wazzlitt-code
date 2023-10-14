@@ -182,10 +182,12 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                               .add(const Duration(days: 14))
                               .isBefore(DateTime.now()));
                       print(isFreeTrial);
-                      if (isFreeTrial || _isSubscribed!) {
+                      if (isFreeTrial) {
                         if (isFreeTrial) {
                           _isSubscribed = isFreeTrial;
                         }
+                        return views(context)[_currentIndex];
+                      } else if (_isSubscribed == true) {
                         return views(context)[_currentIndex];
                       } else {
                         return Padding(
@@ -437,8 +439,8 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           unselectedLabelStyle:
               TextStyle(color: Theme.of(context).colorScheme.primary),
           labelColor: Colors.green,
-              unselectedLabelColor: Colors.white,
-              indicatorColor: Colors.green,
+          unselectedLabelColor: Colors.white,
+          indicatorColor: Colors.green,
           controller: _exploreController,
           tabs: const [Tab(text: 'Lit'), Tab(text: 'Places')],
         );

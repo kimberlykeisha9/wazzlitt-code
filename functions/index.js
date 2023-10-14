@@ -1,9 +1,6 @@
 /* eslint-disable linebreak-style */
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const stripe = require("stripe")("sk_test_51N6MV7Aw4gbUiKS" +
-  "OVcDYHBiDM5ibgvUiGZQQ2erLCvrDXerqrJXDYjhdc33LMfSKXgzf5doG" +
-  "BAtV75AIXK3u3eUw00stk6GUfw");
 admin.initializeApp();
 
 const firestore = admin.firestore();

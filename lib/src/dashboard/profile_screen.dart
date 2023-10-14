@@ -39,36 +39,37 @@ class _ProfileScreenState extends State<ProfileScreen>
           String? gender = currentUser.gender;
           List<dynamic>? interests = currentUser.interests;
           bool? isLit = currentUser.isLit;
-          return Container(
-            height: height(context),
-            width: width(context),
-            child: Column(
-              children: [
-                SizedBox(
-                  height: height(context) * 0.5,
-                  child: ProfileTab(
-                    coverPhoto: coverPhoto,
-                    profilePhoto: profilePhoto,
-                    firstName: firstName,
-                    lastName: lastName,
-                    bio: bio,
-                    username: username,
-                    interests: interests,
-                    dob: dob,
-                    posts: createdPosts ?? [],
-                    userProfile: currentUser.patroneReferenceSet!,
-                    following: following ?? [],
-                    followers: followers ?? [],
-                    isLit: isLit ?? false,
+          return SingleChildScrollView(
+            child: Container(
+              height: height(context),
+              width: width(context),
+              child: Column(
+                children: [
+                  LimitedBox(
+                    maxHeight: height(context) * 0.5,
+                    child: ProfileTab(
+                      coverPhoto: coverPhoto,
+                      profilePhoto: profilePhoto,
+                      firstName: firstName,
+                      lastName: lastName,
+                      bio: bio,
+                      username: username,
+                      interests: interests,
+                      dob: dob,
+                      posts: createdPosts ?? [],
+                      userProfile: currentUser.patroneReferenceSet!,
+                      following: following ?? [],
+                      followers: followers ?? [],
+                      isLit: isLit ?? false,
+                    ),
                   ),
-                ),
-                Expanded(
-                    child: LimitedBox(
-                        maxWidth: width(context),
-                        maxHeight: height(context) * 0.5,
-                        child: ActivityTab(
-                            userProfile: currentUser.patroneReferenceSet!))),
-              ],
+                  LimitedBox(
+                      maxWidth: width(context),
+                      maxHeight: height(context),
+                      child: ActivityTab(
+                          userProfile: currentUser.patroneReferenceSet!)),
+                ],
+              ),
             ),
           );
         });
