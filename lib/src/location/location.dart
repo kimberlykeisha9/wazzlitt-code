@@ -17,7 +17,7 @@ Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
 
   BusinessPlace googlePlace = BusinessPlace();
   final response =
-      await http.get(Uri.parse('$apiUrl?place_id=$placeID&key=$apiKey'));
+      await http.get(Uri.parse('$apiUrl?place_id=$placeID&key=$apiKey&fields=name,formatted_address,geometry,website,international_phone_number,photos'));
 
   print(response.statusCode);
 
@@ -42,6 +42,7 @@ Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
       print(location);
       print(streetName);
       googlePlace = BusinessPlace(
+        googleId: placeID,
           phoneNumber: result['international_phone_number'],
           formattedAddress: result['formatted_address'],
           website: result['website'],
@@ -94,13 +95,13 @@ Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
   }
 }
 
-Future<List<BusinessPlace?>?> searchBuildings(String query) async {
+Future<List<BusinessPlace>> searchBuildings(String query) async {
   final apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
   final apiUrl = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
 
   List<BusinessPlace> _results = [];
   final response =
-      await http.get(Uri.parse('$apiUrl?query=$query&key=$apiKey&maxresults=10'));
+      await http.get(Uri.parse('$apiUrl?query=$query&key=$apiKey&maxResults=10&&fields=place_id'));
 
   print(response.statusCode);
 
@@ -116,6 +117,9 @@ Future<List<BusinessPlace?>?> searchBuildings(String query) async {
         await getPlaceDetailsFromGoogle(result['place_id'])
             .then((place) => _results.add(place));
       }
+      if (_results.length == 5) {
+                return _results;
+            }
       return _results;
     } else {
       // No results found

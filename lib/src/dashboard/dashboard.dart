@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/src/dashboard/igniter_dashboard.dart';
 import 'package:wazzlitt/src/dashboard/patrone_dashboard.dart';
 import 'package:wazzlitt/src/registration/igniter_registration.dart';
@@ -8,9 +9,21 @@ import 'package:wazzlitt/user_data/user_data.dart';
 
 import '../app.dart';
 
-
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
   Dashboard({super.key});
+
+  @override
+  State<Dashboard> createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
+  @override
+  void initState() {
+    super.initState();
+    if (!isLoggedIn()) {
+      Navigator.popAndPushNamed(context, 'home');
+    }
+  }
 
   final Future<DocumentSnapshot> getProfile = currentUserProfile.get();
 
@@ -19,12 +32,13 @@ class Dashboard extends StatelessWidget {
     return FutureBuilder<DocumentSnapshot>(
         future: getProfile,
         builder: (context, snapshot) {
-
           if (snapshot.hasData) {
             Map<String, dynamic>? data =
                 snapshot.data!.data() as Map<String, dynamic>?;
             print(data);
-            if (data != null && (data.containsKey('is_patrone') || data.containsKey('is_igniter'))) {
+            if (data != null &&
+                (data.containsKey('is_patrone') ||
+                    data.containsKey('is_igniter'))) {
               if (data.containsKey('is_patrone') &&
                   data.containsKey('is_igniter')) {
                 print('User is patrone and igniter');
@@ -32,9 +46,7 @@ class Dashboard extends StatelessWidget {
                   body: Container(
                     height: height(context),
                     width: width(context),
-                    decoration: BoxDecoration(
-                      
-                    ),
+                    decoration: BoxDecoration(),
                     child: SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.only(top: 50),
@@ -59,7 +71,10 @@ class Dashboard extends StatelessWidget {
                                     style: TextStyle(
                                         fontSize: 30, color: Colors.white)),
                                 onPressed: () => Navigator.push(
-                                    context, MaterialPageRoute(builder: (context) => PatroneDashboard())),
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            PatroneDashboard())),
                               )),
                             ),
                           ),
@@ -78,7 +93,10 @@ class Dashboard extends StatelessWidget {
                                       style: TextStyle(
                                           fontSize: 30, color: Colors.white)),
                                   onPressed: () => Navigator.push(
-                                    context, MaterialPageRoute(builder: (context) => IgniterDashboard())),
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              IgniterDashboard())),
                                 ))),
                           ),
                         ]),
@@ -98,9 +116,7 @@ class Dashboard extends StatelessWidget {
                 body: Container(
                   height: height(context),
                   width: width(context),
-                  decoration: BoxDecoration(
-                    
-                  ),
+                  decoration: BoxDecoration(),
                   child: SafeArea(
                     child: Column(
                       children: [
@@ -140,7 +156,10 @@ class Dashboard extends StatelessWidget {
                                     style: TextStyle(
                                         fontSize: 30, color: Colors.white)),
                                 onPressed: () => Navigator.push(
-                                    context, MaterialPageRoute(builder: (context) => PatroneRegistration())),
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            PatroneRegistration())),
                               ),
                             ),
                           ),
@@ -160,7 +179,10 @@ class Dashboard extends StatelessWidget {
                                     style: TextStyle(
                                         fontSize: 30, color: Colors.white)),
                                 onPressed: () => Navigator.push(
-                                    context, MaterialPageRoute(builder: (context) => IgniterRegistration())),
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            IgniterRegistration())),
                               ),
                             ),
                           ),

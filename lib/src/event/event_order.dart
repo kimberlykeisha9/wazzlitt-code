@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/order_data.dart';
 import 'package:wazzlitt/user_data/payments.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
@@ -8,23 +9,23 @@ import '../app.dart';
 class EventOrder extends StatefulWidget {
   const EventOrder({super.key, required this.event});
 
-  final Map<String, dynamic> event;
+  final EventData event;
 
   @override
   State<EventOrder> createState() => _EventOrderState();
 }
 
 class _EventOrderState extends State<EventOrder> {
-  List<dynamic>? tickets = [];
+  List<Ticket>? tickets = [];
   int? _selected;
   bool? _isChecked;
   int? _selectedIndex;
-  Map<String, dynamic>? _selectedTicket;
+  Ticket? _selectedTicket;
 
   @override
   void initState() {
     super.initState();
-    tickets = widget.event['tickets'] ?? [];
+    tickets = widget.event.tickets ?? [];
   }
 
   @override
@@ -32,13 +33,13 @@ class _EventOrderState extends State<EventOrder> {
     final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Tickets for ${widget.event['event_name']}'),
+        title: Text('Tickets for ${widget.event.eventName}'),
       ),
       body: SafeArea(
           child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(children: [
-          Text(widget.event['event_name'],
+          Text(widget.event.eventName ?? '',
               style:
                   const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           const Spacer(),
@@ -52,14 +53,14 @@ class _EventOrderState extends State<EventOrder> {
               return SizedBox(
                   width: width(context),
                   child: ListTile(
-                    title: Text(ticket['ticket_name']),
+                    title: Text(ticket.title ?? ''),
                     subtitle: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(ticket.containsKey('price')
+                        Text(ticket.price != null
                             ? '\$'
-                                '${double.parse(ticket['price'].toString()).toStringAsFixed(2)}'
+                                '${double.parse(ticket.price.toString()).toStringAsFixed(2)}'
                             : 'Free'),
                       ],
                     ),
@@ -74,9 +75,9 @@ class _EventOrderState extends State<EventOrder> {
                         });
                       },
                     ),
-                    trailing: ticket.containsKey('description')
+                    trailing: ticket.description != null
                         ? Tooltip(
-                            message: ticket['description'],
+                            message: ticket.description,
                             child: const Icon(Icons.info_outline))
                         : const SizedBox(),
                   ));
@@ -102,7 +103,7 @@ class _EventOrderState extends State<EventOrder> {
               Text(
                   _selectedTicket == null
                       ? '\$ 0.00'
-                      : '\$ ${double.parse(_selectedTicket!['price'].toString()).toStringAsFixed(2)}',
+                      : '\$ ${double.parse(_selectedTicket!.price.toString()).toStringAsFixed(2)}',
                   style: const TextStyle(
                       fontSize: 20, fontWeight: FontWeight.bold)),
             ],
@@ -161,7 +162,7 @@ class _EventOrderState extends State<EventOrder> {
                                                     child: Wrap(
                                                       children: [
                                                         Text(
-                                                            'Deduct \$${double.parse(_selectedTicket!['price'].toString()).toStringAsFixed(2)} from your WazzLitt account',
+                                                            'Deduct \$${double.parse(_selectedTicket!.price.toString()).toStringAsFixed(2)} from your WazzLitt account',
                                                             style: const TextStyle(
                                                                 fontWeight:
                                                                     FontWeight
@@ -183,7 +184,7 @@ class _EventOrderState extends State<EventOrder> {
                                                                 child:
                                                                     ElevatedButton(
                                                                   child: Text(
-                                                                      'Pay \$${double.parse(_selectedTicket!['price'].toString()).toStringAsFixed(2)}'),
+                                                                      'Pay \$${double.parse(_selectedTicket!.price.toString()).toStringAsFixed(2)}'),
                                                                   onPressed:
                                                                       () {
                                                                     try {
@@ -201,7 +202,7 @@ class _EventOrderState extends State<EventOrder> {
                                                                       }
 
                                                                       payFromBalance(
-                                                                              double.parse(_selectedTicket!['price'].toString()),
+                                                                              double.parse(_selectedTicket!.price.toString()),
                                                                               context)
                                                                           .then((paymentStatus) {
                                                                         print(paymentStatus ??

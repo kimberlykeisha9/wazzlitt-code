@@ -355,7 +355,7 @@ class _EditEventState extends State<EditEvent> {
                                           )
                                           .then((value) =>
                                               Navigator.popAndPushNamed(context,
-                                                  'igniter_dashboard'));
+                                                  'dashboard'));
                                       dataSendingNotifier.stopLoading();
                                     });
                                   } on Exception catch (e) {

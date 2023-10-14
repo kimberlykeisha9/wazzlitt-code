@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
+import 'package:wazzlitt/src/dashboard/patrone_dashboard.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/src/event/event.dart';
 import 'package:wazzlitt/src/location/location.dart';
@@ -70,7 +71,8 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
     );
   }
 
-  Future<void> _performEventsSearch(String searchQuery) async {
+  Future<List<EventData>> _performEventsSearch(String searchQuery) async {
+    List<EventData> results = [];
     final eventsSnapshot =
         await _getSnapshot('events', 'event_name', searchQuery);
 
@@ -104,39 +106,36 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         tickets: ticketsList,
       );
 
-      if (_searchResults.contains(foundEvent)) {
-        _searchResults
-            .where((event) => event.eventReference == foundEvent.eventReference)
-            .toList()
-            .forEach((element) {
-          setState(() {
-            _searchResults.remove(element);
-          });
-        });
-      } else {
-        setState(() {
-          _searchResults.add(foundEvent);
-        });
-      }
+      results.add(foundEvent);
     }
-
-    setState(() {
-      _searchResults = [
-        ...eventsSnapshot.docs,
-      ];
-    });
+    return results;
   }
 
-  Future<void> _performPeopleSearch(String searchQuery) async {
+  Future<List<Patrone>> _performPeopleSearch(String searchQuery) async {
+    List<Patrone> pResults = [];
     final usernamesSnapshot =
-        await _getSnapshot('account_type', 'username', searchQuery);
+        await _getSnapshotForGroup('account_type', 'username', searchQuery);
     final firstNamesSnapshot =
-        await _getSnapshot('account_type', 'first_name', searchQuery);
+        await _getSnapshotForGroup('account_type', 'first_name', searchQuery);
     final lastNamesSnapshot =
-        await _getSnapshot('account_type', 'last_name', searchQuery);
+        await _getSnapshotForGroup('account_type', 'last_name', searchQuery);
+
+    var results = usernamesSnapshot.docs +
+        firstNamesSnapshot.docs +
+        lastNamesSnapshot.docs;
+
+    for (var result in results) {
+      await Patrone().getPatroneInformation(result.reference).then((value) {
+        Patrone foundPatrone = value;
+
+        pResults.add(foundPatrone);
+      });
+    }
+    return pResults;
   }
 
-  Future<void> _performPlacesSearch(String searchQuery) async {
+  Future<List<BusinessPlace>> _performPlacesSearch(String searchQuery) async {
+    List<BusinessPlace> results = [];
     final placesSnapshot =
         await _getSnapshot('places', 'place_name', searchQuery);
 
@@ -177,42 +176,42 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         services: servicesList,
       );
 
-      if (_searchResults.contains(foundBusinessPlace)) {
-        _searchResults
-            .where((place) =>
-                place.placeReference == foundBusinessPlace.placeReference)
-            .toList()
-            .forEach((removablePlace) {
-          setState(() {
-            _searchResults.remove(removablePlace);
-          });
-        });
-        print('Removed listing. New value is ${_searchResults.length}');
-      } else {
-        setState(() {
-          _searchResults.add(foundBusinessPlace);
-        });
-        print('Added listing. New value is ${_searchResults.length}');
-      }
+      results.add(foundBusinessPlace);
     }
+
+    return results;
   }
 
   List<dynamic> _searchResults = [];
 
   Future<void> _performSearch(String searchQuery) async {
     _searchResults.clear();
-    await _performPlacesSearch(searchQuery);
-    await _performEventsSearch(searchQuery);
+    var places = await _performPlacesSearch(searchQuery);
+    var events = await _performEventsSearch(searchQuery);
+    var people = await _performPeopleSearch(searchQuery);
     var googleSearch = await searchBuildings(searchQuery);
-    _searchResults.addAll(googleSearch ?? []);
+      _searchResults.addAll(people);
+      _searchResults.addAll(events);
+      _searchResults.addAll(places);
+      _searchResults.addAll(googleSearch);
+  }
+
+  Future<QuerySnapshot> _getSnapshotForGroup(
+      String collection, String field, String searchQuery) async {
+    var request = await firestore
+        .collectionGroup(collection)
+        .where(field, isEqualTo: searchQuery)
+        .get();
+    return request;
   }
 
   Future<QuerySnapshot> _getSnapshot(
       String collection, String field, String searchQuery) async {
-    return await firestore
+    var request = await firestore
         .collection(collection)
         .where(field, isEqualTo: searchQuery)
         .get();
+    return request;
   }
 
   Widget _buildSearchBar(BuildContext context, Function(String) searchQuery) {
@@ -258,6 +257,19 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                     return result.placeName;
                   } else if (result is EventData) {
                     return result.eventName;
+                  } else if (result is Patrone) {
+                    return '${result.firstNameSet} ${result.lastNameSet}';
+                  }
+                  return null;
+                }
+
+                String? resultImage() {
+                  if (result is BusinessPlace) {
+                    return result.image;
+                  } else if (result is EventData) {
+                    return result.image;
+                  } else if (result is Patrone) {
+                    return result.profilePictureSet;
                   }
                   return null;
                 }
@@ -267,6 +279,8 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                     return result.formattedAddress;
                   } else if (result is EventData) {
                     return null;
+                  } else if (result is Patrone) {
+                    return result.usernameSet;
                   }
                   return null;
                 }
@@ -276,14 +290,16 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                     if (result is BusinessPlace) {
                       _navigateToPlace(context, result);
                     } else if (result is EventData) {
-                      // _navigateToEvent(
-                      //     context, document.data() as Map<String, dynamic>);
+                      _navigateToEvent(context, result);
+                    } else if (result is Patrone) {
+                      _navigateToUserProfile(
+                          context, result.usernameSet!, result);
                     }
                   },
                   child: ListTile(
                     leading: CircleAvatar(
                       foregroundImage: NetworkImage(
-                        result.image ??
+                        resultImage() ??
                             'https://i.pinimg.com/736x/58/58/c9/5858c9e33da2df781d11a0993f9b7030.jpg',
                       ),
                     ),
@@ -303,17 +319,13 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   }
 
   void _navigateToUserProfile(
-      BuildContext context, String username, DocumentReference reference) {
+      BuildContext context, String username, Patrone patrone) {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => Scaffold(
           appBar: AppBar(title: Text(username)),
-          body: FutureBuilder<Patrone>(
-              future: getPatrone(Patrone().getPatroneInformation(reference)),
-              builder: (context, snapshot) {
-                return ProfileScreen(userProfile: snapshot.data!);
-              }),
+          body: ProfileScreen(userProfile: patrone),
         ),
       ),
     );
@@ -372,13 +384,28 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
 }
 
-class PlacesTab extends StatelessWidget {
+class PlacesTab extends StatefulWidget {
   PlacesTab({
     Key? key,
     required this.categories,
   }) : super(key: key);
 
   final List<Category> categories;
+
+  @override
+  State<PlacesTab> createState() => _PlacesTabState();
+}
+
+class _PlacesTabState extends State<PlacesTab> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   void _navigateToPlace(BuildContext context, BusinessPlace placeData) {
     Navigator.push(
@@ -392,6 +419,9 @@ class PlacesTab extends StatelessWidget {
   List<BusinessPlace> allPlaces = [];
 
   late Future<List<BusinessPlace>> getPlaceFuture = getAllPlaces();
+
+  Future<List<BusinessPlace>> getPlacesFromGoogle =
+      searchBuildings('Places near me');
 
   Future<List<BusinessPlace>> getAllPlaces() async {
     try {
@@ -442,17 +472,14 @@ class PlacesTab extends StatelessWidget {
                 .forEach((removablePlace) {
               _places.remove(removablePlace);
             });
-            print('Removed listing. New value is ${_places.length}');
           } else {
             _places.add(foundBusinessPlace);
-            print('Added listing. New value is ${_places.length}');
           }
         }
       });
 
       return _places;
     } on Exception catch (e) {
-      print(e);
       throw Exception(e);
     }
   }
@@ -469,29 +496,24 @@ class PlacesTab extends StatelessWidget {
         ),
         Expanded(
           child: FutureBuilder<List<BusinessPlace>>(
-            future: getPlaceFuture,
+            future: getPlacesFromGoogle,
             builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
               if (!(snapshot.hasData) ||
                   snapshot.data == null ||
                   snapshot.data!.isEmpty) {
-                return const Center(child: Text('No places are currently available'));
+                return const Center(
+                    child: Text('No places are currently available'));
               } else {
                 allPlaces = snapshot.data!;
                 return GridView.builder(
                   shrinkWrap: true,
-                  gridDelegate: SliverQuiltedGridDelegate(
-                    crossAxisCount: 3,
-                    mainAxisSpacing: 0,
-                    crossAxisSpacing: 0,
-                    repeatPattern: QuiltedGridRepeatPattern.inverted,
-                    pattern: [
-                      const QuiltedGridTile(2, 1),
-                      const QuiltedGridTile(1, 1),
-                      const QuiltedGridTile(1, 1),
-                      const QuiltedGridTile(1, 1),
-                      const QuiltedGridTile(1, 1),
-                    ],
-                  ),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2),
                   itemCount: allPlaces.length,
                   itemBuilder: (BuildContext context, int index) {
                     final place = allPlaces[index];
@@ -524,7 +546,7 @@ class PlacesTab extends StatelessWidget {
                                 child: Text(
                                   place.category ?? 'Not available',
                                   style: const TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 8,
                                     color: Colors.white,
                                   ),
                                 ),
@@ -534,19 +556,12 @@ class PlacesTab extends StatelessWidget {
                             Text(
                               place.placeName ?? '',
                               style: const TextStyle(
-                                fontSize: 18,
+                                fontSize: 12,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
                             ),
                             const SizedBox(height: 5),
-                            const Text(
-                              '0 km away',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                              ),
-                            ),
                           ],
                         ),
                       ),
@@ -577,7 +592,11 @@ class _LitTabState extends State<LitTab> {
   Future<List<EventData>> getAllEvents() async {
     try {
       List<EventData> listedEvents = [];
-      await firestore.collection('events').where('date', isGreaterThan: DateTime.now()).get().then((events) {
+      await firestore
+          .collection('events')
+          .where('date', isGreaterThan: DateTime.now())
+          .get()
+          .then((events) {
         for (QueryDocumentSnapshot<Map<String, dynamic>> event in events.docs) {
           var eventData = event.data();
           List<Ticket>? ticketsList = [];
@@ -611,7 +630,6 @@ class _LitTabState extends State<LitTab> {
       });
       return listedEvents;
     } on Exception catch (e) {
-      print(e);
       throw Exception(e);
     }
     // catch (e) {
@@ -643,10 +661,16 @@ class _LitTabState extends State<LitTab> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Text('Featured Events',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
               Expanded(
                 child: SizedBox(
                   child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2),
                     itemCount: allEvents.length,
                     itemBuilder: (context, index) {
                       final event = allEvents[index];

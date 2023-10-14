@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:wazzlitt/src/event/event_order.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
 
 import '../app.dart';
@@ -15,12 +16,14 @@ class Event extends StatefulWidget {
 }
 
 class _EventState extends State<Event> {
+  late bool hasTickets;
   @override
   void initState() {
     super.initState();
     getEventInfo = (val) {
       return val;
     };
+    hasTickets = ((widget.event.tickets ?? []).isNotEmpty);
   }
 
   late final Future<DocumentSnapshot> Function(Future<DocumentSnapshot<Object?>>) getEventInfo;
@@ -68,17 +71,17 @@ class _EventState extends State<Event> {
                         SizedBox(
                           width: width(context),
                           child: ElevatedButton(
-                              onPressed: () {
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) =>
-                                //         EventOrder(
-                                //             event: event.eventReference!),
-                                //   ),
-                                // );
-                              },
-                              child: const Text('Buy Tickets')),
+                              onPressed: hasTickets ? () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        EventOrder(
+                                            event: widget.event),
+                                  ),
+                                );
+                              } : null,
+                              child: Text(hasTickets ? 'Buy Tickets' : 'No Tickets available')),
                         ),
                       ],
                     ),
@@ -86,7 +89,7 @@ class _EventState extends State<Event> {
                   Container(
                     padding: const EdgeInsets.all(30),
                     decoration: BoxDecoration(
-                      border: Border.all(),
+                      border: Border.all(color: Theme.of(context).colorScheme.onSurface),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
@@ -123,7 +126,7 @@ class _EventState extends State<Event> {
                           return ListTile(
                             leading: CircleAvatar(
                               foregroundImage:
-                                  NetworkImage(organizerData?['image']),
+                                  NetworkImage(organizerData?['image'] ?? 'https://i.pinimg.com/736x/58/58/c9/5858c9e33da2df781d11a0993f9b7030.jpg'),
                             ),
                             title: Text(
                                 organizerData?['organizer_name'] ?? 'null'),

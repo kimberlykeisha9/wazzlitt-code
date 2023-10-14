@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/patrone_data.dart';
 
 import 'user_data.dart';
@@ -62,13 +63,13 @@ class Order {
 
   // Uploads order for an event
 
-  Future<void> uploadEventOrder(Map<String, dynamic> ticket, int index,
-    Map<String, dynamic> event, String paymentType) async {
+  Future<void> uploadEventOrder(Ticket ticket, int index,
+    EventData event, String paymentType) async {
   // Add order to Orders Collection
   await firestore.collection('orders').add({
     'date_placed': DateTime.now(),
     'order_type': 'ticket',
-    'ticket': ticket,
+    'ticket': {'ticket_name': ticket.title, 'ticket_description': ticket.description, 'price': ticket.price},
     'ordered_by': currentUserProfile,
     'payment_type': paymentType,
     'order_id': generateUniqueId(),
@@ -77,8 +78,8 @@ class Order {
     // Query for event
     firestore
         .collection('events')
-        .where('event_name', isEqualTo: event['event_name'])
-        .where('tickets', arrayContains: ticket)
+        .where('event_name', isEqualTo: event.eventName)
+        .where('tickets', arrayContains: {'ticket_name': ticket.title, 'ticket_description': ticket.description, 'price': ticket.price})
         .limit(1)
         .get()
         .then((query) {
@@ -87,7 +88,6 @@ class Order {
       order.update({'event': eventRef});
       eventRef.update({
         'orders': FieldValue.arrayUnion([order]),
-        'tickets': event['tickets'],
       }).then((value) {
         // Update user's orders
         log('Added order to business');

@@ -68,7 +68,8 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('You have not listed any events yet.'));
+                return const Center(
+                    child: Text('You have not listed any events yet.'));
               } else {
                 events = snapshot.data!;
                 return PageView.builder(
@@ -199,7 +200,8 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                             TextButton(
                                               onPressed: () =>
                                                   _selectDate(context),
-                                              child: const Text('Change Period'),
+                                              child:
+                                                  const Text('Change Period'),
                                             ),
                                           ],
                                         ),
@@ -215,14 +217,12 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                                 Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
-                                                        builder:
-                                                            (context) =>
-                                                                EditTicket(
-                                                                  event:
-                                                                      event.eventReference!,
-                                                                  ticket:
-                                                                      ticket,
-                                                                )));
+                                                        builder: (context) =>
+                                                            EditTicket(
+                                                              event: event
+                                                                  .eventReference!,
+                                                              ticket: ticket,
+                                                            )));
                                               },
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
@@ -248,7 +248,8 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                                         MainAxisAlignment
                                                             .spaceBetween,
                                                     children: [
-                                                      const Text('Tickets Sold'),
+                                                      const Text(
+                                                          'Tickets Sold'),
                                                       Text(
                                                           '${event.orders?.length ?? 0}'),
                                                     ],
@@ -270,16 +271,21 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                 child: ElevatedButton(
                                   child: const Text('Add a new ticket'),
                                   onPressed: () {
-                                    // createSellerAccount();
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            NewTicket(
-                                          event: event,
-                                        ),
-                                      ),
-                                    );
+                                    checkIfAccountExistsOnStripe()
+                                        .then((value) {
+                                      if (value != true) {
+                                        createSellerAccount();
+                                      } else {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => NewTicket(
+                                              event: event,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    });
                                   },
                                 ),
                               ),

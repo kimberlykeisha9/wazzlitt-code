@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../user_data/patrone_data.dart';
@@ -49,6 +50,24 @@ Future<void> launchPatroneSubscription() async {
   }
 }
 
+Future<bool?> checkIfAccountExistsOnStripe() async {
+  bool? hasDetails;
+  var pref = await SharedPreferences.getInstance();
+  String? id = pref.getString('accountId');
+  if (id != null) {
+    final request = await http
+        .get(Uri.parse('https://api.stripe.com/v1/accounts/$id'), headers: {
+      'Authorization': 'Bearer $apiKey',
+    });
+    var body = jsonDecode(request.body);
+    hasDetails = body['details_submitted'];
+  } else {
+    hasDetails = false;
+    log('Account ID is empty');
+  }
+  return hasDetails;
+}
+
 createSellerAccount() async {
   Future<String?> getAccountID() async {
     try {
@@ -64,6 +83,10 @@ createSellerAccount() async {
       var responseBody = jsonDecode(request.body);
       if (request.statusCode == 200) {
         accountID = responseBody['id'];
+        var pref = await SharedPreferences.getInstance();
+        if (accountID != null) {
+          pref.setString('accountId', accountID);
+        }
         print(accountID);
       }
       return accountID;
@@ -73,8 +96,9 @@ createSellerAccount() async {
     }
   }
 
-  await getAccountID().then((account) async {
-    if (account != null) {
+  Future<String?> getAccountLink(String account) async {
+    String? linkUrl;
+    try {
       final request = await http
           .post(Uri.parse('https://api.stripe.com/v1/account_links'), headers: {
         'Authorization': 'Bearer $apiKey',
@@ -86,6 +110,34 @@ createSellerAccount() async {
         'return_url': 'https://wazzlitt-d7c47.web.app/',
       });
       print(request.body);
+
+      if (request.statusCode == 200) {
+        var body = jsonDecode(request.body);
+        linkUrl = body['url'];
+        log(linkUrl ?? 'No url found');
+      } else {
+        log('The account link did not return any response');
+      }
+      return linkUrl;
+    } on Exception catch (e) {
+      log(e.toString());
+      throw Exception(e);
+    }
+  }
+
+  await getAccountID().then((account) async {
+    if (account != null) {
+      getAccountLink(account).then((url) async {
+        if (url != null) {
+          try {
+            await launchUrl(Uri.parse(url), webOnlyWindowName: '_blank');
+          } catch (e) {
+            throw Exception('Could not launch $url because of $e');
+          }
+        } else {
+          log('No url was found');
+        }
+      });
     } else {
       log('Account ID was not returned');
     }

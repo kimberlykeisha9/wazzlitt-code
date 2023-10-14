@@ -65,6 +65,9 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
   @override
   void initState() {
     super.initState();
+    if (!isLoggedIn()) {
+      Navigator.popAndPushNamed(context, 'home');
+    }
     Patrone().currentUserPatroneProfile.get().then((value) {
       if (value.exists) {
         setState(() {
@@ -373,28 +376,32 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                               builder: (_) => const Center(
                                   child: CircularProgressIndicator()));
                         }
-                        uploadImageToFirebase(_profilePicture, 'users/${auth.currentUser!.uid}/patrone/profile_picture').then((profilePic) {
-                          uploadImageToFirebase(_coverPhoto, 'users/${auth.currentUser!.uid}/patrone/cover_image').then((coverImage) {
+                        uploadImageToFirebase(_profilePicture,
+                                'users/${auth.currentUser!.uid}/patrone/profile_picture')
+                            .then((profilePic) {
+                          uploadImageToFirebase(_coverPhoto,
+                                  'users/${auth.currentUser!.uid}/patrone/cover_image')
+                              .then((coverImage) {
                             Patrone()
-                            .saveUserPatroneInformation(
-                              firstName: firstNameController.text,
-                              lastName: lastNameController.text,
-                              username: usernameController.text,
-                              dob: selectedDOB,
-                              email: emailController.text,
-                              profilePic: profilePic,
-                              coverPic: coverImage,
-                              gender: _selectedGender,
-                            )
-                            .then(
-                                (value) => Navigator.popAndPushNamed(
-                                    context, 'dashboard'),
-                                onError: (e) => showSnackbar(
-                                    context,
-                                    'An error has occured. '
-                                    'Please try again later.'));
-                          }); 
-                        });                        
+                                .saveUserPatroneInformation(
+                                  firstName: firstNameController.text,
+                                  lastName: lastNameController.text,
+                                  username: usernameController.text,
+                                  dob: selectedDOB,
+                                  email: emailController.text,
+                                  profilePic: profilePic,
+                                  coverPic: coverImage,
+                                  gender: _selectedGender,
+                                )
+                                .then(
+                                    (value) => Navigator.popAndPushNamed(
+                                        context, 'dashboard'),
+                                    onError: (e) => showSnackbar(
+                                        context,
+                                        'An error has occured. '
+                                        'Please try again later.'));
+                          });
+                        });
                         dataSendingNotifier.stopLoading();
                       } on Exception catch (e) {
                         dataSendingNotifier.stopLoading();

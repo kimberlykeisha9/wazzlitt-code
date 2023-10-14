@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
@@ -308,19 +309,45 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                         user.data() as Map<String, dynamic>;
                                     return ListTile(
                                       onTap: () {
-                                        firestore.collection('messages').where('participants', arrayContains: [currentUserProfile, user.reference.parent.parent]).get().then((chats) {
-                                          if (chats.size > 0) {
-                                            Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: chats.docs.first.reference)));
-                                          } else {
-                                            firestore.collection('messages').add({
-                                              'participants': [currentUserProfile, user.reference.parent.parent],
-                                              'last_message': null,
-                                            }).then((newChat) {
-                                              
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => ConversationScreen(chats: newChat)));
+                                        firestore
+                                            .collection('messages')
+                                            .where('participants',
+                                                arrayContains: [
+                                                  currentUserProfile,
+                                                  user.reference.parent.parent
+                                                ])
+                                            .get()
+                                            .then((chats) {
+                                              if (chats.size > 0) {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            ConversationScreen(
+                                                                chats: chats
+                                                                    .docs
+                                                                    .first
+                                                                    .reference)));
+                                              } else {
+                                                firestore
+                                                    .collection('messages')
+                                                    .add({
+                                                  'participants': [
+                                                    currentUserProfile,
+                                                    user.reference.parent.parent
+                                                  ],
+                                                  'last_message': null,
+                                                }).then((newChat) {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              ConversationScreen(
+                                                                  chats:
+                                                                      newChat)));
+                                                });
+                                              }
                                             });
-                                          }
-                                        });
                                       },
                                       leading: CircleAvatar(
                                           foregroundImage: NetworkImage(data[
@@ -332,11 +359,46 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                     );
                                   });
                             }
-                            return const Center(child: CircularProgressIndicator());
+                            return const Center(
+                                child: CircularProgressIndicator());
                           })));
             },
             label: const Text('New chat'),
             icon: const Icon(Icons.add));
+      case 3:
+        return StreamBuilder<DocumentSnapshot>(
+            stream: Patrone().currentUserPatroneProfile.snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                Map<String, dynamic> data =
+                              snapshot.data!.data() as Map<String, dynamic>;
+                              bool isLit = data['isLit'] ?? false;
+                return FloatingActionButton.extended(
+                    onPressed: () async {
+                      
+                          if (isLit == true) {
+                            await Patrone().currentUserPatroneProfile.update({
+                              'isLit': false,
+                            });
+                          } else {
+                            await Patrone().currentUserPatroneProfile.update({
+                              'isLit': true,
+                            });
+                          }
+                    },
+                    icon: Icon(
+                      FontAwesomeIcons.fire,
+                      color: isLit ? Colors.amber[800] : Colors.black,
+                    ),
+                    label: Text(
+                      isLit ?'I\'m Lit!' : 'Activate Lit Status',
+                      style: TextStyle(
+                          color: isLit ? Colors.amber[800] : Colors.black,
+                          fontWeight: FontWeight.bold),
+                    ));
+              }
+              return CircularProgressIndicator();
+            });
     }
     return null;
   }

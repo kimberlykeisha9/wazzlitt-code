@@ -8,6 +8,10 @@ import '../src/app.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
 
+bool isLoggedIn() {
+  return auth.currentUser != null;
+}
+
 Future<void> signOut() async {
   await auth.signOut();
   auth.currentUser?.reload();
@@ -20,8 +24,8 @@ bool isEmailActivated() {
 
 bool isGoogleActivated() {
   // Check if Google is linked to the user's account
-  bool isGoogleLinked =
-      auth.currentUser!.providerData.any((provider) => provider.providerId == 'google.com');
+  bool isGoogleLinked = auth.currentUser!.providerData
+      .any((provider) => provider.providerId == 'google.com');
 
   if (isGoogleLinked) {
     print('Google is linked to the user\'s account');
@@ -33,8 +37,8 @@ bool isGoogleActivated() {
 
 bool isFacebookActivated() {
   // Check if Google is linked to the user's account
-  bool isFacebookLinked =
-      auth.currentUser!.providerData.any((provider) => provider.providerId == 'facebook.com');
+  bool isFacebookLinked = auth.currentUser!.providerData
+      .any((provider) => provider.providerId == 'facebook.com');
 
   if (isFacebookLinked) {
     print('Facebook is linked to the user\'s account');

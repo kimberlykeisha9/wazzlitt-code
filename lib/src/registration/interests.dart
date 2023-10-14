@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 import '../../user_data/patrone_data.dart';
@@ -18,6 +19,9 @@ class _InterestsState extends State<Interests> {
   @override
   void initState() {
     super.initState();
+    if(!isLoggedIn()) {
+      Navigator.popAndPushNamed(context, 'home');
+    }
     firestore.collection('app_data').doc('categories').get().then((value) {
       var data = value.data() as Map<String, dynamic>;
       data.forEach((key, value) {

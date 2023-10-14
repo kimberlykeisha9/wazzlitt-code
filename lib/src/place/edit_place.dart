@@ -581,7 +581,7 @@ class _EditPlaceState extends State<EditPlace> {
             ).then((value) =>
                 Navigator.popAndPushNamed(
                     context,
-                    'igniter_dashboard'));
+                    'dashboard'));
           });
         });
         dataSendingNotifier.stopLoading();

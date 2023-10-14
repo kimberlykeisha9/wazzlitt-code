@@ -1,12 +1,25 @@
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:wazzlitt/authorization/authorization.dart';
 import '../app.dart';
 import 'package:animate_do/animate_do.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
   const Home({super.key});
 
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  @override
+  void initState() {
+    super.initState();
+    if (isLoggedIn()) {
+      Navigator.popAndPushNamed(context, 'dashboard');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

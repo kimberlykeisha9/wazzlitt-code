@@ -2,12 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
+import 'package:wazzlitt/user_data/business_owner_data.dart';
 import '../../user_data/patrone_data.dart';
 import '../../user_data/user_data.dart';
 
 class ConversationScreen extends StatefulWidget {
-  ConversationScreen({super.key, required this.chats});
+  ConversationScreen({super.key, required this.chats, this.place});
   DocumentReference chats;
+  BusinessPlace? place;
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -49,8 +51,8 @@ class _ConversationScreenState extends State<ConversationScreen> {
         future: getChats,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            Map<String, dynamic> chatsInfo =
-                snapshot.data!.data() as Map<String, dynamic>;
+            Map<String, dynamic>? chatsInfo =
+                snapshot.data!.data() as Map<String, dynamic>?;
             return Scaffold(
               appBar: AppBar(title: const Text('Conversation'), actions: [
                 IconButton(
@@ -58,18 +60,17 @@ class _ConversationScreenState extends State<ConversationScreen> {
               ]),
               body: Column(
                 children: [
-                  chatsInfo.containsKey('identifier')
+                  chatsInfo!.containsKey('identifier')
                       ? FutureBuilder<DocumentSnapshot>(
-                          future: getChatroomChats(chatsInfo['owner'].get()),
+                          future: null,
                           builder: (context, snapshot) {
                             return Container(
                                 padding: const EdgeInsets.all(40),
                                 decoration: BoxDecoration(
                                   image: DecorationImage(
                                     fit: BoxFit.cover,
-                                    image: NetworkImage((snapshot.data!.data()
-                                                as Map<String, dynamic>?)?[
-                                            'image'] ??
+                                    opacity: 0.5,
+                                    image: NetworkImage(widget.place!.image ??
                                         'https://i.pinimg.com/564x/60/9a/37/609a375345b463141ec4c875ee2f1104.jpg'),
                                   ),
                                 ),

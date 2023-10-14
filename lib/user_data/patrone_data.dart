@@ -26,7 +26,11 @@ class Patrone extends ChangeNotifier {
     this.createdPostsSet,
     this.followersSet,
     this.followingSet,
+    this.isLit,
   });
+
+  //Lit Status
+  bool? isLit;
   // First name
   String? firstNameSet;
   String? get firstName => firstNameSet;
@@ -115,6 +119,7 @@ class Patrone extends ChangeNotifier {
             coverPictureSet: content?['cover_photo'],
             genderSet: content?['gender'],
             createdPostsSet: content?['created_posts'] ?? [],
+            isLit: content?['isLit'],
           );
         }
       });
@@ -244,8 +249,8 @@ class Patrone extends ChangeNotifier {
   Future<void> uploadPost(File toBeUploaded, String? caption, String category,
       double latitude, double longitude) async {
     try {
-      await uploadImageToFirebase(
-              toBeUploaded, 'feed/${auth.currentUser!.uid}/${generateUniqueId()}')
+      await uploadImageToFirebase(toBeUploaded,
+              'feed/${auth.currentUser!.uid}/${generateUniqueId()}')
           .then((postImage) => firestore.collection('feed').add({
                 'caption': caption,
                 'creator_uid': currentUserPatroneProfile,

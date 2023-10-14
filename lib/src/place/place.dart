@@ -9,6 +9,7 @@ import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/src/location/location.dart';
 import 'package:wazzlitt/user_data/business_owner_data.dart';
 import 'package:wazzlitt/user_data/patrone_data.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
 class Place extends StatefulWidget {
@@ -116,7 +117,7 @@ class _PlaceState extends State<Place> {
             stream: getPeople,
             builder: (context, snapshot) {
               final patroneCount = snapshot.data?.length ?? 0;
-          
+
               return Text(
                 '$patroneCount Patrones around here',
                 style: const TextStyle(fontWeight: FontWeight.bold),
@@ -124,70 +125,99 @@ class _PlaceState extends State<Place> {
             },
           ),
           const SizedBox(height: 30),
-          widget.place.placeReference != null
-              ? Row(
-                  children: [
-                    Expanded(
-                      flex: 10,
-                      child: SizedBox(
-                        height: 30,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.all(5)),
-                          onPressed: () {},
-                          child: const Text(
-                            'Follow',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ),
+          Row(
+            children: [
+              Expanded(
+                flex: 10,
+                child: SizedBox(
+                  height: 30,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(5)),
+                    onPressed: () {},
+                    child: const Text(
+                      'Follow',
+                      style: TextStyle(fontSize: 12),
                     ),
-                    const Spacer(),
-                    Expanded(
-                      flex: 10,
-                      child: SizedBox(
-                        height: 30,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.all(5)),
-                          onPressed: () => Navigator.push(
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Expanded(
+                flex: 10,
+                child: SizedBox(
+                  height: 30,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(5)),
+                    onPressed: () {
+                      firestore
+                          .collection('messages')
+                          .doc(widget.place.googleId)
+                          .get()
+                          .then((doc) {
+                        if (doc.exists) {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => ConversationScreen(
-                                chats: widget.place.chatroom!,
+                                chats: firestore
+                                    .collection('messages')
+                                    .doc(widget.place.googleId),
+                                    place: widget.place,
                               ),
                             ),
-                          ),
-                          child: const Text(
-                            'Chat Room',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ),
+                          );
+                        } else {
+                          firestore
+                              .collection('messages')
+                              .doc(widget.place.googleId)
+                              .set({
+                            'identifier': 'chat_room',
+                            'last_message': null,
+                            'welcome_message':
+                                'Hey, welcome to this chat room. Feel free to socialize and find each other.',
+                            'participants': null,
+                          }).then((value) {
+                            Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ConversationScreen(
+                                chats: firestore
+                                    .collection('messages')
+                                    .doc(widget.place.googleId), place: widget.place,
+                              ),
+                            ),
+                          );
+                          });
+                        }
+                      });
+                    },
+                    child: const Text(
+                      'Chat Room',
+                      style: TextStyle(fontSize: 12),
                     ),
-                    const Spacer(),
-                    Expanded(
-                      flex: 10,
-                      child: SizedBox(
-                        height: 30,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.all(5)),
-                          onPressed: () {},
-                          child: const Text(
-                            'Contact',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              : const Center(
-                  child: Text(
-                    'This place is not officially listed on WazzLitt, so no chatrooms are currently available',
                   ),
                 ),
+              ),
+              const Spacer(),
+              Expanded(
+                flex: 10,
+                child: SizedBox(
+                  height: 30,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(5)),
+                    onPressed: () {},
+                    child: const Text(
+                      'Contact',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 30),
           Container(
             padding: const EdgeInsets.all(30),
@@ -251,20 +281,21 @@ class _PlaceState extends State<Place> {
       height: 250,
       color: Colors.grey,
       child: StreamBuilder(
-        stream: getPeople,
-        builder: (context, snapshot) {
-          Set<Marker> newMarkers = {};
-          if (snapshot.hasData) {
-        
-            for (var patrone in snapshot.data!) {
-                Map<String, dynamic> data = patrone.data() as Map<String, dynamic>;
+          stream: getPeople,
+          builder: (context, snapshot) {
+            Set<Marker> newMarkers = {};
+            if (snapshot.hasData) {
+              for (var patrone in snapshot.data!) {
+                Map<String, dynamic> data =
+                    patrone.data() as Map<String, dynamic>;
                 print(data);
                 GeoPoint location = data['current_location']['geopoint'];
-                  newMarkers.add(
+                newMarkers.add(
                   Marker(
-                    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-                    infoWindow: InfoWindow(title: data['username']),
-                    position: LatLng(location.latitude, location.longitude),
+                      icon: BitmapDescriptor.defaultMarkerWithHue(
+                          BitmapDescriptor.hueBlue),
+                      infoWindow: InfoWindow(title: data['username']),
+                      position: LatLng(location.latitude, location.longitude),
                       markerId: MarkerId(patrone.reference.parent.parent!.id),
                       onTap: () {
                         Patrone()
@@ -275,9 +306,8 @@ class _PlaceState extends State<Place> {
                             MaterialPageRoute(
                               builder: (context) => Scaffold(
                                 appBar: AppBar(
-                                  title: Text(value.usernameSet ?? '')
-                                ),
-                               body: ProfileScreen(
+                                    title: Text(value.usernameSet ?? '')),
+                                body: ProfileScreen(
                                   userProfile: value,
                                 ),
                               ),
@@ -287,22 +317,24 @@ class _PlaceState extends State<Place> {
                       }),
                 );
               }
-          }
-          return GoogleMap(
-            onTap: (val) {
-              newMarkers.toSet();
-            },
-            markers: newMarkers,
-            initialCameraPosition:
-                CameraPosition(target: _initialPosition, zoom: 12),
-            onMapCreated: (controller) {
-              mapController = controller;
-              newMarkers.add(Marker(
-                  markerId: const MarkerId('place'), position: _initialPosition),);
-            },
-          );
-        }
-      ),
+            }
+            return GoogleMap(
+              onTap: (val) {
+                newMarkers.toSet();
+              },
+              markers: newMarkers,
+              initialCameraPosition:
+                  CameraPosition(target: _initialPosition, zoom: 12),
+              onMapCreated: (controller) {
+                mapController = controller;
+                newMarkers.add(
+                  Marker(
+                      markerId: const MarkerId('place'),
+                      position: _initialPosition),
+                );
+              },
+            );
+          }),
     );
   }
 

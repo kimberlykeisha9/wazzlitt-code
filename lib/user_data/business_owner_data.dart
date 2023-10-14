@@ -119,10 +119,12 @@ class BusinessPlace {
     this.services,
     this.formattedAddress,
     this.orders,
+    this.googleId,
   });
 
   String? placeName;
   GeoPoint? location;
+  String? googleId;
   String? category;
   String? placeType;
   DateTime? closingTime;

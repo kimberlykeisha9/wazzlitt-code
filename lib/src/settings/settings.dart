@@ -4,9 +4,21 @@ import 'package:wazzlitt/authorization/authorization.dart';
 
 import '../app.dart';
 
-class Settings extends StatelessWidget {
+class Settings extends StatefulWidget {
   const Settings({super.key});
 
+  @override
+  State<Settings> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<Settings> {
+  @override
+  void initState() {
+    super.initState();
+    if(!isLoggedIn()) {
+      Navigator.popAndPushNamed(context, 'home');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

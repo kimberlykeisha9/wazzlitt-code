@@ -1,6 +1,7 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:wazzlitt/src/dashboard/feed_image.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
@@ -36,6 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           List<dynamic>? followers = currentUser.followers;
           String? gender = currentUser.gender;
           List<dynamic>? interests = currentUser.interests;
+          bool? isLit = currentUser.isLit;
           return Container(
             height: height(context),
             width: width(context),
@@ -56,6 +58,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     userProfile: currentUser.patroneReferenceSet!,
                     following: following ?? [],
                     followers: followers ?? [],
+                    isLit: isLit ?? false,
                   ),
                 ),
                 Expanded(
@@ -86,6 +89,7 @@ class ProfileTab extends StatefulWidget {
     required this.posts,
     required this.following,
     required this.followers,
+    required this.isLit,
   });
 
   final DocumentReference userProfile;
@@ -100,6 +104,7 @@ class ProfileTab extends StatefulWidget {
   final List<dynamic> posts;
   final List<dynamic> following;
   final List<dynamic> followers;
+  final bool isLit;
 
   @override
   State<ProfileTab> createState() => _ProfileTabState();
@@ -159,20 +164,21 @@ class _ProfileTabState extends State<ProfileTab> {
                             Column(
                               children: [
                                 FutureBuilder<List<dynamic>>(
-                                  future: Patrone().getUserPosts(widget.userProfile),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData) {
-                                      return Text(snapshot.data!.length.toString(),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18));
-                                  }
-                                  return const Text('0',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18));
-                                    }
-                                ),
+                                    future: Patrone()
+                                        .getUserPosts(widget.userProfile),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        return Text(
+                                            snapshot.data!.length.toString(),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 18));
+                                      }
+                                      return const Text('0',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18));
+                                    }),
                                 const Text('Posts',
                                     style: TextStyle(fontSize: 14)),
                               ],
@@ -209,8 +215,24 @@ class _ProfileTabState extends State<ProfileTab> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 20),
-                    Text('${widget.firstName} ${widget.lastName}',
-                        style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Row(
+                      children: [
+                        Text('${widget.firstName} ${widget.lastName}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.bold)),
+                        SizedBox(width: 5),
+                        Text(widget.isLit ? 'I\'m Lit!' : '',
+                            style: TextStyle(
+                                color: widget.isLit
+                                    ? Colors.amber[800]
+                                    : Colors.white)),
+                        SizedBox(width: 5),
+                        Icon(FontAwesomeIcons.fire,
+                            color:
+                                widget.isLit ? Colors.amber[800] : Colors.white,
+                            size: 18),
+                      ],
+                    ),
                     // const SizedBox(height: 5),
                     // Text('@$username', style: const TextStyle(fontSize: 12)),
                     const SizedBox(height: 10),
@@ -271,9 +293,14 @@ class _ProfileTabState extends State<ProfileTab> {
                                   future: isFollowing(Patrone()
                                       .isFollowingUser(widget.userProfile)),
                                   builder: (context, snapshot) {
-                                    return Text(
-                                        snapshot.data! ? 'Unfollow' : 'Follow',
-                                        style: const TextStyle(fontSize: 12));
+                                    if (snapshot.hasData) {
+                                      return Text(
+                                          snapshot.data!
+                                              ? 'Unfollow'
+                                              : 'Follow',
+                                          style: const TextStyle(fontSize: 12));
+                                    }
+                                    return CircularProgressIndicator();
                                   }),
                         ),
                       ),
@@ -429,6 +456,7 @@ class ActivityTab extends StatelessWidget {
                                     stream: post.snapshots(),
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
+                                        Map<String,dynamic>? data = snapshot.data!.data() as Map<String, dynamic>?;
                                         return GestureDetector(
                                           onTap: () => showDialog(
                                               context: context,
@@ -441,9 +469,9 @@ class ActivityTab extends StatelessWidget {
                                                         height:
                                                             height(context) *
                                                                 0.5,
-                                                        child: Image.network(snapshot.data!.get('image')),
-                                                        ),
-                                                      
+                                                        child: Image.network(
+                                                            data?['image'] ?? 'https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg'),
+                                                      ),
                                                     ),
                                                   )),
                                           child: Container(
@@ -451,7 +479,7 @@ class ActivityTab extends StatelessWidget {
                                               image: DecorationImage(
                                                 fit: BoxFit.cover,
                                                 image: NetworkImage(
-                                                  snapshot.data!.get('image'),
+                                                  data?['image'] ?? 'https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg',
                                                 ),
                                               ),
                                             ),

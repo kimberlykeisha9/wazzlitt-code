@@ -1,9 +1,21 @@
 import 'package:flutter/material.dart';
 import '../app.dart';
 
-class ConfirmedOrder extends StatelessWidget {
+class ConfirmedOrder extends StatefulWidget {
   const ConfirmedOrder({super.key});
 
+  @override
+  State<ConfirmedOrder> createState() => _ConfirmedOrderState();
+}
+
+class _ConfirmedOrderState extends State<ConfirmedOrder> {
+  @override
+  void initState() {
+    super.initState();
+    if(!isLoggedIn()) {
+      Navigator.popAndPushNamed(context, 'home');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

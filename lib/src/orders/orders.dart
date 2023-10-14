@@ -19,6 +19,9 @@ class _OrdersState extends State<Orders> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    if(!isLoggedIn()) {
+      Navigator.popAndPushNamed(context, 'home');
+    }
     Provider.of<Patrone>(context, listen: false).getCurrentUserOrders();
     orderFuture = (val) {
       return val;
