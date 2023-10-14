@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' as db;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:wazzlitt/authorization/authorization.dart';
 import '../../user_data/order_data.dart';
 import '../app.dart';
 import 'order_details.dart';
