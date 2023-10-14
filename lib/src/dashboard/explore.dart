@@ -539,7 +539,7 @@ class _PlacesTabState extends State<PlacesTab> {
                               alignment: Alignment.topRight,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.white),
+                                  border: Border.all(color: Colors.green,),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 padding: const EdgeInsets.all(5),
@@ -702,7 +702,7 @@ class _LitTabState extends State<LitTab> {
                                         style: const TextStyle(
                                           fontSize: 8,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                          color: Colors.black,
                                         ),
                                       ),
                                     ),
@@ -716,7 +716,7 @@ class _LitTabState extends State<LitTab> {
                                       style: const TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                                        color: Colors.black,
                                       ),
                                     ),
                                   ),
@@ -727,9 +727,9 @@ class _LitTabState extends State<LitTab> {
                                     child: Text(
                                       event.category ?? 'Unknown',
                                       style: const TextStyle(
-                                        fontSize: 8,
+                                        fontSize: 10,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.black,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),

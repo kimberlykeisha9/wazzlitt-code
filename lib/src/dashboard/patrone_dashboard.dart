@@ -271,6 +271,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     switch (_currentIndex) {
       case 0:
         return FloatingActionButton.extended(
+            backgroundColor: Theme.of(context).colorScheme.primary,
             onPressed: () {
               _getImage().then((value) => _toBeUploaded != null
                   ? Navigator.push(
@@ -286,6 +287,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
             label: const Text('Create a post'));
       case 2:
         return FloatingActionButton.extended(
+            backgroundColor: Theme.of(context).colorScheme.primary,
             onPressed: () {
               showModalBottomSheet(
                   context: context,
@@ -371,30 +373,30 @@ class _PatroneDashboardState extends State<PatroneDashboard>
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 Map<String, dynamic> data =
-                              snapshot.data!.data() as Map<String, dynamic>;
-                              bool isLit = data['isLit'] ?? false;
+                    snapshot.data!.data() as Map<String, dynamic>;
+                bool isLit = data['isLit'] ?? false;
                 return FloatingActionButton.extended(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     onPressed: () async {
-                      
-                          if (isLit == true) {
-                            await Patrone().currentUserPatroneProfile.update({
-                              'isLit': false,
-                            });
-                          } else {
-                            await Patrone().currentUserPatroneProfile.update({
-                              'isLit': true,
-                            });
-                          }
+                      if (isLit == true) {
+                        await Patrone().currentUserPatroneProfile.update({
+                          'isLit': false,
+                        });
+                      } else {
+                        await Patrone().currentUserPatroneProfile.update({
+                          'isLit': true,
+                        });
+                      }
                     },
                     icon: Icon(
                       FontAwesomeIcons.fire,
-                      color: isLit ? Colors.amber[800] : Colors.black,
+                      color: Colors.black,
                     ),
                     label: Text(
-                      isLit ?'I\'m Lit!' : 'Activate Lit Status',
+                      isLit ? 'I\'m Lit!' : 'Activate Lit Status',
                       style: TextStyle(
-                          color: isLit ? Colors.amber[800] : Colors.black,
-                          fontWeight: FontWeight.bold),
+                        color: Colors.black,
+                      ),
                     ));
               }
               return CircularProgressIndicator();
@@ -434,7 +436,9 @@ class _PatroneDashboardState extends State<PatroneDashboard>
         return TabBar(
           unselectedLabelStyle:
               TextStyle(color: Theme.of(context).colorScheme.primary),
-          indicatorColor: Theme.of(context).colorScheme.primary,
+          labelColor: Colors.green,
+              unselectedLabelColor: Colors.white,
+              indicatorColor: Colors.green,
           controller: _exploreController,
           tabs: const [Tab(text: 'Lit'), Tab(text: 'Places')],
         );

@@ -51,9 +51,9 @@ class MyApp extends StatelessWidget {
               darkTheme: darkTheme(context).copyWith(textTheme: GoogleFonts.interTextTheme(darkTheme(context).textTheme)),
               theme: ThemeData(
                   tabBarTheme:
-                      TabBarTheme(labelColor: Colors.orangeAccent[700]),
+                      TabBarTheme(labelColor: Colors.yellow[700]!),
                   bottomNavigationBarTheme: BottomNavigationBarThemeData(
-                      backgroundColor: Colors.orangeAccent[700]),
+                      backgroundColor: Colors.yellow[700]!),
                   appBarTheme: AppBarTheme(
                     color: Colors.transparent,
                     elevation: 0,
@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
                     titleTextStyle:
                         const TextStyle(color: Colors.black, fontSize: 16),
                     toolbarHeight: height(context) * 0.075,
-                    iconTheme: IconThemeData(color: Colors.orangeAccent[700]),
+                    iconTheme: IconThemeData(color: Colors.yellow[700]!),
                   ),
                   chipTheme: ChipThemeData(
                       backgroundColor: Colors.indigo,
@@ -77,7 +77,8 @@ class MyApp extends StatelessWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10)))),
                   colorScheme: ColorScheme.light(
-                      primary: Colors.orangeAccent[700]!,
+                      primary: Colors.yellow[700]!,
+                      onPrimary: Colors.amber[900]!,
                       secondary: Colors.indigo)),
               themeMode: settingsController.themeMode,
               initialRoute: isLoggedIn ? 'dashboard' : 'home',
@@ -108,7 +109,7 @@ class MyApp extends StatelessWidget {
       brightness: Brightness.dark,
               colorScheme: ColorScheme.dark(
                   onPrimary: Colors.white,
-                  primary: Colors.orangeAccent[700]!,
+                  primary: Colors.yellow[700]!,
                   secondary: Colors.indigo),
               chipTheme: ChipThemeData(
                   backgroundColor: Colors.indigo,
@@ -129,6 +130,7 @@ class MyApp extends StatelessWidget {
               elevatedButtonTheme: ElevatedButtonThemeData(
                   style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.all(20),
+                      foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)))),
               textButtonTheme: TextButtonThemeData(

@@ -194,7 +194,7 @@ class _FeedImageState extends State<FeedImage> {
                                                 return Text(snapshot.data!,
                                                   style: const TextStyle(
                                                       fontSize: 12,
-                                                      color: Colors.white), softWrap: true,);
+                                                      color: Colors.green), softWrap: true,);
                                               } return const Text('...',  style: TextStyle(
                                                       fontSize: 12,
                                                       color: Colors.white), softWrap: true);
@@ -366,7 +366,7 @@ class _FeedImageState extends State<FeedImage> {
                                   (imageData['date_created'] as Timestamp)
                                       .toDate()),
                               style: const TextStyle(
-                                  color: Colors.white, fontSize: 12)),
+                                  color: Colors.green, fontSize: 12)),
                         ],
                       ),
                     ),

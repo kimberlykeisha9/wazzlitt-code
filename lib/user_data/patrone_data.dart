@@ -308,18 +308,18 @@ class Patrone extends ChangeNotifier {
   // Get Star Sign of user
   String getStarSign(DateTime date) {
     const List<String> starSigns = [
-      'Capricorn',
-      'Aquarius',
-      'Pisces',
-      'Aries',
-      'Taurus',
-      'Gemini',
-      'Cancer',
-      'Leo',
-      'Virgo',
-      'Libra',
-      'Scorpio',
-      'Sagittarius'
+      'https://i.pinimg.com/564x/0c/4a/94/0c4a94df8cb5658d24be310fd2e8cff9.jpg', // Capricorn
+      'https://i.pinimg.com/564x/1e/e3/59/1ee359b28a0c0f3f7327a0144da828c3.jpg', // Aquarius
+      'https://i.pinimg.com/474x/e5/69/47/e56947ee8299bdb266d90c2e3c8f592c.jpg', // Pisces
+      'https://i.pinimg.com/564x/e8/db/88/e8db887d86dc48e9b5af1516d5cc4514.jpg', // Aries
+      'https://i.pinimg.com/564x/aa/df/e7/aadfe700221fd178fd997dad5c65dd70.jpg', // Taurus
+      'https://i.pinimg.com/564x/dd/df/06/dddf06b46bf15971a53388e066150195.jpg', // Gemini
+      'https://i.pinimg.com/564x/e1/7d/75/e17d75e748788b619b809fb85d3df90f.jpg', // Cancer
+      'https://i.pinimg.com/474x/c1/c2/43/c1c243e0c05b608b40f9c555ad05be0e.jpg', // Leo
+      'https://i.pinimg.com/564x/70/c8/e1/70c8e13a68aba0c9e791fe558a165dd0.jpg', // Virgo
+      'https://i.pinimg.com/564x/56/56/b1/5656b133723bce54934e145838b8e3dd.jpg', // Libra
+      'https://i.pinimg.com/474x/14/22/a7/1422a73879d0c718f795de826f75376b.jpg', // Scorpio
+      'https://i.pinimg.com/474x/33/7b/db/337bdb92eb00d5c21f799864a00796a2.jpg', // Saggitarius
     ];
 
     List<DateTime> signDates = [

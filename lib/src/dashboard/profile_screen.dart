@@ -1,5 +1,6 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:wazzlitt/src/dashboard/feed_image.dart';
@@ -218,26 +219,58 @@ class _ProfileTabState extends State<ProfileTab> {
                     Row(
                       children: [
                         Text('${widget.firstName} ${widget.lastName}',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.bold)),
-                        SizedBox(width: 5),
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                                fontWeight: FontWeight.bold)),
+                        const SizedBox(width: 5),
                         Text(widget.isLit ? 'I\'m Lit!' : '',
                             style: TextStyle(
                                 color: widget.isLit
                                     ? Colors.amber[800]
-                                    : Colors.white)),
-                        SizedBox(width: 5),
+                                    : Theme.of(context).colorScheme.secondary)),
+                        const SizedBox(width: 5),
                         Icon(FontAwesomeIcons.fire,
-                            color:
-                                widget.isLit ? Colors.amber[800] : Colors.white,
+                            color: widget.isLit
+                                ? Colors.amber[800]
+                                : Theme.of(context).colorScheme.secondary,
                             size: 18),
                       ],
                     ),
                     // const SizedBox(height: 5),
                     // Text('@$username', style: const TextStyle(fontSize: 12)),
-                    const SizedBox(height: 10),
-                    Text(Patrone().getStarSign(widget.dob ?? DateTime(0, 1, 1)),
-                        style: const TextStyle(fontSize: 12)),
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        // Text('Star Sign'),
+                        // SizedBox(width: 5),
+                        CircleAvatar(
+                          foregroundImage: NetworkImage(
+                            Patrone()
+                                .getStarSign(widget.dob ?? DateTime(0, 1, 1)),
+                          ),
+                          radius: 12,
+                        ),
+                        StreamBuilder<DocumentSnapshot>(
+                            stream: widget.userProfile.snapshots(),
+                            builder: (context, snapshot) {
+                              return CountryCodePicker(
+                                onChanged: (country) async{
+                                  await widget.userProfile.update({
+                                    'country': country.code,
+                                  });
+                                },
+                                enabled: widget.userProfile == Patrone().currentUserPatroneProfile,
+                                initialSelection: (snapshot.data?.data()
+                                        as Map<String, dynamic>?)?['country'] ??
+                                    'US',
+                                favorite: ['US', 'KE', '+91'],
+                                showCountryOnly: true,
+                                showOnlyCountryWhenClosed: true,
+                                alignLeft: false,
+                              );
+                            }),
+                      ],
+                    ),
                     const SizedBox(height: 5),
                     FutureBuilder<String>(
                       future:
@@ -246,7 +279,7 @@ class _ProfileTabState extends State<ProfileTab> {
                         print(snapshot.connectionState);
 
                         if (snapshot.hasData) {
-                          return Text(snapshot.data!,
+                          return Text('Currently at: ${snapshot.data!}',
                               style: const TextStyle(fontSize: 12));
                         }
                         if (snapshot.hasError) {
@@ -300,7 +333,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                               : 'Follow',
                                           style: const TextStyle(fontSize: 12));
                                     }
-                                    return CircularProgressIndicator();
+                                    return const CircularProgressIndicator();
                                   }),
                         ),
                       ),
@@ -431,8 +464,9 @@ class ActivityTab extends StatelessWidget {
                   text: 'Likes',
                 ),
               ],
-              labelColor: Colors.white,
+              labelColor: Colors.green,
               unselectedLabelColor: Colors.white,
+              indicatorColor: Colors.green,
             ),
             Expanded(
               child: SizedBox(
@@ -456,7 +490,9 @@ class ActivityTab extends StatelessWidget {
                                     stream: post.snapshots(),
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
-                                        Map<String,dynamic>? data = snapshot.data!.data() as Map<String, dynamic>?;
+                                        Map<String, dynamic>? data =
+                                            snapshot.data!.data()
+                                                as Map<String, dynamic>?;
                                         return GestureDetector(
                                           onTap: () => showDialog(
                                               context: context,
@@ -469,8 +505,9 @@ class ActivityTab extends StatelessWidget {
                                                         height:
                                                             height(context) *
                                                                 0.5,
-                                                        child: Image.network(
-                                                            data?['image'] ?? 'https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg'),
+                                                        child: Image.network(data?[
+                                                                'image'] ??
+                                                            'https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg'),
                                                       ),
                                                     ),
                                                   )),
@@ -479,7 +516,8 @@ class ActivityTab extends StatelessWidget {
                                               image: DecorationImage(
                                                 fit: BoxFit.cover,
                                                 image: NetworkImage(
-                                                  data?['image'] ?? 'https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg',
+                                                  data?['image'] ??
+                                                      'https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg',
                                                 ),
                                               ),
                                             ),
@@ -497,7 +535,8 @@ class ActivityTab extends StatelessWidget {
                               },
                             );
                           }
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(
+                              child: CircularProgressIndicator());
                         }),
                     StreamBuilder<QuerySnapshot>(
                         stream: firestore
