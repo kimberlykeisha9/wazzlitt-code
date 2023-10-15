@@ -12,7 +12,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
-  final apiUrl = 'https://maps.googleapis.com/maps/api/place/details/json';
+  final apiUrl = 'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json';
   final apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
 
   BusinessPlace googlePlace = BusinessPlace();
@@ -97,7 +97,7 @@ Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
 
 Future<List<BusinessPlace>> searchBuildings(String query) async {
   final apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
-  final apiUrl = 'https://maps.googleapis.com/maps/api/place/textsearch/json';
+  final apiUrl = 'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/textsearch/json';
 
   List<BusinessPlace> _results = [];
   final response =

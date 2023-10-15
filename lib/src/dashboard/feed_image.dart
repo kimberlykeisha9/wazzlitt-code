@@ -167,8 +167,8 @@ class _FeedImageState extends State<FeedImage> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     CircleAvatar(
-                                      foregroundImage: NetworkImage(data[
-                                              'profile_picture'] ??
+                                      foregroundImage: NetworkImage('https://corsproxy.io/?${data[
+                                              'profile_picture']}' ??
                                           'https://corsproxy.io/?https://i.pinimg.com/474x/1e/23/e5/1e23e5e6441ce2c135e1e457dcf4f06f.jpg'),
                                       radius: 20,
                                       child: (data['profile_picture']) != null

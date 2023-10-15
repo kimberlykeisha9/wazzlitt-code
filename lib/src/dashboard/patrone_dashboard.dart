@@ -14,6 +14,7 @@ import '../app.dart';
 import '../../user_data/patrone_data.dart';
 import 'dart:io';
 import '../location/location.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'chats_view.dart';
 import 'explore.dart';
 import 'feed.dart';
@@ -270,6 +271,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
         _toBeUploaded = File(pickedFile.path);
       });
       print("Image Path: ${pickedFile.path}");
+      
     }
   }
 
