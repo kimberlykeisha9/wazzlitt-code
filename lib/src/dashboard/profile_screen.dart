@@ -255,12 +255,13 @@ class _ProfileTabState extends State<ProfileTab> {
                             stream: widget.userProfile.snapshots(),
                             builder: (context, snapshot) {
                               return CountryCodePicker(
-                                onChanged: (country) async{
+                                onChanged: (country) async {
                                   await widget.userProfile.update({
                                     'country': country.code,
                                   });
                                 },
-                                enabled: widget.userProfile == Patrone().currentUserPatroneProfile,
+                                enabled: widget.userProfile ==
+                                    Patrone().currentUserPatroneProfile,
                                 initialSelection: (snapshot.data?.data()
                                         as Map<String, dynamic>?)?['country'] ??
                                     'US',
@@ -508,7 +509,7 @@ class ActivityTab extends StatelessWidget {
                                                                 0.5,
                                                         child: Image.network(data?[
                                                                 'image'] ??
-                                                            'https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg'),
+                                                            'https://corsproxy.io/?https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg'),
                                                       ),
                                                     ),
                                                   )),
@@ -518,7 +519,7 @@ class ActivityTab extends StatelessWidget {
                                                 fit: BoxFit.cover,
                                                 image: NetworkImage(
                                                   data?['image'] ??
-                                                      'https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg',
+                                                      'https://corsproxy.io/?https://i.pinimg.com/736x/c4/c7/69/c4c7697549a8c6a1c3f26a743caa75e4.jpg',
                                                 ),
                                               ),
                                             ),

@@ -115,9 +115,10 @@ void _layout(BuildContext context){
               height: height(context),
               width: width(context),
               child: ListView.builder(
+                prototypeItem: Container(),
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
-                  itemCount: feedData?.length ?? 0,
+                  itemCount: feedData.length,
                   itemBuilder: (context, index) {
                     QueryDocumentSnapshot doc = feedData[index];
                     if (snapshot.data!.size > 0) {

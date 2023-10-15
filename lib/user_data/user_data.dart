@@ -65,6 +65,32 @@ var currentUserIgniterProfile = firestore
     .collection('account_type')
     .doc('igniter');
 
+    Future<bool?> checkIfPatroneUser() async {
+  bool? isPatrone;
+  if (auth.currentUser != null) {
+    await currentUserProfile.get().then((value) {
+      log(value.data().toString());
+      if (value.exists) {
+        log('User has data in profile');
+        Map<String, dynamic>? data = value.data();
+        if (data!.keys.contains('is_patrone')) {
+          log('User is patrone: ${data['is_patrone']}');
+          isPatrone = data['is_patrone'] as bool;
+        } else {
+          log('No information found');
+          isPatrone = false;
+        }
+      } else {
+        log('User is completely new');
+        isPatrone = false;
+      }
+    });
+  } else {
+    log('No active user');
+  }
+  return isPatrone;
+}
+
 Future<bool?> checkIfIgniterUser() async {
   bool? isIgniter;
   if (auth.currentUser != null) {

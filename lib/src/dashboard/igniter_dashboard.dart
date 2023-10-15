@@ -114,6 +114,9 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
 
   @override
   void initState() {
+    if (!isLoggedIn()) {
+      Navigator.popAndPushNamed(context, 'home');
+    }
     initTargets();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _layout(context);
@@ -128,7 +131,8 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
     });
   }
 
-  late final Future<Igniter?> getIgniterInfo = Igniter().getCurrentUserIgniterInformation();
+  late final Future<Igniter?> getIgniterInfo =
+      Igniter().getCurrentUserIgniterInformation();
 
   @override
   Widget build(BuildContext context) {
@@ -136,88 +140,93 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
       return const Center(child: CircularProgressIndicator());
     }
     return FutureBuilder<Igniter?>(
-      future: getIgniterInfo,
-      builder: (context, snapshot) {
-        print(snapshot.hasData);
-        if (snapshot.hasData) {
-         Igniter igniter = snapshot.data!; 
-         bool isFreeTrial = !((igniter.dateCreated ?? DateTime(2000))
-        .add(const Duration(days: 14))
-        .isBefore(DateTime.now()));
-          return Scaffold(
-          drawer: const IgniterDrawer(),
-          appBar: AppBar(
-            title: const Text('Dashboard'),
-          ),
-          body: (isFreeTrial || _isSubscribed!)
-              ? (igniter.igniterType == IgniterType.businessOwner)
-                  ? businessOwnerView[_currentIndex]
-                  : eventOrganizerView[_currentIndex]
-              : Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text(
-                          'You have not finished setting up your payment '
-                          'for the Igniter account. You can continue the '
-                          'set up process by pressing the button below',
-                          textAlign: TextAlign.center),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: () async {
-                          await launchIgniterSubscription();
-                        },
-                        child: const Text('Pay for Igniter Account'),
-                      ),
-                    ],
-                  ),
+        future: getIgniterInfo,
+        builder: (context, snapshot) {
+          print(snapshot.hasData);
+          if (snapshot.hasData) {
+            Igniter igniter = snapshot.data!;
+            bool isFreeTrial = !((igniter.dateCreated ?? DateTime(2000))
+                .add(const Duration(days: 14))
+                .isBefore(DateTime.now()));
+            return Scaffold(
+              drawer: const IgniterDrawer(),
+              appBar: AppBar(
+                title: const Text('Dashboard'),
+              ),
+              body: (isFreeTrial)
+                  ? (igniter.igniterType == IgniterType.businessOwner)
+                      ? businessOwnerView[_currentIndex]
+                      : eventOrganizerView[_currentIndex]
+                  : (_isSubscribed ?? false)
+                      ? (igniter.igniterType == IgniterType.businessOwner)
+                          ? businessOwnerView[_currentIndex]
+                          : eventOrganizerView[_currentIndex]
+                      : Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                  'You have not finished setting up your payment '
+                                  'for the Igniter account. You can continue the '
+                                  'set up process by pressing the button below',
+                                  textAlign: TextAlign.center),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: () async {
+                                  await launchIgniterSubscription();
+                                },
+                                child: const Text('Pay for Igniter Account'),
+                              ),
+                            ],
+                          ),
+                        ),
+              bottomNavigationBar: Theme(
+                data: ThemeData(
+                  canvasColor: Theme.of(context).colorScheme.surface,
                 ),
-          bottomNavigationBar: _isSubscribed!
-              ? Theme(
-                  data: ThemeData(
-                    canvasColor: Theme.of(context).colorScheme.surface,
-                  ),
-                  child: BottomNavigationBar(
-                    onTap: (int index) {
-                      setState(() {
-                        _currentIndex = index;
-                      });
-                    },
-                    currentIndex: _currentIndex,
-                    showSelectedLabels: false,
-                    showUnselectedLabels: false,
-                    unselectedItemColor: Colors.white.withOpacity(0.5),
-                    selectedItemColor: Colors.white,
-                    items: [
-                      BottomNavigationBarItem(
-                          label: 'Home',
-                          icon: Icon(Icons.home_outlined, key: key),
-                          activeIcon: Icon(Icons.home, key: key)),
-                      BottomNavigationBarItem(
-                          label: 'Messages',
-                          icon: Icon(Icons.chat_outlined, key: chatsKey),
-                          activeIcon: Icon(Icons.chat, key: chatsKey)),
-                      BottomNavigationBarItem(
-                          label: 'Profile',
-                          icon:
-                              Icon(Icons.account_circle_outlined, key: profileKey),
-                          activeIcon: Icon(Icons.account_circle, key: profileKey)),
-                    ],
-                  ),
-                )
-              : const SizedBox(),
-              floatingActionButton: igniter.igniterType != null ? floatingButton(igniter.igniterType!) : null,
-        );
-    
-        }  
+                child: BottomNavigationBar(
+                  onTap: (int index) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                  currentIndex: _currentIndex,
+                  showSelectedLabels: false,
+                  showUnselectedLabels: false,
+                  unselectedItemColor: Colors.white.withOpacity(0.5),
+                  selectedItemColor: Colors.white,
+                  items: [
+                    BottomNavigationBarItem(
+                        label: 'Home',
+                        icon: Icon(Icons.home_outlined, key: key),
+                        activeIcon: Icon(Icons.home, key: key)),
+                    BottomNavigationBarItem(
+                        label: 'Messages',
+                        icon: Icon(Icons.chat_outlined, key: chatsKey),
+                        activeIcon: Icon(Icons.chat, key: chatsKey)),
+                    BottomNavigationBarItem(
+                        label: 'Profile',
+                        icon: Icon(Icons.account_circle_outlined,
+                            key: profileKey),
+                        activeIcon:
+                            Icon(Icons.account_circle, key: profileKey)),
+                  ],
+                ),
+              ),
+              floatingActionButton: igniter.igniterType != null
+                  ? floatingButton(igniter.igniterType!)
+                  : null,
+            );
+          }
 
-        if (!snapshot.hasData) {
-          return Center(child: Text('Sorry, an error has occured. Please try again in a few minutes'));
-        }
-        return Center(child: CircularProgressIndicator());
-        }
-    );
+          if (!snapshot.hasData) {
+            return Center(
+                child: Text(
+                    'Sorry, an error has occured. Please try again in a few minutes'));
+          }
+          return Center(child: CircularProgressIndicator());
+        });
   }
 
   Widget? floatingButton(IgniterType igniterType) {
@@ -225,9 +234,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
       case 0:
         if (igniterType == IgniterType.businessOwner) {
           return FloatingActionButton.extended(
-              onPressed: () {
-              
-              },
+              onPressed: () {},
               label: const Text('List a new place'),
               icon: const Icon(Icons.place));
         } else {

@@ -190,10 +190,10 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
     var events = await _performEventsSearch(searchQuery);
     var people = await _performPeopleSearch(searchQuery);
     var googleSearch = await searchBuildings(searchQuery);
-      _searchResults.addAll(people);
-      _searchResults.addAll(events);
-      _searchResults.addAll(places);
-      _searchResults.addAll(googleSearch);
+    _searchResults.addAll(people);
+    _searchResults.addAll(events);
+    _searchResults.addAll(places);
+    _searchResults.addAll(googleSearch);
   }
 
   Future<QuerySnapshot> _getSnapshotForGroup(
@@ -300,7 +300,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                     leading: CircleAvatar(
                       foregroundImage: NetworkImage(
                         resultImage() ??
-                            'https://i.pinimg.com/736x/58/58/c9/5858c9e33da2df781d11a0993f9b7030.jpg',
+                            'https://corsproxy.io/?https://i.pinimg.com/736x/58/58/c9/5858c9e33da2df781d11a0993f9b7030.jpg',
                       ),
                     ),
                     tileColor: Theme.of(context).colorScheme.surface,
@@ -526,7 +526,7 @@ class _PlacesTabState extends State<PlacesTab> {
                             fit: BoxFit.cover,
                             image: NetworkImage(
                               place.image ??
-                                  'https://i.pinimg.com/564x/90/0b/c3/900bc32b424bc3b817ff1edd38476991.jpg',
+                                  'https://corsproxy.io/?https://i.pinimg.com/564x/90/0b/c3/900bc32b424bc3b817ff1edd38476991.jpg',
                             ),
                           ),
                         ),
@@ -539,7 +539,9 @@ class _PlacesTabState extends State<PlacesTab> {
                               alignment: Alignment.topRight,
                               child: Container(
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.green,),
+                                  border: Border.all(
+                                    color: Colors.green,
+                                  ),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 padding: const EdgeInsets.all(5),

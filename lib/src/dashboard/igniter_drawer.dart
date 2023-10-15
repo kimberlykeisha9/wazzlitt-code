@@ -1,11 +1,23 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:wazzlitt/authorization/authorization.dart';
+import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
-class IgniterDrawer extends StatelessWidget {
+class IgniterDrawer extends StatefulWidget {
   const IgniterDrawer({
     super.key,
   });
+
+  @override
+  State<IgniterDrawer> createState() => _IgniterDrawerState();
+}
+
+class _IgniterDrawerState extends State<IgniterDrawer> {
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,27 +37,29 @@ class IgniterDrawer extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('WazzLitt Balance'),
-                    const Text('\$0.00',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20)),
-                            const SizedBox(height: 10),
-                    SizedBox(
-                      height: 20,
-                      width: 50,
-                      child: TextButton(
-                          style: TextButton.styleFrom(
-                              padding: const EdgeInsets.all(0)),
-                          child: const Text('Top Up'),
-                          onPressed: () {},),
-                    )
-                  ],),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('WazzLitt Balance'),
+                  const Text('\$0.00',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: 20,
+                    width: 50,
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                          padding: const EdgeInsets.all(0)),
+                      child: const Text('Top Up'),
+                      onPressed: () {},
+                    ),
+                  )
+                ],
+              ),
             ),
             const SizedBox(height: 20),
             GestureDetector(
-              onTap:() => Navigator.pushNamed(context, 'settings'),
+              onTap: () => Navigator.pushNamed(context, 'settings'),
               child: const Row(
                 children: [
                   Icon(Icons.settings),
@@ -56,7 +70,7 @@ class IgniterDrawer extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             GestureDetector(
-              onTap:() => Navigator.pushNamed(context, 'orders'),
+              onTap: () => Navigator.pushNamed(context, 'orders'),
               child: const Row(
                 children: [
                   Icon(FontAwesomeIcons.bagShopping),
@@ -66,19 +80,43 @@ class IgniterDrawer extends StatelessWidget {
               ),
             ),
             const Spacer(),
-            GestureDetector(
-              onTap:() => Navigator.popAndPushNamed(context, 'patrone_dashboard'),
-              child: const Row(
-                children: [
-                  Icon(FontAwesomeIcons.bolt),
-                  SizedBox(width: 10),
-                  Text('Switch to Patrone Profile'),
-                ],
-              ),
-            ),
+            FutureBuilder<bool?>(
+                future: checkIfPatroneUser(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data! == true) {
+                      return GestureDetector(
+                        onTap: () => Navigator.popAndPushNamed(
+                            context, 'patrone_dashboard'),
+                        child: const Row(
+                          children: [
+                            Icon(FontAwesomeIcons.bolt),
+                            SizedBox(width: 10),
+                            Text('Switch to Patrone Profile'),
+                          ],
+                        ),
+                      );
+                    }
+                  }
+                  return GestureDetector(
+                    onTap: () => Navigator.popAndPushNamed(
+                        context, 'patrone_registration'),
+                    child: const Row(
+                      children: [
+                        Icon(FontAwesomeIcons.bolt),
+                        SizedBox(width: 10),
+                        Text('Create your Patrone Profile'),
+                      ],
+                    ),
+                  );
+                }),
             const SizedBox(height: 20),
             GestureDetector(
-              onTap:() => Navigator.pushNamed(context, 'home'),
+              onTap: () async {
+                await signOut().then((value) {
+                  Navigator.pushNamed(context, 'home');
+                });
+              },
               child: const Row(
                 children: [
                   Icon(Icons.logout),

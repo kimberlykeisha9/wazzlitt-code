@@ -179,7 +179,6 @@ Future<PhoneAuthCredential?> verifyCode(
 
     if (user != null) {
       log('Phone number verification successful: $smsCode');
-      // Check if the user is new or existing
     }
     return credential;
   } catch (e) {

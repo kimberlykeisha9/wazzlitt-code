@@ -127,6 +127,7 @@ class _UploadImageState extends State<UploadImage> {
                           }
                           return null;
                         },
+                        proxyURL: 'https://corsproxy.io/?',
                         decoration: const InputDecoration(
                             hintText: 'Location', labelText: 'Location'),
                         googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",

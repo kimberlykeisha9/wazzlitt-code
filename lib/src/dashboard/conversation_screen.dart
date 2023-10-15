@@ -71,7 +71,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                     fit: BoxFit.cover,
                                     opacity: 0.5,
                                     image: NetworkImage(widget.place!.image ??
-                                        'https://i.pinimg.com/564x/60/9a/37/609a375345b463141ec4c875ee2f1104.jpg'),
+                                        'https://corsproxy.io/?https://i.pinimg.com/564x/60/9a/37/609a375345b463141ec4c875ee2f1104.jpg'),
                                   ),
                                 ),
                                 child: Column(

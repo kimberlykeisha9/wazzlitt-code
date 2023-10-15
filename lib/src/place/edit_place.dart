@@ -78,11 +78,14 @@ class _EditPlaceState extends State<EditPlace> {
       if (value.exists) {
         Map<String, dynamic>? placeData = value.data() as Map<String, dynamic>?;
         _nameController = TextEditingController(text: placeData?['place_name']);
-        _phoneController = TextEditingController(text: placeData?['phone_number']);
+        _phoneController =
+            TextEditingController(text: placeData?['phone_number']);
         _websiteController = TextEditingController(text: placeData?['website']);
         // _locationController = TextEditingController(text: placeData?['location']);
-        _descriptionController = TextEditingController(text: placeData?['place_description']);
-        _emailController = TextEditingController(text: placeData?['email_address']);
+        _descriptionController =
+            TextEditingController(text: placeData?['place_description']);
+        _emailController =
+            TextEditingController(text: placeData?['email_address']);
         networkCoverPhoto = placeData?['cover_image'];
         networkProfile = placeData?['image'];
         _openingTime = placeData?['opening_time'];
@@ -90,12 +93,12 @@ class _EditPlaceState extends State<EditPlace> {
         _selectedChip = placeData?['category'];
         selectedOption = placeData?['place_type'];
         _openingTime != null
-            ? _openingTimeTextController =
-                TextEditingController(text: DateFormat.Hm().format(_openingTime!.toDate()))
+            ? _openingTimeTextController = TextEditingController(
+                text: DateFormat.Hm().format(_openingTime!.toDate()))
             : '';
         _closingTime != null
-            ? _closingTimeTextController =
-                TextEditingController(text: DateFormat.Hm().format(_closingTime!.toDate()))
+            ? _closingTimeTextController = TextEditingController(
+                text: DateFormat.Hm().format(_closingTime!.toDate()))
             : '';
       }
     });
@@ -136,10 +139,10 @@ class _EditPlaceState extends State<EditPlace> {
         _profilePicture = File(pickedImage.path);
       });
     }
-
   }
 
-  late final Future<DocumentSnapshot> Function(Future<DocumentSnapshot<Object?>>?) getPlace;
+  late final Future<DocumentSnapshot> Function(
+      Future<DocumentSnapshot<Object?>>?) getPlace;
 
   @override
   Widget build(BuildContext context) {
@@ -149,9 +152,11 @@ class _EditPlaceState extends State<EditPlace> {
           title: const Text('Edit Igniter Profile'),
         ),
         body: FutureBuilder<DocumentSnapshot>(
-            future: getPlace(widget.place?.get(const GetOptions(source: Source.server))),
+            future: getPlace(
+                widget.place?.get(const GetOptions(source: Source.server))),
             builder: (context, snapshot) {
-              if (snapshot.hasData || snapshot.connectionState == ConnectionState.none) {
+              if (snapshot.hasData ||
+                  snapshot.connectionState == ConnectionState.none) {
                 Map<String, dynamic>? placeData;
                 if (widget.place != null) {
                   widget.place!.get().then((data) {
@@ -185,7 +190,7 @@ class _EditPlaceState extends State<EditPlace> {
                                       : _coverPhoto == null
                                           ? null
                                           : DecorationImage(
-                                            fit: BoxFit.cover,
+                                              fit: BoxFit.cover,
                                               image: FileImage(_coverPhoto!)),
                                 ),
                                 child: (_coverPhoto != null ||
@@ -253,7 +258,8 @@ class _EditPlaceState extends State<EditPlace> {
                                         labelText:
                                             AppLocalizations.of(context)!.name),
                                     keyboardType: TextInputType.text,
-                                    textCapitalization: TextCapitalization.words,
+                                    textCapitalization:
+                                        TextCapitalization.words,
                                   ),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
@@ -268,8 +274,8 @@ class _EditPlaceState extends State<EditPlace> {
                                     child: DropdownButton<String>(
                                       isExpanded: true,
                                       underline: const SizedBox(),
-                                      hint:
-                                          const Text('Select your business type'),
+                                      hint: const Text(
+                                          'Select your business type'),
                                       value: selectedOption,
                                       onChanged: (newValue) {
                                         setState(() {
@@ -278,7 +284,8 @@ class _EditPlaceState extends State<EditPlace> {
                                         // Perform any desired action when the option is selected
                                         print(selectedOption);
                                       },
-                                      items: dropdownOptions.map((String option) {
+                                      items:
+                                          dropdownOptions.map((String option) {
                                         return DropdownMenuItem<String>(
                                           value: option,
                                           child: Text(option),
@@ -300,12 +307,13 @@ class _EditPlaceState extends State<EditPlace> {
                                       children: categories
                                           .map(
                                             (chip) => Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                  horizontal: 5),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 5),
                                               child: ChoiceChip(
                                                 label: Text(chip.display),
-                                                selected:
-                                                    _selectedChip == chip.display,
+                                                selected: _selectedChip ==
+                                                    chip.display,
                                                 onSelected: (selected) {
                                                   setState(() {
                                                     _selectedChip = selected
@@ -332,13 +340,15 @@ class _EditPlaceState extends State<EditPlace> {
                                                       _openingTime!.toDate());
                                             });
                                           },
-                                          controller: _openingTimeTextController,
+                                          controller:
+                                              _openingTimeTextController,
                                           readOnly: true,
                                           onTap: () => showTimePicker(
                                                       context: context,
                                                       initialTime:
                                                           const TimeOfDay(
-                                                              hour: 0, minute: 0))
+                                                              hour: 0,
+                                                              minute: 0))
                                                   .then(
                                                 (pickedTime) {
                                                   if (pickedTime != null) {
@@ -349,14 +359,15 @@ class _EditPlaceState extends State<EditPlace> {
                                                                   2000,
                                                                   1,
                                                                   1,
-                                                                  pickedTime.hour,
+                                                                  pickedTime
+                                                                      .hour,
                                                                   pickedTime
                                                                       .minute));
                                                       _openingTimeTextController
-                                                              .text =
-                                                          DateFormat.Hm().format(
-                                                              _openingTime!
-                                                                  .toDate());
+                                                          .text = DateFormat
+                                                              .Hm()
+                                                          .format(_openingTime!
+                                                              .toDate());
                                                     });
                                                   }
                                                 },
@@ -376,13 +387,15 @@ class _EditPlaceState extends State<EditPlace> {
                                                       _closingTime!.toDate());
                                             });
                                           },
-                                          controller: _closingTimeTextController,
+                                          controller:
+                                              _closingTimeTextController,
                                           readOnly: true,
                                           onTap: () => showTimePicker(
                                                       context: context,
                                                       initialTime:
                                                           const TimeOfDay(
-                                                              hour: 0, minute: 0))
+                                                              hour: 0,
+                                                              minute: 0))
                                                   .then(
                                                 (pickedTime) {
                                                   if (pickedTime != null) {
@@ -393,14 +406,15 @@ class _EditPlaceState extends State<EditPlace> {
                                                                   2000,
                                                                   1,
                                                                   1,
-                                                                  pickedTime.hour,
+                                                                  pickedTime
+                                                                      .hour,
                                                                   pickedTime
                                                                       .minute));
                                                       _closingTimeTextController
-                                                              .text =
-                                                          DateFormat.Hm().format(
-                                                              _closingTime!
-                                                                  .toDate());
+                                                          .text = DateFormat
+                                                              .Hm()
+                                                          .format(_closingTime!
+                                                              .toDate());
                                                     });
                                                   }
                                                 },
@@ -444,8 +458,9 @@ class _EditPlaceState extends State<EditPlace> {
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
                                   GooglePlacesAutoCompleteTextFormField(
+                                      proxyURL: 'https://corsproxy.io/?',
                                       textEditingController:
-                                      _locationController,
+                                          _locationController,
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Location is required';
@@ -453,35 +468,38 @@ class _EditPlaceState extends State<EditPlace> {
                                         return null;
                                       },
                                       decoration: const InputDecoration(
-                                        hintText: 'Location',
+                                          hintText: 'Location',
                                           labelText: 'Location'),
-                                      googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
-                                      proxyURL: '47.91.88.100:1080',
+                                      googleAPIKey:
+                                          "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
                                       debounceTime: 400, // defaults to 600 ms,
                                       countries: ["us"], // optional, by
                                       // default the list is empty (no restrictions)
-                                      isLatLngRequired: true, // if you require the coordinates from the place details
+                                      isLatLngRequired:
+                                          true, // if you require the coordinates from the place details
                                       getPlaceDetailWithLatLng: (prediction) {
-                                        if(prediction != null) {
+                                        if (prediction != null) {
                                           setState(() {
                                             generatedPrediction = prediction;
                                           });
                                         }
-                                        print("placeDetails" + prediction.lng.toString());
+                                        print("placeDetails" +
+                                            prediction.lng.toString());
                                       }, // this callback is called when isLatLngRequired is true
                                       itmClick: (prediction) {
-                                        if(prediction != null) {
+                                        if (prediction != null) {
                                           setState(() {
                                             _locationController.text =
-                                            prediction.description!;
+                                                prediction.description!;
                                             _locationController.selection =
-                                                TextSelection.fromPosition
-                                                  (TextPosition(offset:
-                                                prediction.description!.length));
+                                                TextSelection.fromPosition(
+                                                    TextPosition(
+                                                        offset: prediction
+                                                            .description!
+                                                            .length));
                                           });
                                         }
-                                      }
-                                  ),
+                                      }),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
                                   TextFormField(
@@ -517,8 +535,8 @@ class _EditPlaceState extends State<EditPlace> {
                                     //   return null;
                                     // },
                                     decoration: InputDecoration(
-                                        labelText:
-                                            AppLocalizations.of(context)!.email),
+                                        labelText: AppLocalizations.of(context)!
+                                            .email),
                                     keyboardType: TextInputType.emailAddress,
                                   ),
                                 ],
@@ -541,53 +559,57 @@ class _EditPlaceState extends State<EditPlace> {
                                   if (_formKey.currentState!.validate()) {
                                     try {
                                       dataSendingNotifier.startLoading();
- if (dataSendingNotifier.isLoading) {
-   showDialog(
-    barrierDismissible: false,
-       context: context,
-    builder: (_) => const Center(
-    child: CircularProgressIndicator()));
- }
+                                      if (dataSendingNotifier.isLoading) {
+                                        showDialog(
+                                            barrierDismissible: false,
+                                            context: context,
+                                            builder: (_) => const Center(
+                                                child:
+                                                    CircularProgressIndicator()));
+                                      }
 
-  ud.uploadImageToFirebase(_coverPhoto,
-              'places/${widget.place!.id}/coverPhoto')
-          .then((coverPic) {
-          ud.uploadImageToFirebase(
-                  _profilePicture,
-                  'places/${widget.place?.id}/profile_photo')
-              .then((profilePic) {
-                uploadLocation(widget
-                    .place!,
-                    double.parse(generatedPrediction
-                    !.lat!),
-                    double.parse
-                      (generatedPrediction!.lng!));
-            BusinessPlace().savePlaceProfile(
-              businessName:
-                  _nameController.text,
-              website:
-                  _websiteController.text,
-              category: _selectedChip,
-              description:
-                  _descriptionController.text,
-              emailAddress:
-                  _emailController.text,
-              latitude: double.parse
-                (generatedPrediction!.lat!),
-              longitude: double.parse
-                (generatedPrediction!.lng!),
-              phoneNumber:
-                  _phoneController.text,
-            ).then((value) =>
-                Navigator.popAndPushNamed(
-                    context,
-                    'dashboard'));
-          });
-        });
-        dataSendingNotifier.stopLoading();
-} on Exception catch (e) {
-  dataSendingNotifier.stopLoading();
-}
+                                      ud
+                                          .uploadImageToFirebase(_coverPhoto,
+                                              'places/${widget.place!.id}/coverPhoto')
+                                          .then((coverPic) {
+                                        ud
+                                            .uploadImageToFirebase(
+                                                _profilePicture,
+                                                'places/${widget.place?.id}/profile_photo')
+                                            .then((profilePic) {
+                                          uploadLocation(
+                                              widget.place!,
+                                              double.parse(
+                                                  generatedPrediction!.lat!),
+                                              double.parse(
+                                                  generatedPrediction!.lng!));
+                                          BusinessPlace()
+                                              .savePlaceProfile(
+                                                businessName:
+                                                    _nameController.text,
+                                                website:
+                                                    _websiteController.text,
+                                                category: _selectedChip,
+                                                description:
+                                                    _descriptionController.text,
+                                                emailAddress:
+                                                    _emailController.text,
+                                                latitude: double.parse(
+                                                    generatedPrediction!.lat!),
+                                                longitude: double.parse(
+                                                    generatedPrediction!.lng!),
+                                                phoneNumber:
+                                                    _phoneController.text,
+                                              )
+                                              .then((value) =>
+                                                  Navigator.popAndPushNamed(
+                                                      context, 'dashboard'));
+                                        });
+                                      });
+                                      dataSendingNotifier.stopLoading();
+                                    } on Exception catch (e) {
+                                      dataSendingNotifier.stopLoading();
+                                    }
                                   }
                                 } else {
                                   showSnackbar(

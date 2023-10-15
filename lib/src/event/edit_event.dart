@@ -252,6 +252,7 @@ class _EditEventState extends State<EditEvent> {
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
                                   GooglePlacesAutoCompleteTextFormField(
+                                    proxyURL: 'https://corsproxy.io/?',
                                       textEditingController:
                                       _locationController,
                                       validator: (value) {

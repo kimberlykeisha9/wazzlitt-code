@@ -19,13 +19,14 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
+    auth.currentUser?.reload();
     super.initState();
     if (!isLoggedIn()) {
       Navigator.popAndPushNamed(context, 'home');
     }
   }
 
-  final Future<DocumentSnapshot> getProfile = currentUserProfile.get();
+  final Future<DocumentSnapshot> getProfile = currentUserProfile.get(GetOptions(source: Source.server));
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +63,7 @@ class _DashboardState extends State<Dashboard> {
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
                                   image: NetworkImage(
-                                      'https://i.pinimg.com/564x/64/61/b2/6461b26b889edc1fa4cc4016052a188e.jpg'),
+                                      'https://corsproxy.io/?https://i.pinimg.com/564x/64/61/b2/6461b26b889edc1fa4cc4016052a188e.jpg'),
                                 ),
                               ),
                               child: Center(
@@ -84,7 +85,7 @@ class _DashboardState extends State<Dashboard> {
                                   image: DecorationImage(
                                     fit: BoxFit.cover,
                                     image: NetworkImage(
-                                        'https://i.pinimg.com/564x/d3/86/c4/d386c4ab5f1fe835952e46fc198ba240.jpg'),
+                                        'https://corsproxy.io/?https://i.pinimg.com/564x/d3/86/c4/d386c4ab5f1fe835952e46fc198ba240.jpg'),
                                   ),
                                 ),
                                 child: Center(
@@ -146,7 +147,7 @@ class _DashboardState extends State<Dashboard> {
                               image: DecorationImage(
                                 fit: BoxFit.cover,
                                 image: NetworkImage(
-                                  'https://i.pinimg.com/564x/64/61/b2/6461b26b889edc1fa4cc4016052a188e.jpg',
+                                  'https://corsproxy.io/?https://i.pinimg.com/564x/64/61/b2/6461b26b889edc1fa4cc4016052a188e.jpg',
                                 ),
                               ),
                             ),
@@ -170,7 +171,7 @@ class _DashboardState extends State<Dashboard> {
                               image: DecorationImage(
                                 fit: BoxFit.cover,
                                 image: NetworkImage(
-                                    'https://i.pinimg.com/564x/d3/86/c4/d386c4ab5f1fe835952e46fc198ba240.jpg'),
+                                    'https://corsproxy.io/?https://i.pinimg.com/564x/d3/86/c4/d386c4ab5f1fe835952e46fc198ba240.jpg'),
                               ),
                             ),
                             child: Center(

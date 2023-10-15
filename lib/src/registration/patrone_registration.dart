@@ -31,25 +31,12 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
   String _selectedGender = 'male';
 
   // Local Images
-  File? _coverPhoto;
   File? _profilePicture;
 
   // Images from Network
   String? networkProfile;
-  String? networkCoverPhoto;
 
   bool _isExistingUser = false;
-
-  Future<void> _pickCoverPhoto() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _coverPhoto = File(pickedImage.path);
-      });
-    }
-  }
 
   Future<void> _pickProfilePicture() async {
     final picker = ImagePicker();
@@ -88,8 +75,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
               Provider.of<Patrone>(context, listen: false).gender ?? 'male';
           networkProfile =
               Provider.of<Patrone>(context, listen: false).profilePicture;
-          networkCoverPhoto =
-              Provider.of<Patrone>(context, listen: false).coverPicture;
           passwordController = TextEditingController();
           _isExistingUser = true;
         });
@@ -111,75 +96,48 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                 'Patrone Account',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              const Spacer(),
+              const SizedBox(height: 15),
               Text(
                 AppLocalizations.of(context)!.accountDetails,
               ),
-              const Spacer(),
+              const SizedBox(height: 15),
               SizedBox(
-                height: 200,
+                height: 100,
                 width: width(context),
                 child: Stack(
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _pickCoverPhoto(); // Function to handle cover photo selection
+                        _pickProfilePicture(); // Function to handle profile picture selection
                       },
-                      child: Container(
-                        width: width(context),
-                        height: 150,
+                      child: Center(
+                        child: Container(
+                        width: 100,
+                        height: 100,
                         decoration: BoxDecoration(
-                          color: Colors.grey,
-                          image: networkCoverPhoto != null
+                          color: Colors.grey[350],
+                          shape: BoxShape.circle,
+                          image: networkProfile != null
                               ? DecorationImage(
                                   fit: BoxFit.cover,
-                                  image: NetworkImage(networkCoverPhoto!))
-                              : _coverPhoto == null
+                                  image: NetworkImage(networkProfile!))
+                              : _profilePicture == null
                                   ? null
                                   : DecorationImage(
                                       fit: BoxFit.cover,
-                                      image: FileImage(_coverPhoto!)),
+                                      image: FileImage(_profilePicture!)),
                         ),
                         child:
-                            (_coverPhoto != null || networkCoverPhoto != null)
+                            (_profilePicture != null || networkProfile != null)
                                 ? const SizedBox()
-                                : const Icon(Icons.add_photo_alternate),
+                                : const Icon(Icons.person),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.bottomCenter,
-                      child: GestureDetector(
-                        onTap: () {
-                          _pickProfilePicture(); // Function to handle profile picture selection
-                        },
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[350],
-                            shape: BoxShape.circle,
-                            image: networkProfile != null
-                                ? DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: NetworkImage(networkProfile!))
-                                : _profilePicture == null
-                                    ? null
-                                    : DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: FileImage(_profilePicture!)),
-                          ),
-                          child: (_profilePicture != null ||
-                                  networkProfile != null)
-                              ? const SizedBox()
-                              : const Icon(Icons.person),
-                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 15),
               Expanded(
                 flex: 15,
                 child: SizedBox(
@@ -360,7 +318,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                   ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 15),
               SizedBox(
                 width: width(context),
                 child: ElevatedButton(
@@ -379,9 +337,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                         uploadImageToFirebase(_profilePicture,
                                 'users/${auth.currentUser!.uid}/patrone/profile_picture')
                             .then((profilePic) {
-                          uploadImageToFirebase(_coverPhoto,
-                                  'users/${auth.currentUser!.uid}/patrone/cover_image')
-                              .then((coverImage) {
                             Patrone()
                                 .saveUserPatroneInformation(
                                   firstName: firstNameController.text,
@@ -390,7 +345,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                                   dob: selectedDOB,
                                   email: emailController.text,
                                   profilePic: profilePic,
-                                  coverPic: coverImage,
                                   gender: _selectedGender,
                                 )
                                 .then(
@@ -401,7 +355,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                                         'An error has occured. '
                                         'Please try again later.'));
                           });
-                        });
                         dataSendingNotifier.stopLoading();
                       } on Exception catch (e) {
                         dataSendingNotifier.stopLoading();

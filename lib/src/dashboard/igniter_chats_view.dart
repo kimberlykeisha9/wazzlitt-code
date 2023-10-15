@@ -21,39 +21,40 @@ class IgniterChatsView extends StatefulWidget {
 class _IgniterChatsViewState extends State<IgniterChatsView> {
   var messagesCollection = firestore
       .collection('messages')
-      .where('participants', arrayContains: currentUserIgniterProfile).where('last_message', isNull: false);
+      .where('participants', arrayContains: currentUserIgniterProfile)
+      .where('last_message', isNull: false);
 
+  late final Future<DocumentSnapshot<Object?>>? Function(
+      DocumentReference<Object?>?) getMessages;
+  late final Future<DocumentSnapshot<Object?>>? Function(
+      Future<DocumentSnapshot<Map<String, dynamic>>>) getReceiverMessage;
+  late final Future<Patrone> Function(Future<Patrone>) getPatroneData;
 
-      late final Future<DocumentSnapshot<Object?>>? Function(DocumentReference<Object?>?) getMessages;
-      late final Future<DocumentSnapshot<Object?>>? Function(Future<DocumentSnapshot<Map<String, dynamic>>>) getReceiverMessage;
-      late final Future<Patrone> Function(Future<Patrone>) getPatroneData;
-
-      @override
-      void initState() {
-        super.initState();
-        getMessages = (val) {
-          return val?.get();
-        };
-        getReceiverMessage = (val) {
-          return val;
-        };
-        getPatroneData = (val) {
-          return val;
-        };
-      }
+  @override
+  void initState() {
+    super.initState();
+    getMessages = (val) {
+      return val?.get();
+    };
+    getReceiverMessage = (val) {
+      return val;
+    };
+    getPatroneData = (val) {
+      return val;
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: height(context),
       width: width(context),
-      decoration: const BoxDecoration(
-        
-      ),
+      decoration: const BoxDecoration(),
       child: SafeArea(
         child: StreamBuilder<QuerySnapshot>(
           stream: messagesCollection.snapshots(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (snapshot.connectionState == ConnectionState.waiting) {
@@ -100,8 +101,9 @@ class _IgniterChatsViewState extends State<IgniterChatsView> {
                                               MaterialPageRoute(
                                                   builder: (context) =>
                                                       ConversationScreen(
-                                                          chats: messages![index]
-                                                              .reference))),
+                                                          chats:
+                                                              messages![index]
+                                                                  .reference))),
                                           leading: GestureDetector(
                                             onTap: () => Navigator.push(
                                                 context,
@@ -112,23 +114,26 @@ class _IgniterChatsViewState extends State<IgniterChatsView> {
                                                               title: Text(
                                                                   '${senderData['first_name'] ?? ''} ${senderData['last_name'] ?? ''}'),
                                                             ),
-                                                            body:
-                                                            FutureBuilder<Patrone>(
-                                                              future: getPatroneData(Patrone()
-                                                                  .getPatroneInformation(receiver
-                                                                  .collection(
-                                                                  'account_type')
-                                                                  .doc(
-                                                                  'patrone'))),
-                                                              builder: (context, snapshot) {
-                                                                return ProfileScreen(
-                                                                    userProfile: snapshot.data!);
-                                                              }
-                                                            )))),
+                                                            body: FutureBuilder<
+                                                                    Patrone>(
+                                                                future: getPatroneData(Patrone().getPatroneInformation(receiver
+                                                                    .collection(
+                                                                        'account_type')
+                                                                    .doc(
+                                                                        'patrone'))),
+                                                                builder: (context,
+                                                                    snapshot) {
+                                                                  return ProfileScreen(
+                                                                      userProfile:
+                                                                          snapshot
+                                                                              .data!);
+                                                                })))),
                                             child: CircleAvatar(
                                               radius: 30,
                                               foregroundImage: NetworkImage(
-                                                  senderData!['profile_picture'] ?? 'https://i.pinimg.com/564x/7c/2a/3f/7c2a3fd9895fbfcc949d7af23d276b09.jpg'),
+                                                  senderData![
+                                                          'profile_picture'] ??
+                                                      'https://corsproxy.io/?https://i.pinimg.com/564x/7c/2a/3f/7c2a3fd9895fbfcc949d7af23d276b09.jpg'),
                                             ),
                                           ),
                                           title: Text(
@@ -156,7 +161,7 @@ class _IgniterChatsViewState extends State<IgniterChatsView> {
                   ),
                 ],
               );
-            } 
+            }
             return const Center(child: CircularProgressIndicator());
           },
         ),

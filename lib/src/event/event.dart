@@ -26,7 +26,8 @@ class _EventState extends State<Event> {
     hasTickets = ((widget.event.tickets ?? []).isNotEmpty);
   }
 
-  late final Future<DocumentSnapshot> Function(Future<DocumentSnapshot<Object?>>) getEventInfo;
+  late final Future<DocumentSnapshot> Function(
+      Future<DocumentSnapshot<Object?>>) getEventInfo;
 
   @override
   Widget build(BuildContext context) {
@@ -71,17 +72,20 @@ class _EventState extends State<Event> {
                         SizedBox(
                           width: width(context),
                           child: ElevatedButton(
-                              onPressed: hasTickets ? () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        EventOrder(
-                                            event: widget.event),
-                                  ),
-                                );
-                              } : null,
-                              child: Text(hasTickets ? 'Buy Tickets' : 'No Tickets available')),
+                              onPressed: hasTickets
+                                  ? () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              EventOrder(event: widget.event),
+                                        ),
+                                      );
+                                    }
+                                  : null,
+                              child: Text(hasTickets
+                                  ? 'Buy Tickets'
+                                  : 'No Tickets available')),
                         ),
                       ],
                     ),
@@ -89,7 +93,8 @@ class _EventState extends State<Event> {
                   Container(
                     padding: const EdgeInsets.all(30),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Theme.of(context).colorScheme.onSurface),
+                      border: Border.all(
+                          color: Theme.of(context).colorScheme.onSurface),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
@@ -125,8 +130,9 @@ class _EventState extends State<Event> {
                         if (snapshot.hasData) {
                           return ListTile(
                             leading: CircleAvatar(
-                              foregroundImage:
-                                  NetworkImage(organizerData?['image'] ?? 'https://i.pinimg.com/736x/58/58/c9/5858c9e33da2df781d11a0993f9b7030.jpg'),
+                              foregroundImage: NetworkImage(organizerData?[
+                                      'image'] ??
+                                  'https://corsproxy.io/?https://i.pinimg.com/736x/58/58/c9/5858c9e33da2df781d11a0993f9b7030.jpg'),
                             ),
                             title: Text(
                                 organizerData?['organizer_name'] ?? 'null'),

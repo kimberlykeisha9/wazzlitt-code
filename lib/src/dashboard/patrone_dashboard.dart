@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/src/dashboard/conversation_screen.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -120,6 +121,9 @@ class _PatroneDashboardState extends State<PatroneDashboard>
 
   @override
   void initState() {
+    if (!isLoggedIn()) {
+      Navigator.popAndPushNamed(context, 'home');
+    }
     initTargets();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _layout(context);
@@ -356,7 +360,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                       leading: CircleAvatar(
                                           foregroundImage: NetworkImage(data[
                                                   'profile_picture'] ??
-                                              'https://i.pinimg.com/474x/1e/23/e5/1e23e5e6441ce2c135e1e457dcf4f06f.jpg')),
+                                              'https://corsproxy.io/?https://i.pinimg.com/474x/1e/23/e5/1e23e5e6441ce2c135e1e457dcf4f06f.jpg')),
                                       title: Text(
                                           '${data['first_name']} ${data['last_name']}'),
                                       subtitle: Text('@${data['username']}'),

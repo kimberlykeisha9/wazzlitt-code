@@ -19,20 +19,30 @@ import 'settings/settings_controller.dart';
 import 'registration/sign_up.dart';
 
 /// The Widget that configures your application.
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   MyApp({
     super.key,
     required this.settingsController,
   });
 
-  final bool isLoggedIn = auth.currentUser != null;
-
   final SettingsController settingsController;
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override 
+  void initState() {
+    super.initState();
+    auth.currentUser?.reload();
+  }
+  final bool isLoggedIn = auth.currentUser != null;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-        animation: settingsController,
+        animation: widget.settingsController,
         builder: (BuildContext context, Widget? child) {
           return Center(
             child: MaterialApp(
@@ -80,7 +90,7 @@ class MyApp extends StatelessWidget {
                       primary: Colors.yellow[700]!,
                       onPrimary: Colors.amber[900]!,
                       secondary: Colors.indigo)),
-              themeMode: settingsController.themeMode,
+              themeMode: widget.settingsController.themeMode,
               initialRoute: isLoggedIn ? 'dashboard' : 'home',
               routes: {
                 'home': (context) => const Home(),

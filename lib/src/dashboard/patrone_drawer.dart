@@ -44,8 +44,8 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: FutureBuilder<DocumentSnapshot>(
-        future: null,
-        builder: (context, snapshot) {
+          future: null,
+          builder: (context, snapshot) {
             return Container(
                 height: height(context),
                 width: width(context) * 0.75,
@@ -56,8 +56,10 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                     width: width(context),
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color:
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.25),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .secondary
+                          .withOpacity(0.25),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
@@ -66,11 +68,12 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                         const Text('WazzLitt Balance'),
                         const SizedBox(height: 5),
                         Text(
-                            (Provider.of<Patrone>(context).accountBalance != null )
+                            (Provider.of<Patrone>(context).accountBalance !=
+                                    null)
                                 ? '\$ ${double.parse(Provider.of<Patrone>(context).accountBalance.toString()).toStringAsFixed(2)}'
                                 : '\$ 0.00',
-                            style:
-                            const TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 24)),
                         const SizedBox(height: 10),
                         SizedBox(
                           height: 20,
@@ -112,31 +115,34 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                   const Spacer(),
                   isIgniter != null
                       ? GestureDetector(
-                    onTap: () => isIgniter!
-                        ? Navigator.popAndPushNamed(
-                        context,
-                        ''
-                            'igniter_dashboard')
-                        : Navigator.pushNamed(
-                        context,
-                        'igni'
-                            'ter_registration'),
-                    child: Row(
-                      children: [
-                        const Icon(FontAwesomeIcons.bolt),
-                        const SizedBox(width: 10),
-                        Text(isIgniter!
-                            ? 'Go to Igniter Profile'
-                            : 'Create an '
-                            'Igniter profile'),
-                      ],
-                    ),
-                  )
+                          onTap: () => isIgniter!
+                              ? Navigator.popAndPushNamed(
+                                  context,
+                                  ''
+                                  'igniter_dashboard')
+                              : Navigator.pushNamed(
+                                  context,
+                                  'igni'
+                                  'ter_registration'),
+                          child: Row(
+                            children: [
+                              const Icon(FontAwesomeIcons.bolt),
+                              const SizedBox(width: 10),
+                              Text(isIgniter!
+                                  ? 'Go to Igniter Profile'
+                                  : 'Create an '
+                                      'Igniter profile'),
+                            ],
+                          ),
+                        )
                       : const SizedBox(),
                   const SizedBox(height: 20),
                   GestureDetector(
-                    onTap: () => signOut()
-                        .then((value) => Navigator.pushNamed(context, 'home')),
+                    onTap: () async {
+                      await signOut().then((value) {
+                        Navigator.pushNamed(context, 'home');
+                      });
+                    },
                     child: const Row(
                       children: [
                         Icon(Icons.logout),
@@ -146,12 +152,12 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                     ),
                   ),
                 ]));
-          }
-      ),
+          }),
     );
   }
 
-  Future<dynamic> topUp(BuildContext context, TextEditingController topUpController) {
+  Future<dynamic> topUp(
+      BuildContext context, TextEditingController topUpController) {
     return showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -194,7 +200,9 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
                     child: const Text('Top up'),
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        Provider.of<Patrone>(context).topUpAccount(double.parse(topUpController.text)).then((value) => Navigator.of(context).pop());
+                        Provider.of<Patrone>(context)
+                            .topUpAccount(double.parse(topUpController.text))
+                            .then((value) => Navigator.of(context).pop());
                       }
                     },
                   )
