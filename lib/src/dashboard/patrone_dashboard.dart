@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/src/dashboard/conversation_screen.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../user_data/payments.dart';
@@ -263,33 +263,24 @@ class _PatroneDashboardState extends State<PatroneDashboard>
 
   File? _toBeUploaded;
 
-  Future<void> _getImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _toBeUploaded = File(pickedFile.path);
-      });
-      log("Image Path: ${pickedFile.path}");
-    }
-  }
-
   Widget? floatingButton() {
     switch (_currentIndex) {
       case 0:
         return FloatingActionButton.extended(
             backgroundColor: Theme.of(context).colorScheme.primary,
             onPressed: () {
-              _getImage().then((value) => _toBeUploaded != null
-                  ? Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            UploadImage(uploadedImage: _toBeUploaded!),
-                      ),
-                    )
-                  : null);
+              selectImage().then((image) {
+                _toBeUploaded = image;
+                if (_toBeUploaded != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          UploadImage(uploadedImage: _toBeUploaded!),
+                    ),
+                  );
+                }
+              });
             },
             icon: const Icon(Icons.photo_camera),
             label: const Text('Create a post'));
@@ -418,15 +409,18 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       case 0:
         return IconButton(
           onPressed: () {
-            _getImage().then((value) => _toBeUploaded != null
-                ? Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          UploadImage(uploadedImage: _toBeUploaded!),
-                    ),
-                  )
-                : null);
+            selectImage().then((image) {
+              _toBeUploaded = image;
+              if (_toBeUploaded != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        UploadImage(uploadedImage: _toBeUploaded!),
+                  ),
+                );
+              }
+            });
           },
           icon: const Icon(Icons.photo_camera),
         );

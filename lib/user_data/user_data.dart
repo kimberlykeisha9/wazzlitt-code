@@ -1,15 +1,43 @@
 import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:uuid/uuid.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_geocoding_api/google_geocoding_api.dart';
 
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
 import 'package:flutter/foundation.dart';
+
+Future<dynamic> selectImage() async {
+  // MOBILE
+  if (!kIsWeb) {
+    final ImagePicker picker = ImagePicker();
+    XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    if (image != null) {
+      var selected = File(image.path);
+      return selected;
+    } else {
+      log("No file selected");
+    }
+  } else if (kIsWeb) {
+    final ImagePicker picker = ImagePicker();
+    XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      var f = await image.readAsBytes();
+
+      return f;
+    } else {
+      log("No file selected");
+    }
+  } else {
+    log("Permission not granted");
+  }
+}
 
 class DataSendingNotifier with ChangeNotifier {
   bool _isLoading = false;
