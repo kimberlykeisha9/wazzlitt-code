@@ -1,7 +1,8 @@
+import 'dart:developer';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
@@ -55,38 +56,36 @@ class _FeedState extends State<Feed> {
         ),
       );
     }
+
     addToTarget(key, '1', 'Browse the feed');
   }
 
   void showTutorial(BuildContext context) {
-  tutorialCoachMark = TutorialCoachMark(
-    
-    targets: targets,
-    colorShadow: Colors.pink,
-    textSkip: "SKIP",
-    paddingFocus: 10,
-    opacityShadow: 0.8,
-    onFinish: () {
-      print("finish");
-    },
-    onClickTarget: (target) {
-      print('onClickTarget: $target');
-    },
-    onSkip: () {
-      print("skip");
-    },
-    onClickOverlay: (target) {
-      print('onClickOverlay: $target');
-    },
-  )..show(context: context);
-}
-
-void _layout(BuildContext context){
-    Future.delayed(Duration(milliseconds: 100));
-    showTutorial(context);
+    tutorialCoachMark = TutorialCoachMark(
+      targets: targets,
+      colorShadow: Colors.pink,
+      textSkip: "SKIP",
+      paddingFocus: 10,
+      opacityShadow: 0.8,
+      onFinish: () {
+        log("finish");
+      },
+      onClickTarget: (target) {
+        log('onClickTarget: $target');
+      },
+      onSkip: () {
+        log("skip");
+      },
+      onClickOverlay: (target) {
+        log('onClickOverlay: $target');
+      },
+    )..show(context: context);
   }
 
-  
+  void _layout(BuildContext context) {
+    Future.delayed(const Duration(milliseconds: 100));
+    showTutorial(context);
+  }
 
   @override
   void initState() {
@@ -99,7 +98,7 @@ void _layout(BuildContext context){
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: height(context),
       width: width(context),
       child: StreamBuilder<QuerySnapshot>(
@@ -115,7 +114,7 @@ void _layout(BuildContext context){
               height: height(context),
               width: width(context),
               child: ListView.builder(
-                prototypeItem: Container(),
+                  prototypeItem: Container(),
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
                   itemCount: feedData.length,

@@ -3,9 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:wazzlitt/src/dashboard/feed_image.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
+import 'dart:developer';
 import '../../user_data/patrone_data.dart';
 import 'conversation_screen.dart';
 
@@ -36,11 +36,10 @@ class _ProfileScreenState extends State<ProfileScreen>
           List<dynamic>? createdPosts = currentUser.createdPosts;
           List<dynamic>? following = currentUser.following;
           List<dynamic>? followers = currentUser.followers;
-          String? gender = currentUser.gender;
           List<dynamic>? interests = currentUser.interests;
           bool? isLit = currentUser.isLit;
           return SingleChildScrollView(
-            child: Container(
+            child: SizedBox(
               height: height(context),
               width: width(context),
               child: Column(
@@ -265,7 +264,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                 initialSelection: (snapshot.data?.data()
                                         as Map<String, dynamic>?)?['country'] ??
                                     'US',
-                                favorite: ['US', 'KE', '+91'],
+                                favorite: const ['US', 'KE', '+91'],
                                 showCountryOnly: true,
                                 showOnlyCountryWhenClosed: true,
                                 alignLeft: false,
@@ -278,7 +277,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       future:
                           getLocation(getCurrentLocation(widget.userProfile)),
                       builder: (context, snapshot) {
-                        print(snapshot.connectionState);
+                        log(snapshot.connectionState.toString());
 
                         if (snapshot.hasData) {
                           return Text('Currently at: ${snapshot.data!}',
@@ -443,7 +442,7 @@ class ActivityTab extends StatelessWidget {
   });
 
   final DocumentReference userProfile;
-  List? createdPosts;
+  late final List? createdPosts;
 
   late final Future<List<dynamic>> getPosts =
       Patrone().getUserPosts(userProfile);

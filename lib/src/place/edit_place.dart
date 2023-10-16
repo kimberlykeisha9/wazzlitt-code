@@ -7,6 +7,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
+
+import 'dart:developer';
 import 'package:wazzlitt/src/location/location.dart';
 import 'package:wazzlitt/user_data/user_data.dart' as ud;
 import '../../user_data/business_owner_data.dart';
@@ -34,7 +36,7 @@ class _EditPlaceState extends State<EditPlace> {
   TextEditingController _websiteController = TextEditingController();
   TextEditingController _descriptionController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
-  TextEditingController _locationController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
   TextEditingController _openingTimeTextController = TextEditingController();
   TextEditingController _closingTimeTextController = TextEditingController();
 
@@ -161,10 +163,10 @@ class _EditPlaceState extends State<EditPlace> {
                 if (widget.place != null) {
                   widget.place!.get().then((data) {
                     placeData = data.data() as Map<String, dynamic>?;
-                    print(placeData);
+                    log(placeData.toString());
                   });
                 }
-                print(placeData);
+                log(placeData.toString());
                 return SafeArea(
                   child: Column(
                     children: [
@@ -282,7 +284,7 @@ class _EditPlaceState extends State<EditPlace> {
                                           selectedOption = newValue;
                                         });
                                         // Perform any desired action when the option is selected
-                                        print(selectedOption);
+                                        log(selectedOption.toString());
                                       },
                                       items:
                                           dropdownOptions.map((String option) {
@@ -473,33 +475,28 @@ class _EditPlaceState extends State<EditPlace> {
                                       googleAPIKey:
                                           "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
                                       debounceTime: 400, // defaults to 600 ms,
-                                      countries: ["us"], // optional, by
+                                      countries: const ["us"], // optional, by
                                       // default the list is empty (no restrictions)
                                       isLatLngRequired:
                                           true, // if you require the coordinates from the place details
                                       getPlaceDetailWithLatLng: (prediction) {
-                                        if (prediction != null) {
-                                          setState(() {
-                                            generatedPrediction = prediction;
-                                          });
-                                        }
-                                        print("placeDetails" +
-                                            prediction.lng.toString());
+                                        setState(() {
+                                          generatedPrediction = prediction;
+                                        });
+                                                                              log("placeDetails${prediction.lng}");
                                       }, // this callback is called when isLatLngRequired is true
                                       itmClick: (prediction) {
-                                        if (prediction != null) {
-                                          setState(() {
-                                            _locationController.text =
-                                                prediction.description!;
-                                            _locationController.selection =
-                                                TextSelection.fromPosition(
-                                                    TextPosition(
-                                                        offset: prediction
-                                                            .description!
-                                                            .length));
-                                          });
-                                        }
-                                      }),
+                                        setState(() {
+                                          _locationController.text =
+                                              prediction.description!;
+                                          _locationController.selection =
+                                              TextSelection.fromPosition(
+                                                  TextPosition(
+                                                      offset: prediction
+                                                          .description!
+                                                          .length));
+                                        });
+                                                                            }),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
                                   TextFormField(
@@ -607,7 +604,7 @@ class _EditPlaceState extends State<EditPlace> {
                                         });
                                       });
                                       dataSendingNotifier.stopLoading();
-                                    } on Exception catch (e) {
+                                    } on Exception {
                                       dataSendingNotifier.stopLoading();
                                     }
                                   }

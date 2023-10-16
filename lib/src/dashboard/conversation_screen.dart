@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,9 +9,9 @@ import '../../user_data/patrone_data.dart';
 import '../../user_data/user_data.dart';
 
 class ConversationScreen extends StatefulWidget {
-  ConversationScreen({super.key, required this.chats, this.place});
-  DocumentReference chats;
-  BusinessPlace? place;
+  const ConversationScreen({super.key, required this.chats, this.place});
+  final DocumentReference chats;
+  final BusinessPlace? place;
 
   @override
   State<ConversationScreen> createState() => _ConversationScreenState();
@@ -77,13 +79,13 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                 child: Column(
                                   children: [
                                     Text(chatsInfo['welcome_message']),
-                                    SizedBox(height: 5),
-                                    Text(
+                                    const SizedBox(height: 5),
+                                    const Text(
                                         'All chats older than 24 hours are cleared automatically'),
                                   ],
                                 ));
                           })
-                      : SizedBox(),
+                      : const SizedBox(),
                   Expanded(
                     child: StreamBuilder<QuerySnapshot>(
                         stream: widget.chats
@@ -94,7 +96,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                           if (snapshot.hasData) {
                             List<QueryDocumentSnapshot<Object?>> chats =
                                 snapshot.data!.docs;
-                            print(chats.length);
+                            log(chats.length.toString());
                             return SafeArea(
                                 child: ListView.builder(
                               physics: const BouncingScrollPhysics(),
@@ -107,7 +109,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
                                       Map<String, dynamic> message =
                                           messageSnapshot.data!.data()
                                               as Map<String, dynamic>;
-                                      print('This is the message: $message');
+                                      log('This is the message: $message');
                                       bool isUser = message['senderID'] ==
                                           currentUserProfile;
                                       return FutureBuilder<DocumentSnapshot>(
@@ -222,7 +224,7 @@ class _ConversationScreenState extends State<ConversationScreen> {
               ),
             );
           }
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         });
   }
 }

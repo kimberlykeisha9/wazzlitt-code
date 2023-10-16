@@ -17,8 +17,7 @@ class EditTicket extends StatefulWidget {
 
 class _EditTicketState extends State<EditTicket> {
   int available = 0;
-  Timestamp? _expiryDate;
-  TextEditingController _nameController = TextEditingController(),
+  final TextEditingController _nameController = TextEditingController(),
       _descriptionController = TextEditingController(),
       _priceController = TextEditingController(),
       _expiryDateController = TextEditingController();
@@ -63,7 +62,7 @@ class _EditTicketState extends State<EditTicket> {
                           )
                           .then((value) => Navigator.pop(context));
                       dataSendingNotifier.stopLoading();
-                    } on Exception catch (e) {
+                    } on Exception {
                       dataSendingNotifier.stopLoading();
                     }
                   }
@@ -106,7 +105,6 @@ class _EditTicketState extends State<EditTicket> {
                       .then((value) {
                     setState(() {
                       if (value != null) {
-                        _expiryDate = Timestamp.fromDate(value);
                         _expiryDateController.text =
                             DateFormat('E, dd/MM/yyyy').format(value);
                       }

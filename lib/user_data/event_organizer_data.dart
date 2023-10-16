@@ -6,8 +6,6 @@ import 'package:wazzlitt/src/location/location.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import 'order_data.dart' as wz;
 
-import 'igniter_data.dart';
-
 class EventOrganizer extends ChangeNotifier {
   List<EventData>? get events => _events;
   List<EventData> _events = [];
@@ -86,6 +84,7 @@ class EventOrganizer extends ChangeNotifier {
             for (Map<String, dynamic> ticket
                 in (eventData['tickets'] as List<dynamic>)) {
               ticketsList.add(Ticket(
+                map: ticket,
                 available: ticket['available'],
                 title: ticket['ticket_name'],
                 price: ticket['price'],
@@ -158,10 +157,10 @@ class EventOrganizer extends ChangeNotifier {
         if (value.exists) {
           await currentUserIgniterProfile.update(organizerData);
         } else {
-          
           currentUserProfile.update({'is_igniter': true}).then((value) async {
-            await currentUserIgniterProfile.set(organizerData).then((value) => 
-            currentUserIgniterProfile.update({'createdAt': DateTime.now()}));
+            await currentUserIgniterProfile.set(organizerData).then((value) =>
+                currentUserIgniterProfile
+                    .update({'createdAt': DateTime.now()}));
           });
         }
       });
@@ -248,9 +247,11 @@ class Ticket {
       this.image,
       this.available,
       this.description,
+      this.map,
       this.quantity});
 
   String? title;
+  Map<String, dynamic>? map;
   double? price;
   String? image;
   bool? available;
@@ -308,7 +309,14 @@ class Ticket {
 
     try {
       await event.update({
-        'tickets': FieldValue.arrayRemove([{'ticket_name': ticket.title, 'ticket_description': ticket.description, 'price': ticket.price, 'available': ticket.available}]),
+        'tickets': FieldValue.arrayRemove([
+          {
+            'ticket_name': ticket.title,
+            'ticket_description': ticket.description,
+            'price': ticket.price,
+            'available': ticket.available
+          }
+        ]),
       }).then((value) => event.update({
             'tickets': FieldValue.arrayUnion([
               {

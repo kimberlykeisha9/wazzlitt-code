@@ -96,10 +96,6 @@ class _UploadImageState extends State<UploadImage> {
                   showSnackbar(context, 'Please put the location');
                   log('No location selected');
                 }
-                if (widget.uploadedImage == null) {
-                  log('No image was uploaded');
-                  Navigator.pop(context);
-                }
               }
             },
             icon: const Icon(Icons.check),
@@ -132,28 +128,24 @@ class _UploadImageState extends State<UploadImage> {
                             hintText: 'Location', labelText: 'Location'),
                         googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
                         debounceTime: 400, // defaults to 600 ms,
-                        countries: ["us"], // optional, by
+                        countries: const ["us"], // optional, by
                         // default the list is empty (no restrictions)
                         isLatLngRequired:
                             true, // if you require the coordinates from the place details
                         getPlaceDetailWithLatLng: (prediction) {
-                          if (prediction != null) {
-                            setState(() {
-                              generatedPrediction = prediction;
-                            });
-                          }
-                          print("placeDetails" + prediction.lng.toString());
+                          setState(() {
+                            generatedPrediction = prediction;
+                          });
+                                                  log("placeDetails${prediction.lng}");
                         }, // this callback is called when isLatLngRequired is true
                         itmClick: (prediction) {
-                          if (prediction != null) {
-                            setState(() {
-                              _searchController.text = prediction.description!;
-                              _searchController.selection =
-                                  TextSelection.fromPosition(TextPosition(
-                                      offset: prediction.description!.length));
-                            });
-                          }
-                        }),
+                          setState(() {
+                            _searchController.text = prediction.description!;
+                            _searchController.selection =
+                                TextSelection.fromPosition(TextPosition(
+                                    offset: prediction.description!.length));
+                          });
+                                                }),
                     const SizedBox(height: 20),
                     SizedBox(
                         width: width(context),

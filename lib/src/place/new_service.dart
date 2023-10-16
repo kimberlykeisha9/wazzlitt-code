@@ -67,7 +67,7 @@ class _NewServiceState extends State<NewService> {
     serviceName: _nameController?.text, description: _descriptionController?.text, image: value, available: available, price: double.parse(_priceController!.text),
   ).then((value) => Navigator.pop(context)));
   dataSendingNotifier.stopLoading();
-} on Exception catch (e) {
+} on Exception {
   dataSendingNotifier.stopLoading();
 }
                     }

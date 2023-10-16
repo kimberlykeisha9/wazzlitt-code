@@ -8,7 +8,7 @@ import '../../event/edit_ticket.dart';
 import '../../event/new_ticket.dart';
 
 class EventOrganizerDashboard extends StatefulWidget {
-  EventOrganizerDashboard({super.key});
+  const EventOrganizerDashboard({super.key});
 
   @override
   State<EventOrganizerDashboard> createState() =>
@@ -57,7 +57,7 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           height: height(context),
           width: width(context),
           child: FutureBuilder<List<EventData>>(
@@ -77,7 +77,6 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                   itemCount: events.length,
                   itemBuilder: (context, index) {
                     final event = events[index];
-                    final tickets = event.tickets ?? [];
 
                     return Column(
                       children: [

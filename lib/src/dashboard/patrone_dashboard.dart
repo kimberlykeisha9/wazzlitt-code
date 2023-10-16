@@ -14,10 +14,10 @@ import '../app.dart';
 import '../../user_data/patrone_data.dart';
 import 'dart:io';
 import '../location/location.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'chats_view.dart';
 import 'explore.dart';
 import 'feed.dart';
+import 'dart:developer';
 import 'patrone_drawer.dart';
 import 'upload_image.dart';
 
@@ -97,16 +97,16 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       onFinish: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('watchedPatroneIntro', true);
-        print("finish");
+        log("finish");
       },
       onClickTarget: (target) {
-        print('onClickTarget: $target');
+        log('onClickTarget: $target');
       },
       onSkip: () {
-        print("skip");
+        log("skip");
       },
       onClickOverlay: (target) {
-        print('onClickOverlay: $target');
+        log('onClickOverlay: $target');
       },
     )..show(context: context);
   }
@@ -186,7 +186,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                                   DateTime(2000))
                               .add(const Duration(days: 14))
                               .isBefore(DateTime.now()));
-                      print(isFreeTrial);
+                      log(isFreeTrial.toString());
                       if (isFreeTrial) {
                         if (isFreeTrial) {
                           _isSubscribed = isFreeTrial;
@@ -235,8 +235,9 @@ class _PatroneDashboardState extends State<PatroneDashboard>
           currentIndex: _currentIndex,
           showSelectedLabels: false,
           showUnselectedLabels: false,
-          unselectedItemColor: Colors.white.withOpacity(0.5),
-          selectedItemColor: Colors.white,
+          unselectedItemColor:
+              Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+          selectedItemColor: Theme.of(context).colorScheme.onSurface,
           items: [
             BottomNavigationBarItem(
                 label: 'Home',
@@ -270,8 +271,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       setState(() {
         _toBeUploaded = File(pickedFile.path);
       });
-      print("Image Path: ${pickedFile.path}");
-      
+      log("Image Path: ${pickedFile.path}");
     }
   }
 
@@ -396,18 +396,18 @@ class _PatroneDashboardState extends State<PatroneDashboard>
                         });
                       }
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       FontAwesomeIcons.fire,
                       color: Colors.black,
                     ),
                     label: Text(
                       isLit ? 'I\'m Lit!' : 'Activate Lit Status',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black,
                       ),
                     ));
               }
-              return CircularProgressIndicator();
+              return const CircularProgressIndicator();
             });
     }
     return null;

@@ -18,7 +18,6 @@ class Orders extends StatefulWidget {
 class _OrdersState extends State<Orders> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     if(!isLoggedIn()) {
       Navigator.popAndPushNamed(context, 'home');
@@ -41,7 +40,7 @@ class _OrdersState extends State<Orders> {
         body: Container(
           height: height(context),
           width: width(context),
-          decoration: BoxDecoration(),
+          decoration: const BoxDecoration(),
           child: FutureBuilder(
               future: null,
               builder: (context, snapshot) {

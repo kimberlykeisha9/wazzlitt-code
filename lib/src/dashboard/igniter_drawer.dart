@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
@@ -15,6 +14,7 @@ class IgniterDrawer extends StatefulWidget {
 }
 
 class _IgniterDrawerState extends State<IgniterDrawer> {
+  @override
   void initState() {
     super.initState();
   }

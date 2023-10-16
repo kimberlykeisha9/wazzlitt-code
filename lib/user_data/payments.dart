@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:cloud_functions/cloud_functions.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
@@ -11,7 +10,7 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import '../../user_data/patrone_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-final apiKey = 'sk_test_51N6MV7Aw4gbUiKSOVcDYHBiDM5ibgvUiGZQQ2erLCvrDXerqrJXDY'
+const apiKey = 'sk_test_51N6MV7Aw4gbUiKSOVcDYHBiDM5ibgvUiGZQQ2erLCvrDXerqrJXDY'
     'jhdc33LMfSKXgzf5doGBAtV75AIXK3u3eUw00stk6GUfw';
 
 Future<void> launchIgniterSubscription() async {
@@ -55,10 +54,12 @@ Future<bool?> checkIfAccountExistsOnStripe() async {
   var pref = await SharedPreferences.getInstance();
   String? id = pref.getString('accountId');
   if (id != null) {
-    final request = await http
-        .get(Uri.parse('https://corsproxy.io/?https://api.stripe.com/v1/accounts/$id'), headers: {
-      'Authorization': 'Bearer $apiKey',
-    });
+    final request = await http.get(
+        Uri.parse(
+            'https://corsproxy.io/?https://api.stripe.com/v1/accounts/$id'),
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+        });
     var body = jsonDecode(request.body);
     hasDetails = body['details_submitted'];
   } else {
@@ -72,13 +73,15 @@ createSellerAccount() async {
   Future<String?> getAccountID() async {
     try {
       String? accountID;
-      final request = await http
-          .post(Uri.parse('https://corsproxy.io/?://api.stripe.com/v1/accounts'), headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      }, body: {
-        'type': 'express'
-      });
+      final request = await http.post(
+          Uri.parse('https://corsproxy.io/?://api.stripe.com/v1/accounts'),
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: {
+            'type': 'express'
+          });
 
       var responseBody = jsonDecode(request.body);
       if (request.statusCode == 200) {
@@ -87,7 +90,7 @@ createSellerAccount() async {
         if (accountID != null) {
           pref.setString('accountId', accountID);
         }
-        print(accountID);
+        log(accountID.toString());
       }
       return accountID;
     } catch (e) {
@@ -99,17 +102,20 @@ createSellerAccount() async {
   Future<String?> getAccountLink(String account) async {
     String? linkUrl;
     try {
-      final request = await http
-          .post(Uri.parse('https://corsproxy.io/?https://api.stripe.com/v1/account_links'), headers: {
-        'Authorization': 'Bearer $apiKey',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      }, body: {
-        'account': account,
-        'type': 'account_onboarding',
-        'refresh_url': 'https://wazzlitt-d7c47.web.app/',
-        'return_url': 'https://wazzlitt-d7c47.web.app/',
-      });
-      print(request.body);
+      final request = await http.post(
+          Uri.parse(
+              'https://corsproxy.io/?https://api.stripe.com/v1/account_links'),
+          headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: {
+            'account': account,
+            'type': 'account_onboarding',
+            'refresh_url': 'https://wazzlitt-d7c47.web.app/',
+            'return_url': 'https://wazzlitt-d7c47.web.app/',
+          });
+      log(request.body);
 
       if (request.statusCode == 200) {
         var body = jsonDecode(request.body);
@@ -130,7 +136,8 @@ createSellerAccount() async {
       getAccountLink(account).then((url) async {
         if (url != null) {
           try {
-            await launchUrl(Uri.parse('https://corsproxy.io/?$url'), webOnlyWindowName: '_blank');
+            await launchUrl(Uri.parse('https://corsproxy.io/?$url'),
+                webOnlyWindowName: '_blank');
           } catch (e) {
             throw Exception('Could not launch $url because of $e');
           }
@@ -147,7 +154,8 @@ createSellerAccount() async {
 Future<Map<String, dynamic>?> checkIfIgniterUserIsSubscribed() async {
   Map<String, dynamic>? session;
   final request = await http.get(
-    Uri.parse('https://corsproxy.io/?https://api.stripe.com/v1/checkout/sessions'),
+    Uri.parse(
+        'https://corsproxy.io/?https://api.stripe.com/v1/checkout/sessions'),
     headers: {
       'Authorization': 'Bearer $apiKey',
     },
@@ -163,7 +171,7 @@ Future<Map<String, dynamic>?> checkIfIgniterUserIsSubscribed() async {
         .toList()
         .where((userSession) => userSession['payment_status'] == 'paid')
         .toList();
-    print('Client Sessions: $clientSessions');
+    log('Client Sessions: $clientSessions');
     if (clientSessions.isNotEmpty) {
       log('Found paid session');
       session = clientSessions[0] as Map<String, dynamic>;
@@ -179,7 +187,8 @@ Future<Map<String, dynamic>?> checkIfIgniterUserIsSubscribed() async {
 Future<Map<String, dynamic>?> checkIfPatroneUserIsSubscribed() async {
   Map<String, dynamic>? session;
   final request = await http.get(
-    Uri.parse('https://corsproxy.io/?https://api.stripe.com/v1/checkout/sessions'),
+    Uri.parse(
+        'https://corsproxy.io/?https://api.stripe.com/v1/checkout/sessions'),
     headers: {
       'Authorization': 'Bearer $apiKey',
     },
@@ -195,7 +204,7 @@ Future<Map<String, dynamic>?> checkIfPatroneUserIsSubscribed() async {
         .toList()
         .where((userSession) => userSession['payment_status'] == 'paid')
         .toList();
-    print('Client Sessions: $clientSessions');
+    log('Client Sessions: $clientSessions');
     if (clientSessions.isNotEmpty) {
       log('Found paid session');
       session = clientSessions[0] as Map<String, dynamic>;
@@ -222,7 +231,7 @@ Future<bool> isIgniterSubscriptionActive() async {
           });
       if (response.statusCode == 200) {
         var body = jsonDecode(response.body);
-        print(body);
+        log(body);
         String subscriptionStatus = body['status'];
         if (subscriptionStatus == 'active') {
           log('User has an active subscription');
@@ -250,7 +259,7 @@ Future<bool> isPatroneSubscriptionActive() async {
           });
       if (response.statusCode == 200) {
         var body = jsonDecode(response.body);
-        print(body);
+        log(body);
         String subscriptionStatus = body['status'];
         if (subscriptionStatus == 'active') {
           log('User has an active subscription');
@@ -365,13 +374,13 @@ Future<String?> payFromBalance(double amount, BuildContext context) async {
     }
     return paymentStatus;
   } catch (e) {
-    print(e);
+    log(e.toString());
   }
   return null;
 }
 
 Future<bool> doesStripeCustomerExist(String email) async {
-  final url = 'https://corsproxy.io/?https://api.stripe.com/v1/customers';
+  const url = 'https://corsproxy.io/?https://api.stripe.com/v1/customers';
 
   final headers = {
     'Authorization': 'Bearer $apiKey',
@@ -381,19 +390,19 @@ Future<bool> doesStripeCustomerExist(String email) async {
       await http.get(Uri.parse('$url?email=$email'), headers: headers);
 
   if (response.statusCode == 200) {
-    print(response.body);
+    log(response.body);
     final responseData = json.decode(response.body);
     return responseData['data'].isNotEmpty;
   } else {
-    print('Error finding Stripe Customer: ${response.statusCode}');
-    print(response.body);
+    log('Error finding Stripe Customer: ${response.statusCode}');
+    log(response.body);
   }
 
   return false;
 }
 
 Future<void> createStripeCustomer(String email) async {
-  final url = 'https://corsproxy.io/?https://api.stripe.com/v1/customers';
+  const url = 'https://corsproxy.io/?https://api.stripe.com/v1/customers';
 
   final headers = {
     'Authorization': 'Bearer $apiKey',
@@ -408,8 +417,8 @@ Future<void> createStripeCustomer(String email) async {
       await http.post(Uri.parse(url), headers: headers, body: body);
 
   if (response.statusCode == 200) {
-    print('Stripe Customer Created Successfully');
-    print(response.body);
+    log('Stripe Customer Created Successfully');
+    log(response.body);
     try {
       await customerReference.set(jsonDecode(response.body));
     } on FirebaseException catch (e) {
@@ -418,8 +427,8 @@ Future<void> createStripeCustomer(String email) async {
       log(e.toString());
     }
   } else {
-    print('Error creating Stripe Customer: ${response.statusCode}');
-    print(response.body);
+    log('Error creating Stripe Customer: ${response.statusCode}');
+    log(response.body);
   }
 }
 
@@ -433,7 +442,8 @@ createPaymentIntent(String amount, String currency) async {
 
     //Make post request to Stripe
     var response = await http.post(
-      Uri.parse('https://corsproxy.io/?https://api.stripe.com/v1/payment_intents'),
+      Uri.parse(
+          'https://corsproxy.io/?https://api.stripe.com/v1/payment_intents'),
       headers: {
         'Authorization':
             'Bearer sk_test_51N6MV7Aw4gbUiKSOVcDYHBiDM5ibgvUiGZQQ2e'
@@ -442,7 +452,7 @@ createPaymentIntent(String amount, String currency) async {
       },
       body: body,
     );
-    print(response.body);
+    log(response.body);
     return json.decode(response.body);
   } catch (err) {
     throw Exception(err.toString());

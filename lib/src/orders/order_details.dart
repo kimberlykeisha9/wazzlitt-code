@@ -1,8 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart' as db;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:wazzlitt/user_data/order_data.dart';
-import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
 class OrderDetails extends StatelessWidget {

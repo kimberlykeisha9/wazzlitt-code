@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
@@ -10,7 +12,7 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
 class Dashboard extends StatefulWidget {
-  Dashboard({super.key});
+  const Dashboard({super.key});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -26,7 +28,8 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  final Future<DocumentSnapshot> getProfile = currentUserProfile.get(GetOptions(source: Source.server));
+  final Future<DocumentSnapshot> getProfile =
+      currentUserProfile.get(const GetOptions(source: Source.server));
 
   @override
   Widget build(BuildContext context) {
@@ -36,18 +39,18 @@ class _DashboardState extends State<Dashboard> {
           if (snapshot.hasData) {
             Map<String, dynamic>? data =
                 snapshot.data!.data() as Map<String, dynamic>?;
-            print(data);
+            log(data.toString());
             if (data != null &&
                 (data.containsKey('is_patrone') ||
                     data.containsKey('is_igniter'))) {
               if (data.containsKey('is_patrone') &&
                   data.containsKey('is_igniter')) {
-                print('User is patrone and igniter');
+                log('User is patrone and igniter');
                 return Scaffold(
                   body: Container(
                     height: height(context),
                     width: width(context),
-                    decoration: BoxDecoration(),
+                    decoration: const BoxDecoration(),
                     child: SafeArea(
                       child: Padding(
                         padding: const EdgeInsets.only(top: 50),
@@ -75,7 +78,7 @@ class _DashboardState extends State<Dashboard> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            PatroneDashboard())),
+                                            const PatroneDashboard())),
                               )),
                             ),
                           ),
@@ -97,7 +100,7 @@ class _DashboardState extends State<Dashboard> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
-                                              IgniterDashboard())),
+                                              const IgniterDashboard())),
                                 ))),
                           ),
                         ]),
@@ -106,10 +109,10 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 );
               } else if (data.containsKey('is_patrone')) {
-                print('User is patrone');
+                log('User is patrone');
                 return const PatroneDashboard();
               } else if (data.containsKey('is_igniter')) {
-                print('User is igniter');
+                log('User is igniter');
                 return const IgniterDashboard();
               }
             } else {
@@ -117,7 +120,7 @@ class _DashboardState extends State<Dashboard> {
                 body: Container(
                   height: height(context),
                   width: width(context),
-                  decoration: BoxDecoration(),
+                  decoration: const BoxDecoration(),
                   child: SafeArea(
                     child: Column(
                       children: [
@@ -160,7 +163,7 @@ class _DashboardState extends State<Dashboard> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            PatroneRegistration())),
+                                            const PatroneRegistration())),
                               ),
                             ),
                           ),
@@ -183,7 +186,7 @@ class _DashboardState extends State<Dashboard> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            IgniterRegistration())),
+                                            const IgniterRegistration())),
                               ),
                             ),
                           ),

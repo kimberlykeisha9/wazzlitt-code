@@ -11,9 +11,10 @@ import 'package:wazzlitt/user_data/business_owner_data.dart';
 import 'package:wazzlitt/user_data/patrone_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
+import 'dart:developer';
 
 class Place extends StatefulWidget {
-  Place({Key? key, required this.place}) : super(key: key);
+  const Place({Key? key, required this.place}) : super(key: key);
 
   final BusinessPlace place;
 
@@ -99,16 +100,16 @@ class _PlaceState extends State<Place> {
               fontSize: 20,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             widget.place.formattedAddress ?? 'Address not listed',
             style: const TextStyle(
               fontSize: 12,
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Chip(label: Text(widget.place.category ?? 'Unknown')),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             'Open - ${DateFormat('hh:mm a').format(widget.place.openingTime ?? DateTime(0, 0, 0, 0, 0))} to ${DateFormat('hh:mm a').format(widget.place.closingTime ?? DateTime(0, 0, 0, 0, 0))}',
           ),
@@ -164,7 +165,7 @@ class _PlaceState extends State<Place> {
                                 chats: firestore
                                     .collection('messages')
                                     .doc(widget.place.googleId),
-                                    place: widget.place,
+                                place: widget.place,
                               ),
                             ),
                           );
@@ -180,15 +181,16 @@ class _PlaceState extends State<Place> {
                             'participants': null,
                           }).then((value) {
                             Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ConversationScreen(
-                                chats: firestore
-                                    .collection('messages')
-                                    .doc(widget.place.googleId), place: widget.place,
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ConversationScreen(
+                                  chats: firestore
+                                      .collection('messages')
+                                      .doc(widget.place.googleId),
+                                  place: widget.place,
+                                ),
                               ),
-                            ),
-                          );
+                            );
                           });
                         }
                       });
@@ -288,7 +290,7 @@ class _PlaceState extends State<Place> {
               for (var patrone in snapshot.data!) {
                 Map<String, dynamic> data =
                     patrone.data() as Map<String, dynamic>;
-                print(data);
+                log(data.toString());
                 GeoPoint location = data['current_location']['geopoint'];
                 newMarkers.add(
                   Marker(

@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart' as db;
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
@@ -81,7 +80,7 @@ class Patrone extends ChangeNotifier {
   List<dynamic>? createdPostsSet = [];
   // Placed Orders
   List<Order>? get placedOrders => _placedOrders;
-  List<Order>? _placedOrders = [];
+  final List<Order> _placedOrders = [];
   // User's interests
   List<String>? get interests => interestsSet;
   List<String>? interestsSet = [];
@@ -215,7 +214,7 @@ class Patrone extends ChangeNotifier {
         (order as db.DocumentReference).get().then((doc) {
           var orderData = doc.data() as Map<String, dynamic>;
           if (orderData['order_type'] == 'ticket') {
-            _placedOrders?.add(
+            _placedOrders.add(
               Order(
                 datePlaced: (orderData['date_placed'] as db.Timestamp).toDate(),
                 details: orderData['ticket'],
@@ -227,7 +226,7 @@ class Patrone extends ChangeNotifier {
             );
             notifyListeners();
           } else if (orderData['order_type'] == 'service') {
-            _placedOrders?.add(
+            _placedOrders.add(
               Order(
                 datePlaced: (orderData['date_placed'] as db.Timestamp).toDate(),
                 details: orderData['service'],
@@ -275,7 +274,7 @@ class Patrone extends ChangeNotifier {
         'balance': db.FieldValue.increment(topUp),
       }).then((value) => log('Topped up'));
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 

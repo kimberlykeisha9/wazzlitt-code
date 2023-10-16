@@ -2,47 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/payments.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
+import 'package:wazzlitt/user_data/business_owner_data.dart';
 import '../../user_data/order_data.dart';
+import 'dart:developer';
 import '../app.dart';
 
 class PlaceOrder extends StatefulWidget {
-  const PlaceOrder({Key? key, required this.place});
+  const PlaceOrder({super.key, required this.place});
 
-  final Map<String, dynamic> place;
+  final BusinessPlace place;
 
   @override
   _PlaceOrderState createState() => _PlaceOrderState();
 }
 
 class _PlaceOrderState extends State<PlaceOrder> {
-  List<dynamic>? services = [];
+  List<Service>? services = [];
   int? _selected;
   bool? _isChecked;
-  Map<String, dynamic>? _selectedService;
+  Service? _selectedService;
 
   @override
   void initState() {
     super.initState();
-    services = widget.place['services'] ?? [];
+    services = widget.place.services ?? [];
   }
 
   @override
   Widget build(BuildContext context) {
     final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Services for ${widget.place['place_name']}')),
+      appBar: AppBar(title: Text('Services for ${widget.place.placeName}')),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               Text(
-                widget.place['place_name'],
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                widget.place.placeName ?? '',
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
-              Spacer(),
+              const Spacer(),
               const Text('Choose which services you would like to order'),
-              Spacer(),
+              const Spacer(),
               Expanded(
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -60,21 +62,21 @@ class _PlaceOrderState extends State<PlaceOrder> {
                           });
                         },
                       ),
-                      title: Text(service['service_name']),
+                      title: Text(service.title ?? ''),
                       subtitle: Text(
-                        '\$ ${double.parse(service['price'].toString()).toStringAsFixed(2)}',
+                        '\$ ${double.parse(service.price.toString()).toStringAsFixed(2)}',
                       ),
-                      trailing: service.containsKey('service_description')
+                      trailing: service.description != null
                           ? Tooltip(
-                              message: service['service_description'],
+                              message: service.description,
                               child: const Icon(Icons.info_outline),
                             )
-                          : SizedBox(),
+                          : const SizedBox(),
                     );
                   },
                 ),
               ),
-              Spacer(flex: 3),
+              const Spacer(flex: 3),
               CheckboxListTile(
                 value: _isChecked ?? false,
                 onChanged: (val) {
@@ -86,7 +88,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                   'I confirm that I am liable to the Terms and Conditions of this purchase and all other regulations set.',
                 ),
               ),
-              Spacer(flex: 3),
+              const Spacer(flex: 3),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -95,8 +97,9 @@ class _PlaceOrderState extends State<PlaceOrder> {
                   Text(
                     _selectedService == null
                         ? '\$ 0.00'
-                        : '\$ ${double.parse(_selectedService!['price'].toString()).toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        : '\$ ${double.parse(_selectedService!.price.toString()).toStringAsFixed(2)}',
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -105,7 +108,9 @@ class _PlaceOrderState extends State<PlaceOrder> {
                 width: width(context),
                 child: ElevatedButton(
                   onPressed: () {
-                    if (_selectedService != null && _selected != null && _isChecked == true) {
+                    if (_selectedService != null &&
+                        _selected != null &&
+                        _isChecked == true) {
                       showDialog(
                         context: context,
                         builder: (_) => AlertDialog(
@@ -122,15 +127,15 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                     Navigator.of(context).pop();
                                     showSnackbar(context, 'Not configured');
                                   },
-                                  child: Column(
+                                  child: const Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
                                         Icons.credit_card_outlined,
                                         size: 40,
                                       ),
-                                      const SizedBox(height: 10),
-                                      const Text(
+                                      SizedBox(height: 10),
+                                      Text(
                                         'Personal Wallet',
                                         textAlign: TextAlign.center,
                                       ),
@@ -152,7 +157,7 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                         child: Wrap(
                                           children: [
                                             Text(
-                                              'Deduct \$${double.parse(_selectedService!['price'].toString()).toStringAsFixed(2)} from your WazzLitt account',
+                                              'Deduct \$${double.parse(_selectedService!.price.toString()).toStringAsFixed(2)} from your WazzLitt account',
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 20,
@@ -170,36 +175,67 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                                   child: ElevatedButton(
                                                     onPressed: () {
                                                       try {
-                                                        dataSendingNotifier.startLoading();
- if (dataSendingNotifier.isLoading) {
-   showDialog(
-    barrierDismissible: false,
-       context: context,
-    builder: (_) => const Center(
-    child: CircularProgressIndicator()));
- }
+                                                        dataSendingNotifier
+                                                            .startLoading();
+                                                        if (dataSendingNotifier
+                                                            .isLoading) {
+                                                          showDialog(
+                                                              barrierDismissible:
+                                                                  false,
+                                                              context: context,
+                                                              builder: (_) =>
+                                                                  const Center(
+                                                                      child:
+                                                                          CircularProgressIndicator()));
+                                                        }
 
-  payFromBalance(double.parse(_selectedService!['price'].toString()), context).then((paymentStatus) {
-    print(paymentStatus ?? 'No payment info found');
-    if (paymentStatus == 'paid') {
-      Order().uploadPlaceOrder(_selectedService!, widget.place, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(context, 'confirmed'));
-    } else {
-      Navigator.pop(context);
-      dataSendingNotifier.stopLoading();
-      showSnackbar(context, 'Something went wrong with your payment. Please check your balance or try again later');
-    }
-  });
-  dataSendingNotifier.stopLoading();
-} on Exception catch (e) {
-  dataSendingNotifier.stopLoading();
-}
+                                                        payFromBalance(
+                                                                double.parse(
+                                                                    _selectedService!.price
+                                                                        .toString()),
+                                                                context)
+                                                            .then(
+                                                                (paymentStatus) {
+                                                          log(paymentStatus ??
+                                                              'No payment info found');
+                                                          if (paymentStatus ==
+                                                              'paid') {
+                                                            Order()
+                                                                .uploadPlaceOrder(
+                                                                    _selectedService!,
+                                                                    widget
+                                                                        .place,
+                                                                    'wazzlitt_balance')
+                                                                .then((value) =>
+                                                                    Navigator.popAndPushNamed(
+                                                                        context,
+                                                                        'confirmed'));
+                                                          } else {
+                                                            Navigator.pop(
+                                                                context);
+                                                            dataSendingNotifier
+                                                                .stopLoading();
+                                                            showSnackbar(
+                                                                context,
+                                                                'Something went wrong with your payment. Please check your balance or try again later');
+                                                          }
+                                                        });
+                                                        dataSendingNotifier
+                                                            .stopLoading();
+                                                      } on Exception {
+                                                        dataSendingNotifier
+                                                            .stopLoading();
+                                                      }
                                                     },
-                                                    child: Text('Pay \$${double.parse(_selectedService!['price'].toString()).toStringAsFixed(2)}'),
+                                                    child: Text(
+                                                        'Pay \$${double.parse(_selectedService!.price.toString()).toStringAsFixed(2)}'),
                                                   ),
                                                 ),
                                                 TextButton(
                                                   child: const Text('Cancel'),
-                                                  onPressed: () => Navigator.of(context).pop(),
+                                                  onPressed: () =>
+                                                      Navigator.of(context)
+                                                          .pop(),
                                                 ),
                                               ],
                                             ),
@@ -215,8 +251,8 @@ class _PlaceOrderState extends State<PlaceOrder> {
                                         Icons.monetization_on_outlined,
                                         size: 40,
                                       ),
-                                      const SizedBox(height: 10),
-                                      const Text(
+                                      SizedBox(height: 10),
+                                      Text(
                                         'WazzLitt Wallet',
                                         textAlign: TextAlign.center,
                                       ),
@@ -229,13 +265,14 @@ class _PlaceOrderState extends State<PlaceOrder> {
                         ),
                       );
                     } else {
-                      showSnackbar(context, 'Please select a service and agree to the terms');
+                      showSnackbar(context,
+                          'Please select a service and agree to the terms');
                     }
                   },
                   child: const Text('Checkout'),
                 ),
               ),
-              Spacer(flex: 5),
+              const Spacer(flex: 5),
             ],
           ),
         ),

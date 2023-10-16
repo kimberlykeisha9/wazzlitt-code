@@ -20,7 +20,7 @@ import 'registration/sign_up.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatefulWidget {
-  MyApp({
+  const MyApp({
     super.key,
     required this.settingsController,
   });
@@ -94,7 +94,7 @@ class _MyAppState extends State<MyApp> {
               initialRoute: isLoggedIn ? 'dashboard' : 'home',
               routes: {
                 'home': (context) => const Home(),
-                'signup': (context) => SignUp(),
+                'signup': (context) => const SignUp(),
                 'patrone_registration': (context) =>
                     const PatroneRegistration(),
                 'interests': (context) => const Interests(),
@@ -104,7 +104,7 @@ class _MyAppState extends State<MyApp> {
                 'settings': (context) => const Settings(),
                 'orders': (context) => const Orders(),
                 'confirmed': (context) => const ConfirmedOrder(),
-                'dashboard': (context) => Dashboard(),
+                'dashboard': (context) => const Dashboard(),
                 'igniter_dashboard': (context) => const IgniterDashboard(),
               },
             ),

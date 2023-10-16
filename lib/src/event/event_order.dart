@@ -5,6 +5,7 @@ import 'package:wazzlitt/user_data/order_data.dart';
 import 'package:wazzlitt/user_data/payments.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
+import 'dart:developer';
 
 class EventOrder extends StatefulWidget {
   const EventOrder({super.key, required this.event});
@@ -205,7 +206,7 @@ class _EventOrderState extends State<EventOrder> {
                                                                               double.parse(_selectedTicket!.price.toString()),
                                                                               context)
                                                                           .then((paymentStatus) {
-                                                                        print(paymentStatus ??
+                                                                        log(paymentStatus ??
                                                                             'No payment info found');
                                                                         if (paymentStatus ==
                                                                             'paid') {
@@ -224,7 +225,7 @@ class _EventOrderState extends State<EventOrder> {
                                                                       });
                                                                       dataSendingNotifier
                                                                           .stopLoading();
-                                                                    } on Exception catch (e) {
+                                                                    } on Exception {
                                                                       dataSendingNotifier
                                                                           .stopLoading();
                                                                     }

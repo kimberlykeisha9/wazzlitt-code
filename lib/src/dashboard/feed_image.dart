@@ -53,7 +53,7 @@ class _FeedImageState extends State<FeedImage> {
     try {
       // Reverse geocode the latitude and longitude
       const String googelApiKey = 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ';
-      final bool isDebugMode = true;
+      const bool isDebugMode = true;
       final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);
       final reversedSearchResults = await api.reverse(
         '${geoPoint.latitude},${geoPoint.longitude}',
@@ -117,7 +117,6 @@ class _FeedImageState extends State<FeedImage> {
             Map<String, dynamic> imageData =
                 snapshot.data!.data() as Map<String, dynamic>;
             return Container(
-              constraints: const BoxConstraints(maxWidth: 400),
               alignment: Alignment.topCenter,
               child: Wrap(
                 direction: Axis.vertical,
@@ -148,7 +147,7 @@ class _FeedImageState extends State<FeedImage> {
                                             return ProfileScreen(
                                                 userProfile: snapshot.data!);
                                           }
-                                          return CircularProgressIndicator();
+                                          return const CircularProgressIndicator();
                                         }),
                                   ),
                                 ),
@@ -167,8 +166,8 @@ class _FeedImageState extends State<FeedImage> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     CircleAvatar(
-                                      foregroundImage: NetworkImage('https://corsproxy.io/?${data[
-                                              'profile_picture']}' ??
+                                      foregroundImage: NetworkImage(data[
+                                              'profile_picture'] ??
                                           'https://corsproxy.io/?https://i.pinimg.com/474x/1e/23/e5/1e23e5e6441ce2c135e1e457dcf4f06f.jpg'),
                                       radius: 20,
                                       child: (data['profile_picture']) != null
@@ -190,7 +189,7 @@ class _FeedImageState extends State<FeedImage> {
                                         const SizedBox(height: 5),
                                         Container(
                                           constraints:
-                                              BoxConstraints(maxWidth: 220),
+                                              const BoxConstraints(maxWidth: 220),
                                           child: FutureBuilder<String>(
                                               future: getLocationFromGeoPoint(
                                                   imageData['location']),
@@ -355,7 +354,7 @@ class _FeedImageState extends State<FeedImage> {
                                       style:
                                           const TextStyle(color: Colors.white)),
                                 )
-                              : SizedBox(),
+                              : const SizedBox(),
                           Row(children: [
                             IconButton(
                               padding: const EdgeInsets.all(0),
@@ -363,7 +362,7 @@ class _FeedImageState extends State<FeedImage> {
                               icon: likeIcon(),
                             ),
                             Text(
-                                '${(imageData['likes'] as List<dynamic>).length ?? 0}',
+                                '${(imageData['likes'] as List<dynamic>).length}',
                                 style: const TextStyle(color: Colors.white)),
                             IconButton(
                               onPressed: () {},

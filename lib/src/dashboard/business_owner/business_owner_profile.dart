@@ -40,11 +40,11 @@ class _BusinessOwnerProfileState extends State<BusinessOwnerProfile> {
             future: getBusinessPlaces,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No businesses available.'));
+                return const Center(child: Text('No businesses available.'));
               } else {
                 final listings = snapshot.data!;
                 return PageView.builder(
@@ -232,7 +232,7 @@ class _BusinessOwnerProfileState extends State<BusinessOwnerProfile> {
                         Service service = listing.services![index];
                         return ListTile(
                           trailing: IconButton(
-                            onPressed: () => /* Service().deleteService(service, placeData) */ null,
+                            onPressed: () {},
                             icon: const Icon(Icons.delete, color: Colors.red),
                           ),
                           leading: Container(

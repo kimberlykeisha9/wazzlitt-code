@@ -25,7 +25,7 @@ class _SettingsState extends State<Settings> {
         appBar: AppBar(
           title: const Text('Settings'),
         ),
-        body: Container(
+        body: SizedBox(
           height: height(context),
           width: width(context),
           child: SafeArea(

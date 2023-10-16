@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
+import 'dart:developer';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../registration/interests.dart';
@@ -34,7 +35,7 @@ class _EditEventState extends State<EditEvent> {
   // Time
   Timestamp? _date;
 
-    // Location predictor
+  // Location predictor
   Prediction? generatedPrediction;
 
   // Images from Network
@@ -53,7 +54,7 @@ class _EditEventState extends State<EditEvent> {
     _formKey = GlobalKey<FormState>();
     // Fill in the text controller values
     WidgetsFlutterBinding.ensureInitialized();
-     getEvent = widget.event?.get();
+    getEvent = widget.event?.get();
     widget.event?.get().then((value) {
       if (value.exists) {
         Map<String, dynamic>? eventData = value.data() as Map<String, dynamic>?;
@@ -252,9 +253,9 @@ class _EditEventState extends State<EditEvent> {
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
                                   GooglePlacesAutoCompleteTextFormField(
-                                    proxyURL: 'https://corsproxy.io/?',
+                                      proxyURL: 'https://corsproxy.io/?',
                                       textEditingController:
-                                      _locationController,
+                                          _locationController,
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return 'Location is required';
@@ -262,35 +263,33 @@ class _EditEventState extends State<EditEvent> {
                                         return null;
                                       },
                                       decoration: const InputDecoration(
-                                        hintText: 'Location',
+                                          hintText: 'Location',
                                           labelText: 'Location'),
-                                      googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
+                                      googleAPIKey:
+                                          "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
                                       debounceTime: 400, // defaults to 600 ms,
-                                      countries: ["us"], // optional, by
+                                      countries: const ["us"], // optional, by
                                       // default the list is empty (no restrictions)
-                                      isLatLngRequired: true, // if you require the coordinates from the place details
+                                      isLatLngRequired:
+                                          true, // if you require the coordinates from the place details
                                       getPlaceDetailWithLatLng: (prediction) {
-                                        if(prediction != null) {
-                                          setState(() {
-                                            generatedPrediction = prediction;
-                                          });
-                                        }
-                                        print("placeDetails" + prediction.lng.toString());
+                                        setState(() {
+                                          generatedPrediction = prediction;
+                                        });
+                                        log("placeDetails${prediction.lng}");
                                       }, // this callback is called when isLatLngRequired is true
                                       itmClick: (prediction) {
-                                        if(prediction != null) {
-                                          setState(() {
-                                            _locationController.text =
-                                            prediction.description!;
-                                            _locationController.selection =
-                                                TextSelection.fromPosition
-                                                  (TextPosition(offset:
-                                                prediction.description!.length));
-                                          });
-                                        }
-                                      }
-                                  ),
-                                 
+                                        setState(() {
+                                          _locationController.text =
+                                              prediction.description!;
+                                          _locationController.selection =
+                                              TextSelection.fromPosition(
+                                                  TextPosition(
+                                                      offset: prediction
+                                                          .description!
+                                                          .length));
+                                        });
+                                      }),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
                                   TextFormField(
@@ -345,21 +344,21 @@ class _EditEventState extends State<EditEvent> {
                                             location: _locationController.text,
                                             category: _selectedChip,
                                             date: _date?.toDate(),
-                                            latitude: double.parse
-                (generatedPrediction!.lat!),
-              longitude: double.parse
-                (generatedPrediction!.lng!),
+                                            latitude: double.parse(
+                                                generatedPrediction!.lat!),
+                                            longitude: double.parse(
+                                                generatedPrediction!.lng!),
                                             description:
                                                 _descriptionController.text,
                                             eventPhoto:
                                                 eventPic ?? networkEventImage,
                                           )
                                           .then((value) =>
-                                              Navigator.popAndPushNamed(context,
-                                                  'dashboard'));
+                                              Navigator.popAndPushNamed(
+                                                  context, 'dashboard'));
                                       dataSendingNotifier.stopLoading();
                                     });
-                                  } on Exception catch (e) {
+                                  } on Exception {
                                     dataSendingNotifier.stopLoading();
                                   }
                                 }

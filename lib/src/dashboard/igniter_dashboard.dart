@@ -1,5 +1,6 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:wazzlitt/src/dashboard/business_owner/business_owner_dashboard.dart';
 import 'package:wazzlitt/src/dashboard/igniter_chats_view.dart';
@@ -9,10 +10,8 @@ import '../../authorization/authorization.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../user_data/igniter_data.dart';
 import '../../user_data/payments.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../app.dart';
 import 'business_owner/business_owner_profile.dart';
-import 'chats_view.dart';
 import 'event_organizer/event_organizer_dashboard.dart';
 import 'event_organizer/event_organizer_profile.dart';
 import 'igniter_drawer.dart';
@@ -89,16 +88,16 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
       onFinish: () async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('watchedIgniterIntro', true);
-        print("finish");
+        log("finish");
       },
       onClickTarget: (target) {
-        print('onClickTarget: $target');
+        log('onClickTarget: $target');
       },
       onSkip: () {
-        print("skip");
+        log("skip");
       },
       onClickOverlay: (target) {
-        print('onClickOverlay: $target');
+        log('onClickOverlay: $target');
       },
     )..show(context: context);
   }
@@ -142,7 +141,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
     return FutureBuilder<Igniter?>(
         future: getIgniterInfo,
         builder: (context, snapshot) {
-          print(snapshot.hasData);
+          log(snapshot.hasData.toString());
           if (snapshot.hasData) {
             Igniter igniter = snapshot.data!;
             bool isFreeTrial = !((igniter.dateCreated ?? DateTime(2000))
@@ -194,8 +193,9 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                   currentIndex: _currentIndex,
                   showSelectedLabels: false,
                   showUnselectedLabels: false,
-                  unselectedItemColor: Colors.white.withOpacity(0.5),
-                  selectedItemColor: Colors.white,
+                  unselectedItemColor:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+                  selectedItemColor: Theme.of(context).colorScheme.onSurface,
                   items: [
                     BottomNavigationBarItem(
                         label: 'Home',
@@ -221,11 +221,11 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
           }
 
           if (!snapshot.hasData) {
-            return Center(
+            return const Center(
                 child: Text(
-                    'Sorry, an error has occured. Please try again in a few minutes'));
+                    'Sorry, an error has occured. Please try again in a few minuconst tes'));
           }
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         });
   }
 
@@ -251,7 +251,7 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
   }
 
   List eventOrganizerView = [
-    EventOrganizerDashboard(),
+    const EventOrganizerDashboard(),
     const IgniterChatsView(chatType: ChatRoomType.business),
     const EventOrganizerProfile()
   ];

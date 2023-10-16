@@ -100,8 +100,6 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
             future: getIgniterInfo,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                Map<String, dynamic>? organizerData =
-                    snapshot.data?.data() as Map<String, dynamic>?;
                 return SafeArea(
                   child: Column(
                     children: [
@@ -322,7 +320,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                                     'dashboard'));
                                       });
                                     dataSendingNotifier.stopLoading();
-                                  } on Exception catch (e) {
+                                  } on Exception {
                                     dataSendingNotifier.stopLoading();
                                   }
                                 }

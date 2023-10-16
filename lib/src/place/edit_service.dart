@@ -80,7 +80,7 @@ class _EditServiceState extends State<EditService> {
                                 )
                                 .then((value) => Navigator.pop(context)));
                         dataSendingNotifier.stopLoading();
-                      } on Exception catch (e) {
+                      } on Exception {
                         dataSendingNotifier.stopLoading();
                       }
                     }
@@ -165,9 +165,6 @@ class _EditServiceState extends State<EditService> {
                 const SizedBox(height: 20),
                 TextFormField(
                   validator: (val) {
-                    if (val == null) {
-                      return 'Please enter a price';
-                    }
                     if (val == null) {
                       return 'Please enter a price';
                     }

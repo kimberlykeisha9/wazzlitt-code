@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
@@ -9,7 +8,6 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../authorization/authorization.dart';
 import '../../user_data/patrone_data.dart';
-import '../../user_data/payments.dart';
 import '../app.dart';
 
 class PatroneRegistration extends StatefulWidget {
@@ -35,8 +33,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
 
   // Images from Network
   String? networkProfile;
-
-  bool _isExistingUser = false;
 
   Future<void> _pickProfilePicture() async {
     final picker = ImagePicker();
@@ -76,7 +72,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
           networkProfile =
               Provider.of<Patrone>(context, listen: false).profilePicture;
           passwordController = TextEditingController();
-          _isExistingUser = true;
         });
       }
     });
@@ -356,7 +351,7 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                                         'Please try again later.'));
                           });
                         dataSendingNotifier.stopLoading();
-                      } on Exception catch (e) {
+                      } on Exception {
                         dataSendingNotifier.stopLoading();
                       }
                     }

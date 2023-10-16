@@ -1,14 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../user_data/user_data.dart';
-import '../../user_data/patrone_data.dart';
+import 'dart:developer';
 import '../app.dart';
 
 class PhoneNumberPrompt extends StatefulWidget {
@@ -16,7 +15,7 @@ class PhoneNumberPrompt extends StatefulWidget {
   final TextEditingController phoneController;
   final PageController pageController;
 
-  PhoneNumberPrompt({
+  const PhoneNumberPrompt({super.key, 
     required this.formKey,
     required this.phoneController,
     required this.pageController,
@@ -29,7 +28,7 @@ class PhoneNumberPrompt extends StatefulWidget {
 class PhoneVerification extends StatefulWidget {
   final PageController pageController;
 
-  PhoneVerification({
+  const PhoneVerification({super.key, 
     required this.pageController,
   });
 
@@ -38,7 +37,7 @@ class PhoneVerification extends StatefulWidget {
 }
 
 class SignUp extends StatefulWidget {
-  SignUp();
+  const SignUp({super.key});
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -62,7 +61,6 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
           child: ZoomIn(
             duration: const Duration(milliseconds: 300),
             child: IntlPhoneField(
-            
               controller: widget.phoneController,
               decoration: InputDecoration(
                 labelText: AppLocalizations.of(context)!.phone,
@@ -206,18 +204,16 @@ class _PhoneVerificationState extends State<PhoneVerification> {
                       .then((value) =>
                           verifyCode(_verificationController.text, value!))
                       .then((value) {
-                        if (value != null) {
-                          Navigator.popAndPushNamed(
-                              context, 'dashboard');
-                        } else {
-                          dataSendingNotifier.stopLoading();
-                          showSnackbar(context,
-                              'Something went wrong. Please try again later');
-                        }
-                    
+                    if (value != null) {
+                      Navigator.popAndPushNamed(context, 'dashboard');
+                    } else {
+                      dataSendingNotifier.stopLoading();
+                      showSnackbar(context,
+                          'Something went wrong. Please try again later');
+                    }
                   });
                   dataSendingNotifier.stopLoading();
-                } on Exception catch (e) {
+                } on Exception {
                   dataSendingNotifier.stopLoading();
                 }
               },
@@ -253,7 +249,7 @@ class _SignUpState extends State<SignUp> {
 
   @override
   Widget build(BuildContext context) {
-    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
+    // final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -284,7 +280,7 @@ class _SignUpState extends State<SignUp> {
     WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
       setState(() {
         if (kDebugMode) {
-          print(_direction);
+          log(_direction.toString());
         }
         _direction = ModalRoute.of(context)!.settings.arguments as String;
       });

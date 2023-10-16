@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:wazzlitt/src/event/edit_event.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import '../../app.dart';
+import 'dart:developer';
 import '../../event/edit_event_organizer.dart';
 
 class EventOrganizerProfile extends StatefulWidget {
@@ -15,7 +16,7 @@ class EventOrganizerProfile extends StatefulWidget {
 class _EventOrganizerProfileState extends State<EventOrganizerProfile> {
   late final Future getOrganizerInfo;
 
-  late final eventOrganizer;
+  late final EventOrganizer eventOrganizer;
 
   @override
   void initState() {
@@ -26,11 +27,9 @@ class _EventOrganizerProfileState extends State<EventOrganizerProfile> {
 
   @override
   Widget build(BuildContext context) {
-    
-
     return SafeArea(
       child: SingleChildScrollView(
-        child: Container(
+        child: SizedBox(
           height: height(context),
           width: width(context),
           child: FutureBuilder<void>(
@@ -40,14 +39,10 @@ class _EventOrganizerProfileState extends State<EventOrganizerProfile> {
                 return Text('Error: ${snapshot.error}');
               } else {
                 final events = eventOrganizer.events;
-                final coverImage = eventOrganizer.coverImage;
                 final organizerName = eventOrganizer.organizerName;
                 final profileImage = eventOrganizer.profileImage;
                 final description = eventOrganizer.description;
-                final website = eventOrganizer.website;
-                final phone = eventOrganizer.phone;
-                final email = eventOrganizer.email;
-                print(events);
+                log(events.toString());
                 return Column(
                   children: [
                     SizedBox(
@@ -123,8 +118,7 @@ class _EventOrganizerProfileState extends State<EventOrganizerProfile> {
                           ),
                           const SizedBox(height: 30),
                           const Text('About Us',
-                              style:
-                                  TextStyle(fontWeight: FontWeight.bold)),
+                              style: TextStyle(fontWeight: FontWeight.bold)),
                           const SizedBox(height: 20),
                           Text(
                             description ?? 'null',

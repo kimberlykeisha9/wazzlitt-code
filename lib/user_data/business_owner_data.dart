@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'order_data.dart' as wz;
@@ -47,6 +46,7 @@ class BusinessOwner extends ChangeNotifier {
           for (Map<String, dynamic> service
               in (placeData['services'] as List<dynamic>)) {
             servicesList.add(Service(
+              map: service,
               available: service['available'],
               title: service['service_name'],
               price: service['price'],
@@ -85,10 +85,10 @@ class BusinessOwner extends ChangeNotifier {
               .forEach((removablePlace) {
             listedBusinesses.remove(removablePlace);
           });
-          print('Removed listing. New value is ${listedBusinesses.length}');
+          log('Removed listing. New value is ${listedBusinesses.length}');
         } else {
           listedBusinesses.add(foundBusinessPlace);
-          print('Added listing. New value is ${listedBusinesses.length}');
+          log('Added listing. New value is ${listedBusinesses.length}');
         }
       }
       return listedBusinesses;
@@ -237,6 +237,7 @@ class Service {
   bool? available;
   String? description;
   int? quantity;
+  Map<String, dynamic>? map;
 
   Service({
     this.title,
@@ -245,6 +246,7 @@ class Service {
     this.available,
     this.description,
     this.quantity,
+    this.map,
   });
 
   Future<void> updateService({
@@ -283,7 +285,7 @@ class Service {
             ]),
           }));
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 
@@ -312,7 +314,7 @@ class Service {
         ]),
       });
     } catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 
@@ -323,7 +325,7 @@ class Service {
         'services': FieldValue.arrayRemove([service]),
       });
     } on Exception catch (e) {
-      print(e);
+      log(e.toString());
     }
   }
 }

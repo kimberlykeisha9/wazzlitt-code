@@ -39,18 +39,18 @@ class _HomeState extends State<Home> {
           children: [
             ZoomIn(
               duration: const Duration(milliseconds: 300),
-              child: Text(
+              child: const Text(
                 'Welcome to',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 16,
                     color: Colors.white),
               ),
             ),
             ZoomIn(
               duration: const Duration(milliseconds: 300),
-              child: Text(
+              child: const Text(
                 'WazzLitt!',
-                style: const TextStyle(
+                style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.white),
@@ -76,7 +76,7 @@ class _HomeState extends State<Home> {
                 width: width(context),
                 child: ElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, 'signup', arguments: ('patrone')),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(FontAwesomeIcons.phone, size: 16),
@@ -96,7 +96,7 @@ class _HomeState extends State<Home> {
                 width: width(context),
                 child: ElevatedButton(
                   onPressed: () => showSnackbar(context, 'Not currently available'),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: 
                     [

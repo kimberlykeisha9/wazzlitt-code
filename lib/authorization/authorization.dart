@@ -28,9 +28,9 @@ bool isGoogleActivated() {
       .any((provider) => provider.providerId == 'google.com');
 
   if (isGoogleLinked) {
-    print('Google is linked to the user\'s account');
+    log('Google is linked to the user\'s account');
   } else {
-    print('Google is not linked to the user\'s account');
+    log('Google is not linked to the user\'s account');
   }
   return isGoogleLinked;
 }
@@ -41,9 +41,9 @@ bool isFacebookActivated() {
       .any((provider) => provider.providerId == 'facebook.com');
 
   if (isFacebookLinked) {
-    print('Facebook is linked to the user\'s account');
+    log('Facebook is linked to the user\'s account');
   } else {
-    print('Facebook is not linked to the user\'s account');
+    log('Facebook is not linked to the user\'s account');
   }
   return isFacebookLinked;
 }

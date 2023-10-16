@@ -1,5 +1,4 @@
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +17,6 @@ class NewTicket extends StatefulWidget {
 
 class _NewTicketState extends State<NewTicket> {
   int available = 0;
-  DateTime? _expiry;
   TextEditingController? _nameController, _descriptionController, _priceController, _expiryDateController;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -56,7 +54,7 @@ class _NewTicketState extends State<NewTicket> {
     ticketName: _nameController?.text, description: _descriptionController?.text, available: available, price: double.parse(_priceController!.text),
   ).then((value) => Navigator.pop(context));
   dataSendingNotifier.stopLoading();
-} on Exception catch (e) {
+} on Exception {
   dataSendingNotifier.stopLoading();
 }
                     }
@@ -91,7 +89,6 @@ class _NewTicketState extends State<NewTicket> {
                       readOnly: true,
                       onTap: () => showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime.now(), lastDate: widget.event.date!).then((value) {
                         setState(() {
-                          _expiry = value;
                           if (value != null) {
                             _expiryDateController!.text = DateFormat('E, dd/MM/yyyy').format(value);
                           }
@@ -118,9 +115,6 @@ class _NewTicketState extends State<NewTicket> {
                     TextFormField(
                       validator: (val) {
                         if (val == null || val.isEmpty) {
-                          return 'Please enter a price';
-                        }
-                        if (val == null) {
                           return 'Please enter a price';
                         }
                         const digitPattern = r'^\d+$';

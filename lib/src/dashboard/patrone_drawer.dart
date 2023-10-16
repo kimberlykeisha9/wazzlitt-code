@@ -25,7 +25,6 @@ class _PatroneDrawerState extends State<PatroneDrawer> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     checkIfIgniterUser().then((igniter) {
       if (igniter == true) {

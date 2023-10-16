@@ -42,7 +42,7 @@ Future<String?> uploadImageToFirebase(File? imageFile, String path) async {
       // Return the download URL
       return downloadURL;
     } catch (e) {
-      print('Error uploading image: $e');
+      log('Error uploading image: $e');
       return null;
     }
   }
@@ -65,7 +65,7 @@ var currentUserIgniterProfile = firestore
     .collection('account_type')
     .doc('igniter');
 
-    Future<bool?> checkIfPatroneUser() async {
+Future<bool?> checkIfPatroneUser() async {
   bool? isPatrone;
   if (auth.currentUser != null) {
     await currentUserProfile.get().then((value) {
@@ -125,14 +125,14 @@ Future<String> getCurrentLocation(DocumentReference userProfile) async {
       GeoPoint? location = userData['current_location']?['geopoint'];
       if (location != null) {
         const String googelApiKey = 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ';
-        final bool isDebugMode = true;
+        const bool isDebugMode = true;
         final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);
         final reversedSearchResults = await api.reverse(
           '${location.latitude},${location.longitude}',
           language: 'en',
         );
-        serverLocation = reversedSearchResults.results.first.addressComponents.first.longName;
-        
+        serverLocation = reversedSearchResults
+            .results.first.addressComponents.first.longName;
       } else {
         serverLocation = 'Not available';
       }

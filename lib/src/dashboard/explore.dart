@@ -1,10 +1,8 @@
 import 'package:animate_do/animate_do.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:intl/intl.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
-import 'package:wazzlitt/src/dashboard/patrone_dashboard.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/src/event/event.dart';
 import 'package:wazzlitt/src/location/location.dart';
@@ -26,7 +24,6 @@ class Explore extends StatefulWidget {
 
 class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   TabController? _exploreController;
-  String _selectedChip = '';
 
   List<Category> categories = [];
 
@@ -182,7 +179,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
     return results;
   }
 
-  List<dynamic> _searchResults = [];
+  final List<dynamic> _searchResults = [];
 
   Future<void> _performSearch(String searchQuery) async {
     _searchResults.clear();
@@ -368,7 +365,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                 child: TabBarView(
                   controller: _exploreController,
                   children: [
-                    LitTab(),
+                    const LitTab(),
                     PlacesTab(categories: categories),
                   ],
                 ),
@@ -380,12 +377,10 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
       ],
     );
   }
-
-  final TextEditingController _searchController = TextEditingController();
 }
 
 class PlacesTab extends StatefulWidget {
-  PlacesTab({
+  const PlacesTab({
     Key? key,
     required this.categories,
   }) : super(key: key);
@@ -425,13 +420,13 @@ class _PlacesTabState extends State<PlacesTab> {
 
   Future<List<BusinessPlace>> getAllPlaces() async {
     try {
-      List<BusinessPlace> _places = [];
+      List<BusinessPlace> placesList = [];
       await firestore.collection('places').get().then((places) {
         for (var place in places.docs) {
-          var placeData = place.data() as Map<String, dynamic>?;
+          var placeData = place.data();
           List<Service>? servicesList = [];
 
-          if (placeData!.containsKey('services')) {
+          if (placeData.containsKey('services')) {
             for (Map<String, dynamic> service
                 in (placeData['services'] as List<dynamic>)) {
               servicesList.add(Service(
@@ -464,21 +459,21 @@ class _PlacesTabState extends State<PlacesTab> {
             services: servicesList,
           );
 
-          if (_places.contains(foundBusinessPlace)) {
-            _places
+          if (placesList.contains(foundBusinessPlace)) {
+            placesList
                 .where((place) =>
                     place.placeReference == foundBusinessPlace.placeReference)
                 .toList()
                 .forEach((removablePlace) {
-              _places.remove(removablePlace);
+              placesList.remove(removablePlace);
             });
           } else {
-            _places.add(foundBusinessPlace);
+            placesList.add(foundBusinessPlace);
           }
         }
       });
 
-      return _places;
+      return placesList;
     } on Exception catch (e) {
       throw Exception(e);
     }
@@ -499,7 +494,7 @@ class _PlacesTabState extends State<PlacesTab> {
             future: getPlacesFromGoogle,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
+                return const Center(
                   child: CircularProgressIndicator(),
                 );
               }
@@ -512,7 +507,7 @@ class _PlacesTabState extends State<PlacesTab> {
                 allPlaces = snapshot.data!;
                 return GridView.builder(
                   shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2),
                   itemCount: allPlaces.length,
                   itemBuilder: (BuildContext context, int index) {
@@ -580,7 +575,7 @@ class _PlacesTabState extends State<PlacesTab> {
 }
 
 class LitTab extends StatefulWidget {
-  LitTab({
+  const LitTab({
     Key? key,
   }) : super(key: key);
 
@@ -609,7 +604,7 @@ class _LitTabState extends State<LitTab> {
               ticketsList.add(Ticket(
                 available: ticket['available'],
                 title: ticket['ticket_name'],
-                price: double.tryParse(ticket['price'].toString() ?? ''),
+                price: double.tryParse(ticket['price'].toString()),
                 image: ticket['image'],
                 description: ticket['ticket_description'],
                 quantity: ticket['quantity'],
@@ -635,7 +630,7 @@ class _LitTabState extends State<LitTab> {
       throw Exception(e);
     }
     // catch (e) {
-    //   print("Error fetching events: $e");
+    //   log("Error fetching events: $e");
     //   throw Exception(e);
     // }
   }
@@ -671,7 +666,7 @@ class _LitTabState extends State<LitTab> {
               Expanded(
                 child: SizedBox(
                   child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2),
                     itemCount: allEvents.length,
                     itemBuilder: (context, index) {

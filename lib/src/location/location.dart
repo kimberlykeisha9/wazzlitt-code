@@ -12,23 +12,22 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
-  final apiUrl = 'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json';
-  final apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
+  const apiUrl =
+      'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json';
+  const apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
 
   BusinessPlace googlePlace = BusinessPlace();
-  final response =
-      await http.get(Uri.parse('$apiUrl?place_id=$placeID&key=$apiKey&fields=name,formatted_address,geometry,website,international_phone_number,photos'));
+  final response = await http.get(Uri.parse(
+      '$apiUrl?place_id=$placeID&key=$apiKey&fields=name,formatted_address,geometry,website,international_phone_number,photos'));
 
-  print(response.statusCode);
+  log(response.statusCode.toString());
 
-  print('Place response is: ${json.decode(response.body)}');
+  log('Place response is: ${json.decode(response.body)}');
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
-    print(data);
+    log(data);
 
-    String imagesURL = 'https://maps.googleapis'
-        '.com/maps/api/place/photo/?key=$apiKey&photo_reference=';
 
     if (data['status'] == 'OK' && data['result'].isNotEmpty) {
       var result = data['result'];
@@ -39,10 +38,10 @@ Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
       final firstPhoto = result['photos']?[0]?['photo_reference'];
       // final secondPhoto = result['photos']?[1]?['photo_reference'];
 
-      print(location);
-      print(streetName);
+      log(location);
+      log(streetName);
       googlePlace = BusinessPlace(
-        googleId: placeID,
+          googleId: placeID,
           phoneNumber: result['international_phone_number'],
           formattedAddress: result['formatted_address'],
           website: result['website'],
@@ -50,86 +49,77 @@ Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
               1,
               1,
               1,
-              (int.tryParse((result['current_opening_hours']?['periods']?[0]
-                          ['open']?['time'])
-                      .toString()
-                      .substring(0, 2)) ??
+              (int.tryParse((result['current_opening_hours']?['periods']?[0]['open']?['time']).toString().substring(0, 2)) ??
                   0),
-              int.tryParse((result['current_opening_hours']?['periods']?[0]
-                          ['open']?['time'])
-                      .toString()
-                      .substring(2)) ??
+              int.tryParse((result['current_opening_hours']?['periods']?[0]['open']?['time']).toString().substring(2)) ??
                   0),
           closingTime: DateTime(
               1,
               1,
               1,
-              (int.tryParse((result['current_opening_hours']?['periods']?[0]
-                          ['close']?['time'])
+              (int.tryParse((result['current_opening_hours']?['periods']?[0]['close']?['time'])
                       .toString()
                       .substring(0, 2)) ??
                   0),
-              int.tryParse((result['current_opening_hours']?['periods']?[0]
-                          ['close']?['time'])
-                      .toString()
-                      .substring(2)) ??
+              int.tryParse((result['current_opening_hours']?['periods']?[0]['close']?['time']).toString().substring(2)) ??
                   0),
-          image: firstPhoto != null ? 
-          'https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
-           : null,
-           coverImage: firstPhoto != null ? 
-          'https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
-           : null,
+          image: firstPhoto != null
+              ? 'https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
+              : null,
+          coverImage: firstPhoto != null
+              ? 'https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
+              : null,
           location: GeoPoint(latitude, longitude),
           placeName: streetName);
       return googlePlace;
     } else {
       // No results found
-      print('No result found');
+      log('No result found');
       return googlePlace;
     }
   } else {
     // Handle HTTP error
-    print('No result found cause of HTTP error');
+    log('No result found cause of HTTP error');
     return googlePlace;
   }
 }
 
 Future<List<BusinessPlace>> searchBuildings(String query) async {
-  final apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
-  final apiUrl = 'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/textsearch/json';
+  const apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
+  const apiUrl =
+      'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/textsearch/json';
 
-  List<BusinessPlace> _results = [];
-  final response =
-      await http.get(Uri.parse('$apiUrl?query=$query&key=$apiKey&maxResults=10&&fields=place_id'));
+  List<BusinessPlace> results = [];
+  final response = await http.get(Uri.parse(
+      '$apiUrl?query=$query&key=$apiKey&maxResults=10&&fields=place_id'));
 
-  print(response.statusCode);
+  log(response.statusCode.toString());
 
-  print('Search response is: ${json.decode(response.body)}');
+  log('Search response is: ${json.decode(response.body)}');
 
   if (response.statusCode == 200) {
     final data = json.decode(response.body);
 
     if (data['status'] == 'OK' && data['results'].isNotEmpty) {
       for (var result in (data['results'] as List<dynamic>)) {
-        print(result['place_id']);
+        log(result['place_id']);
 
         await getPlaceDetailsFromGoogle(result['place_id'])
-            .then((place) => _results.add(place));
+            .then((place) => results.add(place));
       }
-      if (_results.length == 5) {
-                return _results;
-            }
-      return _results;
+      if (results.length == 5) {
+        return results;
+      }
+      return results;
     } else {
       // No results found
-      print('No result found');
-      return _results;
+      log('No result found');
+      return results;
     }
   } else {
     // Handle HTTP error
-    print('No result found cause of HTTP error');
-    return _results;
+    log('No result found cause of HTTP error');
+    return results;
   }
 }
 
@@ -140,10 +130,10 @@ Stream<List<DocumentSnapshot>> getNearbyPeople(
   GeoFirePoint place = geo.point(latitude: latitude, longitude: longitude);
   // Locations of users
   var usersLocations = firestore.collectionGroup('account_type');
-  print(geo
+  log(geo
       .collection(collectionRef: usersLocations)
       .within(center: place, radius: 5, field: 'current_location')
-      .length);
+      .length.toString());
   return geo.collection(collectionRef: usersLocations).within(
       center: place, radius: 5, field: 'current_location', strictMode: true);
 }
@@ -156,14 +146,15 @@ Future<String> getLocationForPlace(DocumentReference place) async {
       GeoPoint? location = placeData['location']['geopoint'];
       if (location != null) {
         const String googelApiKey = 'AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ';
-        final bool isDebugMode = true;
+        const bool isDebugMode = true;
         final api = GoogleGeocodingApi(googelApiKey, isLogged: isDebugMode);
         final reversedSearchResults = await api.reverse(
           '${location.latitude},${location.longitude}',
           language: 'en',
         );
 
-        serverLocation = reversedSearchResults.results.first.addressComponents.first.longName;
+        serverLocation = reversedSearchResults
+            .results.first.addressComponents.first.longName;
       } else {
         serverLocation = 'Not available';
       }
@@ -194,13 +185,13 @@ Future<void> uploadCurrentLocation() async {
       LocationPermission permissionStatus =
           await Geolocator.requestPermission();
       if (permissionStatus == LocationPermission.deniedForever) {
-        print('Location permissions are permanently denied.');
+        log('Location permissions are permanently denied.');
       }
     }
 
     if (locationPermission == LocationPermission.denied ||
         locationPermission == LocationPermission.deniedForever) {
-      print('Location permissions are denied.');
+      log('Location permissions are denied.');
     }
 
     Position position = await Geolocator.getCurrentPosition(
