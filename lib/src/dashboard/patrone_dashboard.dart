@@ -12,7 +12,6 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import '../../user_data/payments.dart';
 import '../app.dart';
 import '../../user_data/patrone_data.dart';
-import 'dart:io';
 import '../location/location.dart';
 import 'chats_view.dart';
 import 'explore.dart';
@@ -261,7 +260,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
     );
   }
 
-  File? _toBeUploaded;
+  var _toBeUploaded;
 
   Widget? floatingButton() {
     switch (_currentIndex) {
@@ -270,7 +269,9 @@ class _PatroneDashboardState extends State<PatroneDashboard>
             backgroundColor: Theme.of(context).colorScheme.primary,
             onPressed: () {
               selectImage().then((image) {
-                _toBeUploaded = image;
+                setState(() {
+                  _toBeUploaded = image;
+                });
                 if (_toBeUploaded != null) {
                   Navigator.push(
                     context,

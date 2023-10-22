@@ -50,6 +50,7 @@ dependencies:
   flutter_stripe: ^9.4.0
   flutter_stripe_web: ^4.4.0
   floating_action_bubble: ^1.1.4
+  google_sign_in: ^6.1.5
 
 dev_dependencies:
   flutter_test:

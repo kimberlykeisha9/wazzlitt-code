@@ -117,6 +117,17 @@ class _DashboardState extends State<Dashboard> {
               }
             } else {
               return Scaffold(
+                appBar: AppBar(
+                  actions: [
+                    TextButton(
+                        onPressed: () {
+                          signOut().then((value) {
+                            Navigator.popAndPushNamed(context, 'home');
+                          });
+                        },
+                        child: Text('Sign out')),
+                  ],
+                ),
                 body: Container(
                   height: height(context),
                   width: width(context),

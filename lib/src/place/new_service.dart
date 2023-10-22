@@ -1,8 +1,7 @@
 import 'dart:io';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/business_owner_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
@@ -20,8 +19,10 @@ class NewService extends StatefulWidget {
 
 class _NewServiceState extends State<NewService> {
   int available = 0;
-  File? _servicePhoto;
-  TextEditingController? _nameController, _descriptionController, _priceController;
+  var _servicePhoto;
+  TextEditingController? _nameController,
+      _descriptionController,
+      _priceController;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -32,16 +33,6 @@ class _NewServiceState extends State<NewService> {
     _priceController = TextEditingController();
   }
 
-  Future<void> _pickServicePhoto() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _servicePhoto = File(pickedImage.path);
-      });
-    }
-  }
   @override
   Widget build(BuildContext context) {
     final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
@@ -49,33 +40,43 @@ class _NewServiceState extends State<NewService> {
         appBar: AppBar(title: const Text('New Service Details'), actions: [
           TextButton(
               onPressed: () {
-                if(_servicePhoto != null) {
-                  if(available == 1 || available == 2) {
+                if (_servicePhoto != null) {
+                  if (available == 1 || available == 2) {
                     if (_formKey.currentState!.validate()) {
                       try {
                         dataSendingNotifier.startLoading();
- if (dataSendingNotifier.isLoading) {
-   showDialog(
-    barrierDismissible: false,
-       context: context,
-    builder: (_) => const Center(
-    child: CircularProgressIndicator()));
- }
+                        if (dataSendingNotifier.isLoading) {
+                          showDialog(
+                              barrierDismissible: false,
+                              context: context,
+                              builder: (_) => const Center(
+                                  child: CircularProgressIndicator()));
+                        }
 
-  uploadImageToFirebase(_servicePhoto!, 'users/${auth.currentUser!.uid}/patrone/services/').then((value) => Service().addNewService(
-    place: widget.place,
-    serviceName: _nameController?.text, description: _descriptionController?.text, image: value, available: available, price: double.parse(_priceController!.text),
-  ).then((value) => Navigator.pop(context)));
-  dataSendingNotifier.stopLoading();
-} on Exception {
-  dataSendingNotifier.stopLoading();
-}
+                        uploadImageToFirebase(_servicePhoto!,
+                                'users/${auth.currentUser!.uid}/patrone/services/')
+                            .then((value) => Service()
+                                .addNewService(
+                                  place: widget.place,
+                                  serviceName: _nameController?.text,
+                                  description: _descriptionController?.text,
+                                  image: value,
+                                  available: available,
+                                  price: double.parse(_priceController!.text),
+                                )
+                                .then((value) => Navigator.pop(context)));
+                        dataSendingNotifier.stopLoading();
+                      } on Exception {
+                        dataSendingNotifier.stopLoading();
+                      }
                     }
                   } else {
-                    showSnackbar(context, 'Please choose if your service is currently available');
+                    showSnackbar(context,
+                        'Please choose if your service is currently available');
                   }
                 } else {
-                  showSnackbar(context, 'Please upload an image for your service');
+                  showSnackbar(
+                      context, 'Please upload an image for your service');
                 }
               },
               child: const Text('Save'))
@@ -88,15 +89,25 @@ class _NewServiceState extends State<NewService> {
             child: SingleChildScrollView(
               child: Column(children: [
                 GestureDetector(
-                  onTap: () => _pickServicePhoto(),
+                  onTap: () {
+                    selectImage().then((value) {
+                      _servicePhoto = value;
+                    });
+                  },
                   child: Container(
                     width: 150,
                     height: 150,
                     decoration: BoxDecoration(
                       color: Colors.grey,
-                      image: _servicePhoto == null ? null : DecorationImage(image:
-                      FileImage(_servicePhoto!), fit: BoxFit.cover,
-                      ),
+                      image: _servicePhoto == null
+                          ? null
+                          : kIsWeb ? DecorationImage(
+                              image: MemoryImage(_servicePhoto!),
+                              fit: BoxFit.cover,
+                            ) :DecorationImage(
+                              image: FileImage(_servicePhoto!),
+                              fit: BoxFit.cover,
+                            ),
                     ),
                   ),
                 ),
@@ -136,7 +147,7 @@ class _NewServiceState extends State<NewService> {
                       return 'Please enter a price';
                     }
                     const digitPattern = r'^\d+$';
-                    if(!RegExp(digitPattern).hasMatch(val)) {
+                    if (!RegExp(digitPattern).hasMatch(val)) {
                       return 'Please enter a digit';
                     }
                     return null;

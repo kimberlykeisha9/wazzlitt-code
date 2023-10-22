@@ -9,12 +9,13 @@ import '../../user_data/user_data.dart';
 import '../app.dart';
 import '../registration/interests.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../user_data/patrone_data.dart';
 
 class UploadImage extends StatefulWidget {
-  const UploadImage({super.key, required this.uploadedImage});
+  UploadImage({super.key, required this.uploadedImage});
 
-  final File uploadedImage;
+ var uploadedImage;
 
   @override
   State<UploadImage> createState() => _UploadImageState();
@@ -177,7 +178,10 @@ class _UploadImageState extends State<UploadImage> {
                               height: 150,
                               decoration: BoxDecoration(
                                 color: Colors.grey,
-                                image: DecorationImage(
+                                image: kIsWeb ? DecorationImage(
+                                  image: MemoryImage(widget.uploadedImage),
+                                  fit: BoxFit.cover,
+                                ) : DecorationImage(
                                   image: FileImage(widget.uploadedImage),
                                   fit: BoxFit.cover,
                                 ),

@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
 import 'package:google_places_autocomplete_text_field/model/prediction.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
@@ -41,7 +41,7 @@ class _EditEventState extends State<EditEvent> {
   // Images from Network
   String? networkEventImage;
   // Local Images
-  File? _localEventImage;
+  var _localEventImage;
 
   // Selected Category
   String? _selectedChip;
@@ -82,17 +82,6 @@ class _EditEventState extends State<EditEvent> {
     });
   }
 
-  Future<void> _pickEventImage() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _localEventImage = File(pickedImage.path);
-      });
-    }
-  }
-
   late final Future<DocumentSnapshot<Object?>>? getEvent;
 
   @override
@@ -125,7 +114,11 @@ class _EditEventState extends State<EditEvent> {
                           width: width(context),
                           child: GestureDetector(
                             onTap: () {
-                              _pickEventImage(); // Function to handle cover photo selection
+                              selectImage().then((value) {
+                                setState(() {
+                                  _localEventImage = value;
+                                });
+                              }); // Function to handle cover photo selection
                             },
                             child: Container(
                               width: width(context),
@@ -138,10 +131,15 @@ class _EditEventState extends State<EditEvent> {
                                         image: NetworkImage(networkEventImage!))
                                     : _localEventImage == null
                                         ? null
-                                        : DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image:
-                                                FileImage(_localEventImage!)),
+                                        : kIsWeb
+                                            ? DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: MemoryImage(
+                                                    _localEventImage!))
+                                            : DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: FileImage(
+                                                    _localEventImage!)),
                               ),
                               child: (_localEventImage != null ||
                                       networkEventImage != null)

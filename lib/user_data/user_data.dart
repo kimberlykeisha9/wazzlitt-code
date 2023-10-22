@@ -13,30 +13,23 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
 Future<dynamic> selectImage() async {
-  // MOBILE
-  if (!kIsWeb) {
-    final ImagePicker picker = ImagePicker();
-    XFile? image = await picker.pickImage(source: ImageSource.gallery);
+  final ImagePicker picker = ImagePicker();
+  XFile? image = await picker.pickImage(source: ImageSource.gallery);
+  if (image != null) {
+    // MOBILE
+    if (!kIsWeb) {
+      var selectedFile = File(image.path);
+      return selectedFile;
+      // WEB
+    } else if (kIsWeb) {
+      var selectedMemoryFile = await image.readAsBytes();
 
-    if (image != null) {
-      var selected = File(image.path);
-      return selected;
-    } else {
-      log("No file selected");
-    }
-  } else if (kIsWeb) {
-    final ImagePicker picker = ImagePicker();
-    XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      var f = await image.readAsBytes();
-
-      return f;
-    } else {
-      log("No file selected");
+      return selectedMemoryFile;
     }
   } else {
-    log("Permission not granted");
+    log("No file selected");
   }
+  return null;
 }
 
 class DataSendingNotifier with ChangeNotifier {
@@ -55,18 +48,22 @@ class DataSendingNotifier with ChangeNotifier {
   }
 }
 
-Future<String?> uploadImageToFirebase(File? imageFile, String path) async {
+Future<String?> uploadImageToFirebase(dynamic imageFile, String path) async {
   if (imageFile != null) {
     try {
       // Create a reference to the Firebase Storage location
       Reference storageReference = FirebaseStorage.instance.ref().child(path);
 
       // Upload the file to Firebase Storage
-      TaskSnapshot uploadTask = await storageReference.putFile(imageFile);
+      TaskSnapshot uploadTask;
+      if (imageFile is File) {
+        uploadTask = await storageReference.putFile(imageFile);
+      } else {
+        uploadTask = await storageReference.putData(imageFile);
+      }
 
       // Get the download URL of the uploaded image
       String downloadURL = await uploadTask.ref.getDownloadURL();
-
       // Return the download URL
       return downloadURL;
     } catch (e) {

@@ -4,9 +4,57 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 
+import 'package:google_sign_in/google_sign_in.dart';
 import '../src/app.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
+
+Future<UserCredential> signInWithGoogleOnMobile() async {
+  try {
+    // Trigger the authentication flow
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    // Obtain the auth details from the request
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
+
+    // Create a new credential
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken,
+    );
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
+  } on FirebaseAuthException catch (e) {
+    log(e.code);
+    log(e.message ?? '');
+    throw Exception(e.message);
+  } catch (e) {
+    log(e.toString());
+    throw Exception(e);
+  }
+}
+
+Future<UserCredential> signInWithGoogleOnWeb() async {
+  try {
+    // Create a new provider
+    GoogleAuthProvider googleProvider = GoogleAuthProvider();
+
+    googleProvider
+        .addScope('email');
+
+    // Once signed in, return the UserCredential
+    return await FirebaseAuth.instance.signInWithPopup(googleProvider);
+  } on FirebaseAuthException catch (e) {
+    log(e.code);
+    log(e.message ?? '');
+    throw Exception(e.message);
+  } catch (e) {
+    log(e.toString());
+    throw Exception(e);
+  }
+}
 
 bool isLoggedIn() {
   return auth.currentUser != null;

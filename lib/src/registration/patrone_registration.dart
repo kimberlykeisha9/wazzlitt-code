@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../authorization/authorization.dart';
 import '../../user_data/patrone_data.dart';
 import '../app.dart';
@@ -29,21 +27,10 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
   String _selectedGender = 'male';
 
   // Local Images
-  File? _profilePicture;
+  dynamic _profilePicture;
 
   // Images from Network
   String? networkProfile;
-
-  Future<void> _pickProfilePicture() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _profilePicture = File(pickedImage.path);
-      });
-    }
-  }
 
   @override
   void initState() {
@@ -103,30 +90,36 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        _pickProfilePicture(); // Function to handle profile picture selection
+                        selectImage().then((value) {
+                          setState(() {
+                            _profilePicture = value;
+                          });
+                        }); // Function to handle profile picture selection
                       },
                       child: Center(
                         child: Container(
-                        width: 100,
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[350],
-                          shape: BoxShape.circle,
-                          image: networkProfile != null
-                              ? DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(networkProfile!))
-                              : _profilePicture == null
-                                  ? null
-                                  : DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: FileImage(_profilePicture!)),
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[350],
+                            shape: BoxShape.circle,
+                            image: networkProfile != null
+                                ? DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(networkProfile!))
+                                : _profilePicture == null
+                                    ? null
+                                    : kIsWeb ? DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: MemoryImage(_profilePicture!)) :DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: FileImage(_profilePicture!)),
+                          ),
+                          child: (_profilePicture != null ||
+                                  networkProfile != null)
+                              ? const SizedBox()
+                              : const Icon(Icons.person),
                         ),
-                        child:
-                            (_profilePicture != null || networkProfile != null)
-                                ? const SizedBox()
-                                : const Icon(Icons.person),
-                      ),
                       ),
                     ),
                   ],
@@ -332,24 +325,24 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                         uploadImageToFirebase(_profilePicture,
                                 'users/${auth.currentUser!.uid}/patrone/profile_picture')
                             .then((profilePic) {
-                            Patrone()
-                                .saveUserPatroneInformation(
-                                  firstName: firstNameController.text,
-                                  lastName: lastNameController.text,
-                                  username: usernameController.text,
-                                  dob: selectedDOB,
-                                  email: emailController.text,
-                                  profilePic: profilePic,
-                                  gender: _selectedGender,
-                                )
-                                .then(
-                                    (value) => Navigator.popAndPushNamed(
-                                        context, 'dashboard'),
-                                    onError: (e) => showSnackbar(
-                                        context,
-                                        'An error has occured. '
-                                        'Please try again later.'));
-                          });
+                          Patrone()
+                              .saveUserPatroneInformation(
+                                firstName: firstNameController.text,
+                                lastName: lastNameController.text,
+                                username: usernameController.text,
+                                dob: selectedDOB,
+                                email: emailController.text,
+                                profilePic: profilePic,
+                                gender: _selectedGender,
+                              )
+                              .then(
+                                  (value) => Navigator.popAndPushNamed(
+                                      context, 'dashboard'),
+                                  onError: (e) => showSnackbar(
+                                      context,
+                                      'An error has occured. '
+                                      'Please try again later.'));
+                        });
                         dataSendingNotifier.stopLoading();
                       } on Exception {
                         dataSendingNotifier.stopLoading();

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
@@ -33,7 +33,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
   // Images from Network
   String? networkProfile;
   // Local Images
-  File? _profilePicture;
+  var _profilePicture;
 
   // Selected Category
   String? _selectedChip;
@@ -73,20 +73,8 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
     });
   }
 
-  Future<void> _pickProfilePicture() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _profilePicture = File(pickedImage.path);
-      });
-    }
-  }
-
-  late final Future<DocumentSnapshot> getIgniterInfo = currentUserIgniterProfile.get();
-
-
+  late final Future<DocumentSnapshot> getIgniterInfo =
+      currentUserIgniterProfile.get();
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +98,11 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                           alignment: Alignment.bottomCenter,
                           child: GestureDetector(
                             onTap: () {
-                              _pickProfilePicture(); // Function to handle profile picture selection
+                              selectImage().then((value) {
+                                setState(() {
+                                  _profilePicture = value;
+                                });
+                              }); // Function to handle profile picture selection
                             },
                             child: Container(
                               width: 100,
@@ -121,14 +113,18 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                 image: networkProfile != null
                                     ? DecorationImage(
                                         fit: BoxFit.cover,
-                                        image:
-                                            NetworkImage(networkProfile!))
+                                        image: NetworkImage(networkProfile!))
                                     : _profilePicture == null
                                         ? null
-                                        : DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: FileImage(
-                                                _profilePicture!)),
+                                        : kIsWeb
+                                            ? DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: MemoryImage(
+                                                    _profilePicture!))
+                                            : DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: FileImage(
+                                                    _profilePicture!)),
                               ),
                               child: (_profilePicture != null ||
                                       networkProfile != null)
@@ -226,8 +222,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                   TextFormField(
                                     controller: _websiteController,
                                     validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                      }
+                                      if (value == null || value.isEmpty) {}
                                       return null;
                                     },
                                     decoration: InputDecoration(
@@ -259,8 +254,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                   TextFormField(
                                     controller: _emailController,
                                     validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                      }
+                                      if (value == null || value.isEmpty) {}
                                       if (!RegExp(
                                               r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                                           .hasMatch(value!)) {
@@ -284,51 +278,45 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                         width: width(context) * 0.8,
                         child: ElevatedButton(
                           onPressed: () async {
-                              if (_selectedChip != null) {
-                                if (_formKey.currentState!.validate()) {
-                                  try {
-                                    dataSendingNotifier.startLoading();
-                                    if (dataSendingNotifier.isLoading) {
-                                      showDialog(
+                            if (_selectedChip != null) {
+                              if (_formKey.currentState!.validate()) {
+                                try {
+                                  dataSendingNotifier.startLoading();
+                                  if (dataSendingNotifier.isLoading) {
+                                    showDialog(
                                         barrierDismissible: false,
-                                          context: context,
-                                          builder: (_) => const Center(
-                                              child:
-                                                  CircularProgressIndicator()));
-                                    }
-                                      uploadImageToFirebase(_profilePicture,
-                                              'users/${auth.currentUser!.uid}/igniter/profile_photo')
-                                          .then((profilePic) {
-                                        EventOrganizer()
-                                            .saveEventOrganizerProfile(
-                                              organizerName:
-                                                  _nameController.text,
-                                              website: _websiteController.text,
-                                              category: _selectedChip,
-                                              description:
-                                                  _descriptionController.text,
-                                              emailAddress:
-                                                  _emailController.text,
-                                              phoneNumber:
-                                                  _phoneController.text,
-                                              profilePhoto:
-                                                  profilePic ?? networkProfile,
-                                            )
-                                            .then((value) =>
-                                                Navigator.popAndPushNamed (
-                                                    context,
-                                                    'dashboard'));
-                                      });
-                                    dataSendingNotifier.stopLoading();
-                                  } on Exception {
-                                    dataSendingNotifier.stopLoading();
+                                        context: context,
+                                        builder: (_) => const Center(
+                                            child:
+                                                CircularProgressIndicator()));
                                   }
+                                  uploadImageToFirebase(_profilePicture,
+                                          'users/${auth.currentUser!.uid}/igniter/profile_photo')
+                                      .then((profilePic) {
+                                    EventOrganizer()
+                                        .saveEventOrganizerProfile(
+                                          organizerName: _nameController.text,
+                                          website: _websiteController.text,
+                                          category: _selectedChip,
+                                          description:
+                                              _descriptionController.text,
+                                          emailAddress: _emailController.text,
+                                          phoneNumber: _phoneController.text,
+                                          profilePhoto:
+                                              profilePic ?? networkProfile,
+                                        )
+                                        .then((value) =>
+                                            Navigator.popAndPushNamed(
+                                                context, 'dashboard'));
+                                  });
+                                  dataSendingNotifier.stopLoading();
+                                } on Exception {
+                                  dataSendingNotifier.stopLoading();
                                 }
-                              } else {
-                                showSnackbar(
-                                    context, 'Please select a category');
                               }
-                            
+                            } else {
+                              showSnackbar(context, 'Please select a category');
+                            }
                           },
                           child: Text(AppLocalizations.of(context)!.save),
                         ),

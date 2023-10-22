@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_places_autocomplete_text_field/google_places_autocomplete_text_field.dart';
 import 'package:google_places_autocomplete_text_field/model/prediction.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:provider/provider.dart';
@@ -51,8 +51,8 @@ class _EditPlaceState extends State<EditPlace> {
   String? networkProfile;
   String? networkCoverPhoto;
   // Local Images
-  File? _coverPhoto;
-  File? _profilePicture;
+  var _coverPhoto;
+  var _profilePicture;
 
   // Establishment Type
   final List<String> dropdownOptions = [
@@ -121,28 +121,6 @@ class _EditPlaceState extends State<EditPlace> {
     });
   }
 
-  Future<void> _pickCoverPhoto() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _coverPhoto = File(pickedImage.path);
-      });
-    }
-  }
-
-  Future<void> _pickProfilePicture() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _profilePicture = File(pickedImage.path);
-      });
-    }
-  }
-
   late final Future<DocumentSnapshot> Function(
       Future<DocumentSnapshot<Object?>>?) getPlace;
 
@@ -177,7 +155,11 @@ class _EditPlaceState extends State<EditPlace> {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                _pickCoverPhoto(); // Function to handle cover photo selection
+                                selectImage().then((value) {
+                                  setState(() {
+                                    _coverPhoto = value;
+                                  });
+                                }); // Function to handle cover photo selection
                               },
                               child: Container(
                                 width: width(context),
@@ -191,7 +173,9 @@ class _EditPlaceState extends State<EditPlace> {
                                               NetworkImage(networkCoverPhoto!))
                                       : _coverPhoto == null
                                           ? null
-                                          : DecorationImage(
+                                          : kIsWeb ? DecorationImage(
+                                              fit: BoxFit.cover,
+                                              image: MemoryImage(_coverPhoto!)) :DecorationImage(
                                               fit: BoxFit.cover,
                                               image: FileImage(_coverPhoto!)),
                                 ),
@@ -206,7 +190,11 @@ class _EditPlaceState extends State<EditPlace> {
                               alignment: Alignment.bottomCenter,
                               child: GestureDetector(
                                 onTap: () {
-                                  _pickProfilePicture(); // Function to handle profile picture selection
+                                  selectImage().then((value) {
+                                  setState(() {
+                                    _profilePicture = value;
+                                  });
+                                }); /// Function to handle profile picture selection
                                 },
                                 child: Container(
                                   width: 100,
@@ -221,7 +209,10 @@ class _EditPlaceState extends State<EditPlace> {
                                                 NetworkImage(networkProfile!))
                                         : _profilePicture == null
                                             ? null
-                                            : DecorationImage(
+                                            : kIsWeb ? DecorationImage(
+                                                fit: BoxFit.cover,
+                                                image: MemoryImage(
+                                                    _profilePicture!)):DecorationImage(
                                                 fit: BoxFit.cover,
                                                 image: FileImage(
                                                     _profilePicture!)),
@@ -483,7 +474,7 @@ class _EditPlaceState extends State<EditPlace> {
                                         setState(() {
                                           generatedPrediction = prediction;
                                         });
-                                                                              log("placeDetails${prediction.lng}");
+                                        log("placeDetails${prediction.lng}");
                                       }, // this callback is called when isLatLngRequired is true
                                       itmClick: (prediction) {
                                         setState(() {
@@ -496,7 +487,7 @@ class _EditPlaceState extends State<EditPlace> {
                                                           .description!
                                                           .length));
                                         });
-                                                                            }),
+                                      }),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
                                   TextFormField(

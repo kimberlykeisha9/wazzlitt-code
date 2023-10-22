@@ -1,8 +1,6 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../authorization/authorization.dart';
@@ -21,7 +19,7 @@ class EditService extends StatefulWidget {
 class _EditServiceState extends State<EditService> {
   int available = 0;
   String? _networkServicePhoto;
-  File? _servicePhoto;
+  var _servicePhoto;
   String? _name, _description, _price;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -33,17 +31,6 @@ class _EditServiceState extends State<EditService> {
     _networkServicePhoto = widget.service.image;
     _description = widget.service.description;
     _price = widget.service.price.toString();
-  }
-
-  Future<void> _pickServicePhoto() async {
-    final picker = ImagePicker();
-    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedImage != null) {
-      setState(() {
-        _servicePhoto = File(pickedImage.path);
-      });
-    }
   }
 
   @override
@@ -103,7 +90,11 @@ class _EditServiceState extends State<EditService> {
             child: SingleChildScrollView(
               child: Column(children: [
                 GestureDetector(
-                  onTap: () => _pickServicePhoto(),
+                  onTap: () {
+                    selectImage().then((value) {
+                      _servicePhoto = value;
+                    });
+                  },
                   child: Container(
                     width: 150,
                     height: 150,
@@ -116,10 +107,15 @@ class _EditServiceState extends State<EditService> {
                             )
                           : _servicePhoto == null
                               ? null
-                              : DecorationImage(
-                                  image: FileImage(_servicePhoto!),
-                                  fit: BoxFit.cover,
-                                ),
+                              : kIsWeb
+                                  ? DecorationImage(
+                                      image: MemoryImage(_servicePhoto!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : DecorationImage(
+                                      image: FileImage(_servicePhoto!),
+                                      fit: BoxFit.cover,
+                                    ),
                     ),
                   ),
                 ),
