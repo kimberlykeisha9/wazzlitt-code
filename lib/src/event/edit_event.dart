@@ -94,9 +94,13 @@ class _EditEventState extends State<EditEvent> {
                   child: const Text('Delete'),
                   onPressed: () {
                     if (widget.event != null) {
-                      widget.event
-                          ?.delete()
-                          .then((value) => Navigator.pop(context));
+                      currentUserIgniterProfile.update({
+                        'events': FieldValue.arrayRemove([widget.event])
+                      }).then((value) {
+                        widget.event
+                            ?.delete()
+                            .then((value) => Navigator.pop(context));
+                      });
                     }
                   })
               : const SizedBox(),
@@ -266,8 +270,6 @@ class _EditEventState extends State<EditEvent> {
                                       googleAPIKey:
                                           "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
                                       debounceTime: 400, // defaults to 600 ms,
-                                      countries: const ["us"], // optional, by
-                                      // default the list is empty (no restrictions)
                                       isLatLngRequired:
                                           true, // if you require the coordinates from the place details
                                       getPlaceDetailWithLatLng: (prediction) {

@@ -41,8 +41,7 @@ Future<UserCredential> signInWithGoogleOnWeb() async {
     // Create a new provider
     GoogleAuthProvider googleProvider = GoogleAuthProvider();
 
-    googleProvider
-        .addScope('email');
+    googleProvider.addScope('email');
 
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithPopup(googleProvider);
@@ -53,6 +52,29 @@ Future<UserCredential> signInWithGoogleOnWeb() async {
   } catch (e) {
     log(e.toString());
     throw Exception(e);
+  }
+}
+
+linkGoogleCredential() async {
+
+  final credential = GoogleAuthProvider.credential(idToken: await auth.currentUser!.getIdToken());
+
+  try {
+    final userCredential =
+        await FirebaseAuth.instance.currentUser?.linkWithCredential(credential);
+    log(userCredential?.additionalUserInfo?.profile?.toString() ?? '');
+  } on FirebaseAuthException catch (e) {
+    log(e.code);
+    log(e.message ?? '');
+  }
+}
+
+unlinkGoogleCredential() async {
+  try {
+    await FirebaseAuth.instance.currentUser?.unlink('google.com');
+  } on FirebaseAuthException catch (e) {
+    log(e.code);
+    log(e.message ?? '');
   }
 }
 

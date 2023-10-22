@@ -219,12 +219,6 @@ class _IgniterDashboardState extends State<IgniterDashboard> {
                   : null,
             );
           }
-
-          if (!snapshot.hasData) {
-            return const Center(
-                child: Text(
-                    'Sorry, an error has occured. Please try again in a few minuconst tes'));
-          }
           return const Center(child: CircularProgressIndicator());
         });
   }

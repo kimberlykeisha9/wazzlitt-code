@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart' show DocumentReference;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wazzlitt/user_data/event_organizer_data.dart';
 import 'package:wazzlitt/user_data/order_data.dart';
 import 'package:wazzlitt/user_data/payments.dart';
@@ -129,10 +131,31 @@ class _EventOrderState extends State<EventOrder> {
                                     children: [
                                       Expanded(
                                         child: GestureDetector(
-                                          onTap: () {
+                                          onTap: () async {
                                             Navigator.of(context).pop();
-                                            showSnackbar(
-                                                context, 'Not configured');
+                                            await widget.event.eventReference!
+                                                .get()
+                                                .then((event) {
+                                              (event.get('lister')
+                                                      as DocumentReference)
+                                                  .get()
+                                                  .then((value) async {
+                                                await getProductPaymentLink(
+                                                        value.get(
+                                                            'stripeAccountID'),
+                                                        _selectedTicket!.map?[
+                                                                'stripeReference']
+                                                            ['id'],
+                                                        1)
+                                                    .then((response) async {
+                                                  await launchUrl(
+                                                      Uri.parse((response)?[
+                                                          'url']),
+                                                      webOnlyWindowName:
+                                                          '_blank');
+                                                });
+                                              });
+                                            });
                                           },
                                           child: const Column(
                                               mainAxisSize: MainAxisSize.min,

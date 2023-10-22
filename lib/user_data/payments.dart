@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../user_data/patrone_data.dart';
@@ -12,6 +11,106 @@ import 'package:url_launcher/url_launcher.dart';
 
 const apiKey = 'sk_test_51N6MV7Aw4gbUiKSOVcDYHBiDM5ibgvUiGZQQ2erLCvrDXerqrJXDY'
     'jhdc33LMfSKXgzf5doGBAtV75AIXK3u3eUw00stk6GUfw';
+
+Future<Map<String, dynamic>?> getProductPaymentLink(
+    String accountId, String priceId, int quantity) async {
+  Map<String, dynamic>? response;
+  try {
+    final Uri url = Uri.parse('https://api.stripe.com/v1/payment_links');
+    var request = await http.post(url, headers: {
+      'Authorization': 'Bearer $apiKey',
+      'Stripe-Account': accountId,
+    }, body: {
+      'line_items[0][price]': priceId,
+      'line_items[0][quantity]': quantity.toString(),
+    });
+    log(request.body);
+    var responseData = jsonDecode(request.body);
+    response = responseData;
+    if (request.statusCode == 200) {
+      return responseData;
+    }
+    return response;
+  } catch (e) {
+    log(e.toString());
+    throw Exception(e);
+  }
+}
+
+Future<Map<String, dynamic>?> addPriceToProduct(
+    DocumentReference product, String accountId, String price) async {
+  Map<String, dynamic>? response;
+  try {
+    await product.get().then((value) async {
+      if (value.exists) {
+        Map<String, dynamic> data = value.data() as Map<String, dynamic>;
+        String? productId = data['stripeReference']?['id'];
+        if (productId != null) {
+          final Uri url = Uri.parse('https://api.stripe.com/v1/prices');
+          var request = await http.post(url, headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Stripe-Account': accountId,
+          }, body: {
+            'currency': 'usd',
+            'product': productId,
+            'unit_amount': ((int.tryParse(price) ?? 0) * 100).toString(),
+          });
+          log(request.body);
+          var responseData = jsonDecode(request.body);
+          response = responseData;
+          if (request.statusCode == 200) {
+            return responseData;
+          }
+          return response;
+        }
+        return response;
+      }
+      return response;
+    });
+    return response;
+  } catch (e) {
+    log(e.toString());
+    throw Exception(e);
+  }
+}
+
+Future<Map<String, dynamic>?> listEventProductOnStripe(
+    String productName, bool? isAvailable, String? description) async {
+  Map<String, dynamic>? response;
+  try {
+    await currentUserProfile.get().then((value) async {
+      if (value.exists) {
+        Map<String, dynamic> data = value.data() as Map<String, dynamic>;
+        String? accountId = data['stripeAccountID'];
+        if (accountId != null) {
+          final Uri url = Uri.parse(
+              'https://corsproxy.io/?https://api.stripe.com/v1/products');
+          var request = await http.post(url, headers: {
+            'Authorization': 'Bearer $apiKey',
+            'Stripe-Account': accountId,
+          }, body: {
+            'name': productName,
+            'active': isAvailable.toString(),
+            'description': description
+          });
+          log(request.body);
+          var responseData = jsonDecode(request.body) as Map<String, dynamic>;
+          if (request.statusCode == 200) {
+            response = responseData;
+            return responseData;
+          }
+          return response;
+        }
+        return response;
+      }
+      return response;
+    });
+    return response;
+  } catch (e) {
+    log(e.toString());
+    throw Exception(e);
+  }
+}
 
 Future<void> launchIgniterSubscription() async {
   String? uid = auth.currentUser!.uid;
@@ -51,21 +150,27 @@ Future<void> launchPatroneSubscription() async {
 
 Future<bool?> checkIfAccountExistsOnStripe() async {
   bool? hasDetails;
-  var pref = await SharedPreferences.getInstance();
-  String? id = pref.getString('accountId');
-  if (id != null) {
-    final request = await http.get(
-        Uri.parse(
-            'https://corsproxy.io/?https://api.stripe.com/v1/accounts/$id'),
-        headers: {
-          'Authorization': 'Bearer $apiKey',
-        });
-    var body = jsonDecode(request.body);
-    hasDetails = body['details_submitted'];
-  } else {
-    hasDetails = false;
-    log('Account ID is empty');
-  }
+  await currentUserProfile.get().then((value) async {
+    if (value.exists) {
+      Map<String, dynamic> data = value.data() as Map<String, dynamic>;
+      var id = data['stripeAccountID'];
+      if (id == null) {
+        hasDetails = false;
+        log('Account ID is empty');
+        return hasDetails;
+      } else {
+        final request = await http.get(
+            Uri.parse(
+                'https://corsproxy.io/?https://api.stripe.com/v1/accounts/$id'),
+            headers: {
+              'Authorization': 'Bearer $apiKey',
+            });
+        var body = jsonDecode(request.body);
+        hasDetails = body['details_submitted'];
+        return hasDetails;
+      }
+    }
+  });
   return hasDetails;
 }
 
@@ -74,7 +179,7 @@ createSellerAccount() async {
     try {
       String? accountID;
       final request = await http.post(
-          Uri.parse('https://corsproxy.io/?://api.stripe.com/v1/accounts'),
+          Uri.parse('https://corsproxy.io/?https://api.stripe.com/v1/accounts'),
           headers: {
             'Authorization': 'Bearer $apiKey',
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -86,9 +191,10 @@ createSellerAccount() async {
       var responseBody = jsonDecode(request.body);
       if (request.statusCode == 200) {
         accountID = responseBody['id'];
-        var pref = await SharedPreferences.getInstance();
         if (accountID != null) {
-          pref.setString('accountId', accountID);
+          await currentUserProfile.update({
+            'stripeAccountID': accountID,
+          });
         }
         log(accountID.toString());
       }
@@ -136,8 +242,7 @@ createSellerAccount() async {
       getAccountLink(account).then((url) async {
         if (url != null) {
           try {
-            await launchUrl(Uri.parse('https://corsproxy.io/?$url'),
-                webOnlyWindowName: '_blank');
+            await launchUrl(Uri.parse(url), webOnlyWindowName: '_blank');
           } catch (e) {
             throw Exception('Could not launch $url because of $e');
           }

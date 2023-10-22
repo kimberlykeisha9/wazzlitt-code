@@ -129,8 +129,6 @@ class _UploadImageState extends State<UploadImage> {
                             hintText: 'Location', labelText: 'Location'),
                         googleAPIKey: "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ",
                         debounceTime: 400, // defaults to 600 ms,
-                        countries: const ["us"], // optional, by
-                        // default the list is empty (no restrictions)
                         isLatLngRequired:
                             true, // if you require the coordinates from the place details
                         getPlaceDetailWithLatLng: (prediction) {

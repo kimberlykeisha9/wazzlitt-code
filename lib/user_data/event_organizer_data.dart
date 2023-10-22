@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/src/location/location.dart';
+import 'package:wazzlitt/user_data/payments.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import 'order_data.dart' as wz;
 
@@ -223,12 +224,19 @@ class EventData {
           uploadLocation(event, latitude!, longitude!);
         });
       } else {
-        await firestore.collection('events').add(eventData).then((newEvent) {
-          currentUserIgniterProfile.update({
-            'events': FieldValue.arrayUnion([newEvent]),
-            'igniter_type': 'event_organizer',
+        await listEventProductOnStripe(eventName!.trim(), true, description)
+            .then((response) async {
+          await firestore
+              .collection('events')
+              .add(eventData)
+              .then((newEvent) async {
+            await newEvent.update({'stripeReference': response});
+            await currentUserIgniterProfile.update({
+              'events': FieldValue.arrayUnion([newEvent]),
+              'igniter_type': 'event_organizer',
+            });
+            uploadLocation(newEvent, latitude!, longitude!);
           });
-          uploadLocation(newEvent, latitude!, longitude!);
         });
       }
     } on FirebaseException catch (e) {
@@ -258,6 +266,18 @@ class Ticket {
   String? description;
   int? quantity;
 
+  // Delete a ticket
+  Future<void> deleteTicket(DocumentReference event, Ticket ticket) async {
+    try {
+      await event.update({
+        'tickets': FieldValue.arrayRemove([ticket.map]),
+      });
+    } on Exception catch (e) {
+      log(e.toString());
+      throw Exception(e);
+    }
+  }
+
   // Adds a new ticket
   Future<void> addNewTicket(
       {required DocumentReference event,
@@ -275,16 +295,25 @@ class Ticket {
     }
 
     try {
-      await event.update({
-        'tickets': FieldValue.arrayUnion([
-          {
-            'ticket_name': ticketName,
-            'ticket_description': description,
-            'expiry_date': expiry,
-            'price': price,
-            'available': isAvailable(),
-          }
-        ]),
+      await currentUserProfile.get().then((value) async {
+        Map<String, dynamic> data = value.data() as Map<String, dynamic>;
+        String? accountID = data['stripeAccountID'];
+        await addPriceToProduct(
+                event, accountID ?? '', price.toString())
+            .then((response) async {
+          await event.update({
+            'tickets': FieldValue.arrayUnion([
+              {
+                'stripeReference': response,
+                'ticket_name': ticketName,
+                'ticket_description': description,
+                'expiry_date': expiry,
+                'price': price,
+                'available': isAvailable(),
+              }
+            ]),
+          });
+        });
       });
     } catch (e) {
       log(e.toString());

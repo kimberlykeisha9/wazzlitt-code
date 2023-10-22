@@ -6,7 +6,6 @@ import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:wazzlitt/src/dashboard/conversation_screen.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../../user_data/payments.dart';

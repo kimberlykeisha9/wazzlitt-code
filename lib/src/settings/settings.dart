@@ -15,10 +15,11 @@ class _SettingsState extends State<Settings> {
   @override
   void initState() {
     super.initState();
-    if(!isLoggedIn()) {
+    if (!isLoggedIn()) {
       Navigator.popAndPushNamed(context, 'home');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -147,7 +148,9 @@ class _SettingsState extends State<Settings> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Facebook'),
-                        Switch(value: isFacebookActivated(), onChanged: (val) => val = true),
+                        Switch(
+                            value: isFacebookActivated(),
+                            onChanged: (val) => val = true),
                       ],
                     ),
                     Row(
@@ -160,15 +163,25 @@ class _SettingsState extends State<Settings> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text('Instagram'),
-                        Switch(value: false, onChanged: (val) => val = true),
+                        const Text('Google'),
+                        Switch(
+                            value: isGoogleActivated(),
+                            onChanged: (val) {
+                              if (!isGoogleActivated()) {
+                                linkGoogleCredential();
+                              } else {
+                                unlinkGoogleCredential();
+                              }
+                            }),
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text('Email'),
-                        Switch(value: isEmailActivated(), onChanged: (val) => val = true),
+                        Switch(
+                            value: isEmailActivated(),
+                            onChanged: (val) => val = true),
                       ],
                     ),
                     const SizedBox(

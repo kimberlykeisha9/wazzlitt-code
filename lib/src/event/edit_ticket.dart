@@ -168,6 +168,17 @@ class _EditTicketState extends State<EditTicket> {
                     const Text('No'),
                   ],
                 ),
+                SizedBox(height: 10),
+                TextButton(
+                  onPressed: () {
+                    Ticket()
+                        .deleteTicket(widget.event, widget.ticket)
+                        .then((value) {
+                      Navigator.pop(context);
+                    });
+                  },
+                  child: const Text('Delete Ticket', style: TextStyle(color: Colors.red),),
+                )
               ]),
             ),
           ),

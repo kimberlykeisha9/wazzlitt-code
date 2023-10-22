@@ -39,6 +39,11 @@ class _HomeState extends State<Home> {
         child: SafeArea(
           child: Column(
             children: [
+              CircleAvatar(
+                radius: 30,
+                foregroundImage: AssetImage('assets/images/logo.jpg'),
+              ),
+              SizedBox(height: 10),
               ZoomIn(
                 duration: const Duration(milliseconds: 300),
                 child: const Text(
