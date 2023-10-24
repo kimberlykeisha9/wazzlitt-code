@@ -81,6 +81,8 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         for (Map<String, dynamic> ticket
             in (eventData['tickets'] as List<dynamic>)) {
           ticketsList.add(Ticket(
+            paymentURL: ticket['paymentLink']['url'],
+            map: ticket,
             available: ticket['available'],
             title: ticket['ticket_name'],
             price: ticket['price'],
@@ -602,6 +604,8 @@ class _LitTabState extends State<LitTab> {
             for (Map<String, dynamic> ticket
                 in (eventData['tickets'] as List<dynamic>)) {
               ticketsList.add(Ticket(
+                paymentURL: ticket['paymentLink']['url'],
+                map: ticket,
                 available: ticket['available'],
                 title: ticket['ticket_name'],
                 price: double.tryParse(ticket['price'].toString()),

@@ -86,6 +86,7 @@ class EventOrganizer extends ChangeNotifier {
                 in (eventData['tickets'] as List<dynamic>)) {
               ticketsList.add(Ticket(
                 map: ticket,
+                paymentURL: ticket['paymentLink']['url'],
                 available: ticket['available'],
                 title: ticket['ticket_name'],
                 price: ticket['price'],
@@ -256,9 +257,11 @@ class Ticket {
       this.available,
       this.description,
       this.map,
+      this.paymentURL,
       this.quantity});
 
   String? title;
+  String? paymentURL;
   Map<String, dynamic>? map;
   double? price;
   String? image;
@@ -298,20 +301,23 @@ class Ticket {
       await currentUserProfile.get().then((value) async {
         Map<String, dynamic> data = value.data() as Map<String, dynamic>;
         String? accountID = data['stripeAccountID'];
-        await addPriceToProduct(
-                event, accountID ?? '', price.toString())
+        await addPriceToProduct(event, accountID ?? '', price.toString())
             .then((response) async {
-          await event.update({
-            'tickets': FieldValue.arrayUnion([
-              {
-                'stripeReference': response,
-                'ticket_name': ticketName,
-                'ticket_description': description,
-                'expiry_date': expiry,
-                'price': price,
-                'available': isAvailable(),
-              }
-            ]),
+          await getProductPaymentLink(accountID!, response!['id'], 1)
+              .then((value) async {
+            await event.update({
+              'tickets': FieldValue.arrayUnion([
+                {
+                  'paymentLink': value,
+                  'stripeReference': response,
+                  'ticket_name': ticketName,
+                  'ticket_description': description,
+                  'expiry_date': expiry,
+                  'price': price,
+                  'available': isAvailable(),
+                }
+              ]),
+            });
           });
         });
       });

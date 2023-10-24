@@ -24,75 +24,9 @@ class _FeedState extends State<Feed> {
 
   GlobalKey key = GlobalKey();
 
-  void initTargets() {
-    void addToTarget(GlobalKey assignedKey, String target, String instruction) {
-      targets.add(
-        TargetFocus(
-          identify: target,
-          keyTarget: assignedKey,
-          color: Colors.red,
-          contents: [
-            TargetContent(
-              align: ContentAlign.bottom,
-              child: SizedBox(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      instruction,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 20.0),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ],
-          shape: ShapeLightFocus.RRect,
-          radius: 5,
-        ),
-      );
-    }
-
-    addToTarget(key, '1', 'Browse the feed');
-  }
-
-  void showTutorial(BuildContext context) {
-    tutorialCoachMark = TutorialCoachMark(
-      targets: targets,
-      colorShadow: Colors.pink,
-      textSkip: "SKIP",
-      paddingFocus: 10,
-      opacityShadow: 0.8,
-      onFinish: () {
-        log("finish");
-      },
-      onClickTarget: (target) {
-        log('onClickTarget: $target');
-      },
-      onSkip: () {
-        log("skip");
-      },
-      onClickOverlay: (target) {
-        log('onClickOverlay: $target');
-      },
-    )..show(context: context);
-  }
-
-  void _layout(BuildContext context) {
-    Future.delayed(const Duration(milliseconds: 100));
-    showTutorial(context);
-  }
 
   @override
   void initState() {
-    initTargets();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _layout(context);
-    });
     super.initState();
   }
 
@@ -103,7 +37,7 @@ class _FeedState extends State<Feed> {
       width: width(context),
       child: StreamBuilder<QuerySnapshot>(
         stream: firestore
-            .collection('feed')
+            .collection('feed').where('image', isNotEqualTo: null)
             .orderBy('date_created', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
@@ -114,14 +48,13 @@ class _FeedState extends State<Feed> {
               height: height(context),
               width: width(context),
               child: ListView.builder(
-                  prototypeItem: Container(),
                   shrinkWrap: true,
                   physics: const BouncingScrollPhysics(),
                   itemCount: feedData.length,
                   itemBuilder: (context, index) {
                     QueryDocumentSnapshot doc = feedData[index];
                     if (snapshot.data!.size > 0) {
-                      return FadeIn(child: FeedImage(snapshot: doc));
+                      return Container(constraints: BoxConstraints(maxHeight: height(context), minHeight: 300) ,child: FeedImage(snapshot: doc));
                     } else {
                       return const Center(
                           child: Text('No images have been posted yet'));
