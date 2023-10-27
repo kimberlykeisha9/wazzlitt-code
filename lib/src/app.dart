@@ -5,6 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wazzlitt/src/dashboard/dashboard.dart';
+import 'package:wazzlitt/src/registration/email.dart';
 import '../authorization/authorization.dart';
 import 'dashboard/igniter_dashboard.dart';
 import 'dashboard/patrone_dashboard.dart';
@@ -106,6 +107,7 @@ class _MyAppState extends State<MyApp> {
                 'confirmed': (context) => const ConfirmedOrder(),
                 'dashboard': (context) => const Dashboard(),
                 'igniter_dashboard': (context) => const IgniterDashboard(),
+                'email': (context) => const EmailSignIn(),
               },
             ),
           );

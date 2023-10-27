@@ -39,7 +39,7 @@ class _HomeState extends State<Home> {
         child: SafeArea(
           child: Column(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 30,
                 foregroundImage: AssetImage('assets/images/logo.jpg'),
               ),
@@ -72,6 +72,28 @@ class _HomeState extends State<Home> {
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Colors.white),
+                ),
+              ),
+              const Spacer(
+                flex: 2,
+              ),
+              ZoomIn(
+                duration: const Duration(milliseconds: 350),
+                child: SizedBox(
+                  width: width(context),
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pushNamed(context, 'email',),
+                    child:  const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.email, size: 16),
+                        SizedBox(width: 10),
+                        Text(
+                          'Sign in with Email',
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
               const Spacer(),

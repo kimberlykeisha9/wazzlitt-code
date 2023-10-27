@@ -37,6 +37,9 @@ class _PlaceState extends State<Place> {
     _initialPosition = LatLng(location.latitude, location.longitude);
   }
 
+  int rating = 3; // Initial rating
+  String comment = '';
+
   void _shareOnFacebook() {
     Share.share('Shared on Facebook');
   }
@@ -105,6 +108,18 @@ class _PlaceState extends State<Place> {
             ),
           ),
           const SizedBox(height: 10),
+          TextButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return RatingDialog(listing: widget.place);
+            },
+          );
+        },
+        child: const Text('Have you been here? Leave a rating'),
+      ),
+      const SizedBox(height: 10),
           Chip(label: Text(widget.place.category ?? 'Unknown')),
           const SizedBox(height: 10),
           Text(
@@ -336,6 +351,73 @@ class _PlaceState extends State<Place> {
           ),
         ),
       ),
+    );
+  }
+}
+
+
+class RatingDialog extends StatefulWidget {
+  const RatingDialog({Key? key, required this.listing}) : super(key: key);
+
+  final BusinessPlace listing;
+
+  @override
+  _RatingDialogState createState() => _RatingDialogState();
+}
+
+class _RatingDialogState extends State<RatingDialog> {
+  int rating = 3; // Initial rating
+  String comment = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return SimpleDialog(
+      contentPadding: const EdgeInsets.all(30),
+      title: const Text('Rate this item (1 - 5):'),
+      children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(5, (index) {
+            final starNumber = index + 1;
+            return InkWell(
+              onTap: () {
+                setState(() {
+                  rating = starNumber;
+                });
+              },
+              child: Icon(
+                starNumber <= rating ? Icons.star : Icons.star_border,
+                size: 40,
+                color: Colors.yellow,
+              ),
+            );
+          }),
+        ),
+        const SizedBox(height: 20),
+        const Text('Add a comment:'),
+        const SizedBox(height: 20),
+        TextFormField(
+          onChanged: (value) {
+            setState(() {
+              comment = value;
+            });
+          },
+          decoration: const InputDecoration(
+            hintText: 'Enter your comment',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () async {
+            await BusinessPlace().addRatingToPlace(listing: widget.listing, rating: rating, comment: comment);
+            print('Rating: $rating');
+            print('Comment: $comment');
+            Navigator.of(context).pop(); // Close the dialog
+          },
+          child: const Text('Submit Rating'),
+        ),
+      ],
     );
   }
 }

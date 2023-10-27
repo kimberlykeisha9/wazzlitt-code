@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:wazzlitt/user_data/patrone_data.dart';
 import 'order_data.dart' as wz;
 
 import '../src/location/location.dart';
@@ -141,6 +142,38 @@ class BusinessPlace {
   String? website;
   List<Service>? services = [];
   List<wz.Order>? orders = [];
+
+  Future<void> addRatingToPlace(
+      {required int rating, required BusinessPlace listing, String? comment}) async {
+        var data = {
+            'ratings': FieldValue.arrayUnion([
+              {
+                'rater': Patrone().currentUserPatroneProfile,
+                'rating': rating,
+                'comment': comment,
+              }
+            ])
+          };
+    if (listing.placeReference != null) {
+      await listing.placeReference!.get().then((value) async {
+        if (value.exists) {
+          await listing.placeReference!.update(data);
+        } else {
+         await  listing.placeReference!.set(data);
+        }
+      });
+    } else if (listing.googleId != null) {
+      firestore.collection('places').doc(listing.googleId).get().then((value) async {
+        if (value.exists) {
+          await firestore.collection('places').doc(listing.googleId).update(data);
+        } else {
+          await firestore.collection('places').doc(listing.googleId).set(data);
+        }
+      });
+    } else {
+      log('Cannot upload rating as there is nothing to update');
+    }
+  }
 
   Future<void> savePlaceProfile({
     DocumentReference? place,

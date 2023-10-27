@@ -38,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           List<dynamic>? followers = currentUser.followers;
           List<dynamic>? interests = currentUser.interests;
           bool? isLit = currentUser.isLit;
-          return SizedBox(
+          return Container(
             height: height(context),
             width: width(context),
             child: SingleChildScrollView(
@@ -64,6 +64,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       height: height(context) * 0.5,
                       constraints: BoxConstraints(
                         maxHeight: height(context),
+                        maxWidth: 750,
                         minHeight: 200,
                       ),
                       child: ActivityTab(
@@ -134,77 +135,80 @@ class _ProfileTabState extends State<ProfileTab> {
       child: Wrap(
         direction: Axis.vertical,
         children: [
-          SizedBox(
+          Container(
             height: 80,
             width: width(context),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    image: widget.profilePhoto != null
-                        ? DecorationImage(
-                            image: NetworkImage(widget.profilePhoto!),
-                            fit: BoxFit.cover)
-                        : null,
-                    color: Colors.grey[800],
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(width: 20),
-                Flexible(
-                  child: Container(
-                    constraints: const BoxConstraints(minWidth: 300),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Column(
-                          children: [
-                            FutureBuilder<List<dynamic>>(
-                                future:
-                                    Patrone().getUserPosts(widget.userProfile),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Text(
-                                        snapshot.data!.length.toString(),
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18));
-                                  }
-                                  return const Text('0',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18));
-                                }),
-                            const Text('Posts', style: TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(widget.followers.length.toString(),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18)),
-                            const Text('Followers',
-                                style: TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                        Column(
-                          children: [
-                            Text(widget.following.length.toString(),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 18)),
-                            const Text('Following',
-                                style: TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                      ],
+            constraints: BoxConstraints(maxWidth: 750),
+            child: Center(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      image: widget.profilePhoto != null
+                          ? DecorationImage(
+                              image: NetworkImage(widget.profilePhoto!),
+                              fit: BoxFit.cover)
+                          : null,
+                      color: Colors.grey[800],
+                      shape: BoxShape.circle,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 20),
+                  Flexible(
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 300),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Column(
+                            children: [
+                              FutureBuilder<List<dynamic>>(
+                                  future:
+                                      Patrone().getUserPosts(widget.userProfile),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      return Text(
+                                          snapshot.data!.length.toString(),
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18));
+                                    }
+                                    return const Text('0',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18));
+                                  }),
+                              const Text('Posts', style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(widget.followers.length.toString(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold, fontSize: 18)),
+                              const Text('Followers',
+                                  style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              Text(widget.following.length.toString(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold, fontSize: 18)),
+                              const Text('Following',
+                                  style: TextStyle(fontSize: 14)),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 20),
@@ -292,117 +296,119 @@ class _ProfileTabState extends State<ProfileTab> {
           Text(widget.bio ?? 'User has not set a bio',
               style: const TextStyle(fontSize: 14)),
           const SizedBox(height: 30),
-          Container(
-            height: 30,
-            constraints: BoxConstraints(maxWidth: width(context) * 0.75),
-            child: Center(
-              child: Row(
-                children: [
-                  Expanded(
-                    flex: 10,
-                    child: SizedBox(
-                      height: 30,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(5)),
-                        onPressed: () => widget.userProfile ==
-                                Patrone().currentUserPatroneProfile
-                            ? Navigator.pushNamed(
-                                context, 'patrone_registration')
-                            : Patrone()
-                                .isFollowingUser(widget.userProfile)
-                                .then((isFollowing) {
-                                isFollowing
-                                    ? Patrone().unfollowUser(widget.userProfile)
-                                    : Patrone().followUser(widget.userProfile);
-                              }),
-                        child: widget.userProfile ==
-                                Patrone().currentUserPatroneProfile
-                            ? const Text('Edit Profile',
-                                style: TextStyle(fontSize: 12))
-                            : FutureBuilder<bool>(
-                                future: isFollowing(Patrone()
-                                    .isFollowingUser(widget.userProfile)),
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Text(
-                                        snapshot.data! ? 'Unfollow' : 'Follow',
-                                        style: const TextStyle(fontSize: 12));
-                                  }
-                                  return const CircularProgressIndicator();
+          Center(
+            child: Container(
+              height: 30,
+              constraints: BoxConstraints(maxWidth: width(context) * 0.9),
+              child: Center(
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 10,
+                      child: SizedBox(
+                        height: 30,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.all(5)),
+                          onPressed: () => widget.userProfile ==
+                                  Patrone().currentUserPatroneProfile
+                              ? Navigator.pushNamed(
+                                  context, 'patrone_registration')
+                              : Patrone()
+                                  .isFollowingUser(widget.userProfile)
+                                  .then((isFollowing) {
+                                  isFollowing
+                                      ? Patrone().unfollowUser(widget.userProfile)
+                                      : Patrone().followUser(widget.userProfile);
                                 }),
+                          child: widget.userProfile ==
+                                  Patrone().currentUserPatroneProfile
+                              ? const Text('Edit Profile',
+                                  style: TextStyle(fontSize: 12))
+                              : FutureBuilder<bool>(
+                                  future: isFollowing(Patrone()
+                                      .isFollowingUser(widget.userProfile)),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      return Text(
+                                          snapshot.data! ? 'Unfollow' : 'Follow',
+                                          style: const TextStyle(fontSize: 12));
+                                    }
+                                    return const CircularProgressIndicator();
+                                  }),
+                        ),
                       ),
                     ),
-                  ),
-                  const Spacer(),
-                  widget.userProfile == Patrone().currentUserPatroneProfile
-                      ? const SizedBox()
-                      : Expanded(
-                          flex: 10,
-                          child: SizedBox(
-                            height: 30,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.all(5)),
-                              onPressed: () {
-                                firestore
-                                    .collection('messages')
-                                    .where('participants', arrayContains: [
-                                      currentUserProfile,
-                                      widget.userProfile.parent.parent
-                                    ])
-                                    .get()
-                                    .then((result) {
-                                      if (result.size == 0) {
-                                        firestore.collection('messages').add({
-                                          'participants': [
-                                            currentUserProfile,
-                                            widget.userProfile.parent.parent
-                                          ],
-                                        }).then((messages) {
+                    const Spacer(),
+                    widget.userProfile == Patrone().currentUserPatroneProfile
+                        ? const SizedBox()
+                        : Expanded(
+                            flex: 10,
+                            child: SizedBox(
+                              height: 30,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.all(5)),
+                                onPressed: () {
+                                  firestore
+                                      .collection('messages')
+                                      .where('participants', arrayContains: [
+                                        currentUserProfile,
+                                        widget.userProfile.parent.parent
+                                      ])
+                                      .get()
+                                      .then((result) {
+                                        if (result.size == 0) {
+                                          firestore.collection('messages').add({
+                                            'participants': [
+                                              currentUserProfile,
+                                              widget.userProfile.parent.parent
+                                            ],
+                                          }).then((messages) {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ConversationScreen(
+                                                  chats: messages,
+                                                ),
+                                              ),
+                                            );
+                                          });
+                                        } else {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   ConversationScreen(
-                                                chats: messages,
+                                                chats: result.docs[0].reference,
                                               ),
                                             ),
                                           );
-                                        });
-                                      } else {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ConversationScreen(
-                                              chats: result.docs[0].reference,
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                    });
-                              },
-                              child: const Text('Message',
-                                  style: TextStyle(fontSize: 12)),
+                                        }
+                                      });
+                                },
+                                child: const Text('Message',
+                                    style: TextStyle(fontSize: 12)),
+                              ),
                             ),
                           ),
+                    const Spacer(),
+                    Expanded(
+                      flex: 10,
+                      child: SizedBox(
+                        height: 30,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.all(5)),
+                          onPressed: () {},
+                          child: const Text('Social Links',
+                              style: TextStyle(fontSize: 12)),
                         ),
-                  const Spacer(),
-                  Expanded(
-                    flex: 10,
-                    child: SizedBox(
-                      height: 30,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.all(5)),
-                        onPressed: () {},
-                        child: const Text('Social Links',
-                            style: TextStyle(fontSize: 12)),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

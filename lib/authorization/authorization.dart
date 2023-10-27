@@ -9,6 +9,63 @@ import '../src/app.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
 
+Future<User?> signInWithEmailPassword(
+    String email, String password, BuildContext context) async {
+  try {
+    UserCredential userCredential = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password);
+
+    return userCredential.user;
+  } catch (e) {
+    log('Error: $e');
+    showSnackbar(context, e.toString());
+    return null;
+  }
+}
+
+Future<bool> checkIfEmailExists(String email) async {
+  try {
+    List<String> signInMethods =
+        await FirebaseAuth.instance.fetchSignInMethodsForEmail(email);
+    return signInMethods.isNotEmpty;
+  } catch (e) {
+    log('Error: $e');
+    return false;
+  }
+}
+
+Future<void> signUpWithEmailPasswordAndLinkGoogle(
+    String email, String password, BuildContext context) async {
+  try {
+    // Step 1: Sign up with email and password
+    UserCredential userCredential = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password);
+
+    User? user = userCredential.user;
+
+    // Step 2: Check for an existing Google credential
+    final googleSignIn = GoogleSignIn();
+    final googleSignInAccount = await googleSignIn.signIn();
+
+    if (googleSignInAccount != null) {
+      final googleSignInAuthentication =
+          await googleSignInAccount.authentication;
+      final googleCredential = GoogleAuthProvider.credential(
+        accessToken: googleSignInAuthentication.accessToken,
+        idToken: googleSignInAuthentication.idToken,
+      );
+
+      // Step 3: Link the Google credential to the user's email account
+      await user?.linkWithCredential(googleCredential);
+    }
+
+    log('User signed up and Google account linked successfully.');
+  } catch (e) {
+    log('Error: $e');
+    showSnackbar(context, e.toString());
+  }
+}
+
 Future<UserCredential> signInWithGoogleOnMobile() async {
   try {
     // Trigger the authentication flow
@@ -56,8 +113,8 @@ Future<UserCredential> signInWithGoogleOnWeb() async {
 }
 
 linkGoogleCredential() async {
-
-  final credential = GoogleAuthProvider.credential(idToken: await auth.currentUser!.getIdToken());
+  final credential = GoogleAuthProvider.credential(
+      idToken: await auth.currentUser!.getIdToken());
 
   try {
     final userCredential =
