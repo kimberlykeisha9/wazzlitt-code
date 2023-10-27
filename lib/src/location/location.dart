@@ -20,7 +20,7 @@ Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
 
     BusinessPlace googlePlace = BusinessPlace();
     final response = await http.get(Uri.parse(
-        '$apiUrl?place_id=$placeID&key=$apiKey&fields=name,formatted_address,geometry,website,international_phone_number,photos'));
+        '$apiUrl?place_id=$placeID&key=$apiKey&fields=name,formatted_address,geometry,website,international_phone_number,photos,types'));
 
     log(response.statusCode.toString());
 
@@ -35,6 +35,7 @@ Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
         final streetName = result['name'];
         final latitude = location['lat'];
         final longitude = location['lng'];
+        final category = ((result['types']?[0] as String?) ?? '').replaceAll(RegExp(r'(\W)'), ' ');
         final firstPhoto = result['photos']?[0]?['photo_reference'];
 
         log(location.toString());
@@ -46,6 +47,7 @@ Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
             result['opening_hours']?['periods']?[0]?['close']?['time'];
 
         googlePlace = BusinessPlace(
+          category: category,
           googleId: placeID,
           phoneNumber: result['international_phone_number'],
           formattedAddress: result['formatted_address'],

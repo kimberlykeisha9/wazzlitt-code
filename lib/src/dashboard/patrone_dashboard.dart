@@ -28,7 +28,7 @@ class PatroneDashboard extends StatefulWidget {
 
 class _PatroneDashboardState extends State<PatroneDashboard>
     with TickerProviderStateMixin {
-  int _currentIndex = 0;
+  int _currentIndex = 1;
   TabController? _exploreController;
 
   Future<bool> hasWatchedTutorial() async {

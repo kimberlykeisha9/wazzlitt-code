@@ -20,12 +20,12 @@ class Patrone extends ChangeNotifier {
     this.patroneReferenceSet,
     this.usernameSet,
     this.phoneNumberSet,
-    this.interestsSet,
     this.createdPostsSet,
     this.followersSet,
     this.followingSet,
     this.isLit,
     this.socials,
+    this.interests,
   });
 
   //Lit Status
@@ -82,8 +82,7 @@ class Patrone extends ChangeNotifier {
   List<Order>? get placedOrders => _placedOrders;
   final List<Order> _placedOrders = [];
   // User's interests
-  List<String>? get interests => interestsSet;
-  List<String>? interestsSet = [];
+  List<dynamic>? interests = [];
   // User followers
   List<Map<String, dynamic>>? get followers => followersSet;
   List<Map<String, dynamic>>? followersSet = [];
@@ -115,6 +114,7 @@ class Patrone extends ChangeNotifier {
             dobSet: (content?['dob'] as db.Timestamp?)?.toDate(),
             usernameSet: content?['username'],
             bioSet: content?['bio'],
+            interests: content?['interests'],
             socials: content?['socials'],
             profilePictureSet: content?['profile_picture'],
             coverPictureSet: content?['cover_photo'],

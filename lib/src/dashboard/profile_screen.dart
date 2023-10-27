@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:wazzlitt/src/registration/interests.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 import 'dart:developer';
@@ -27,7 +28,6 @@ class _ProfileScreenState extends State<ProfileScreen>
         builder: (context, snapshot) {
           var currentUser = widget.userProfile;
           String? coverPhoto = currentUser.coverPicture;
-
           Map<String, dynamic>? socials = currentUser.socials;
           String? profilePhoto = currentUser.profilePicture;
           String? firstName = currentUser.firstName;
@@ -54,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     lastName: lastName,
                     bio: bio,
                     username: username,
-                    interests: interests,
+                    interests: interests ?? [],
                     dob: dob,
                     posts: createdPosts ?? [],
                     userProfile: currentUser.patroneReferenceSet!,
@@ -107,7 +107,7 @@ class ProfileTab extends StatefulWidget {
   final String? lastName;
   final String? username;
   final String? bio;
-  final List? interests;
+  final List<dynamic> interests;
   final DateTime? dob;
   final List<dynamic> posts;
   final List<dynamic> following;
@@ -119,6 +119,12 @@ class ProfileTab extends StatefulWidget {
 }
 
 class _ProfileTabState extends State<ProfileTab> {
+  late List<Category> userCategories = widget.interests.asMap().entries.map((entry) {
+    return Category(
+      display: entry.value['display'],
+      imageLink: entry.value['image'],
+    );
+  }).toList();
   @override
   void initState() {
     super.initState();
@@ -220,6 +226,25 @@ class _ProfileTabState extends State<ProfileTab> {
             ),
           ),
           const SizedBox(height: 20),
+          Row(
+            children: [
+              ...userCategories.map((category) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: Chip(
+                    label: Text(category.display ?? ''),
+                  ),
+                );
+              }).toList(),
+              widget.userProfile == Patrone().currentUserPatroneProfile ? TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, 'interests', arguments: userCategories);
+                },
+                child: const Text('Edit Interests'),
+              ) : const SizedBox.shrink(),
+            ],
+          ),
+          const SizedBox(height: 5),
           Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,7 +461,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                                     title: Text(entry.value),
                                                     onTap: () {
                                                       Navigator.pop(context);
-                                                    updateSocials(context);
+                                                      updateSocials(context);
                                                     },
                                                     leading: entry.key ==
                                                             'instagram'
@@ -451,7 +476,8 @@ class _ProfileTabState extends State<ProfileTab> {
                                                                 .shrink(),
                                                   ),
                                                 );
-                                              }).toList()), ]
+                                              }).toList()),
+                                            ]
                                           : [
                                               SizedBox(
                                                 width: width(context),
@@ -492,75 +518,50 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   void updateSocials(BuildContext context) {
-    if (widget.userProfile ==
-        Patrone()
-            .currentUserPatroneProfile) {
+    if (widget.userProfile == Patrone().currentUserPatroneProfile) {
       showDialog(
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text(
-                  'Add social links'),
+              title: const Text('Add social links'),
               actions: [
                 TextButton(
-                    child: const Text(
-                        'Save'),
-                    onPressed:
-                        () {
+                    child: const Text('Save'),
+                    onPressed: () {
                       Patrone().saveSocials(
-                          instagram: instagramController
-                              .text,
-                          x: xController
-                              .text);
-                      Navigator.pop(
-                          context);
+                          instagram: instagramController.text,
+                          x: xController.text);
+                      Navigator.pop(context);
                     }),
               ],
-              content: Column(
-                  mainAxisSize:
-                      MainAxisSize
-                          .min,
-                  children: [
-                    const Text(
-                        'Add your Instagram and X usernames'),
-                    const SizedBox(
-                        height:
-                            20),
-                    TextField(
-                      controller:
-                          instagramController,
-                      decoration:
-                          const InputDecoration(
-                        prefixIcon:
-                            Icon(FontAwesomeIcons.instagram),
-                        labelText:
-                            'Instagram Username',
-                      ),
-                    ),
-                    const SizedBox(
-                        height:
-                            10),
-                    TextField(
-                      controller:
-                          xController,
-                      decoration:
-                          const InputDecoration(
-                        prefixIcon:
-                            Icon(FontAwesomeIcons.twitter),
-                        labelText:
-                            'X Username',
-                      ),
-                    ),
-                  ]),
+              content: Column(mainAxisSize: MainAxisSize.min, children: [
+                const Text('Add your Instagram and X usernames'),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: instagramController,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(FontAwesomeIcons.instagram),
+                    labelText: 'Instagram Username',
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: xController,
+                  decoration: const InputDecoration(
+                    prefixIcon: Icon(FontAwesomeIcons.twitter),
+                    labelText: 'X Username',
+                  ),
+                ),
+              ]),
             );
           });
     }
   }
-  late final TextEditingController instagramController = TextEditingController(text: widget.socials?['instagram']),
-    xController = TextEditingController(text: widget.socials?['x']);
+
+  late final TextEditingController instagramController =
+          TextEditingController(text: widget.socials?['instagram']),
+      xController = TextEditingController(text: widget.socials?['x']);
 }
-
-
 
 class ActivityTab extends StatelessWidget {
   ActivityTab({

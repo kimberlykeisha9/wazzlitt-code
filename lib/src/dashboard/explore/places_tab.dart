@@ -103,7 +103,7 @@ class _PlacesTabState extends State<PlacesTab> {
   late Future<List<BusinessPlace>> getPlaceFuture = getAllPlaces();
 
   Future<List<BusinessPlace>> getPlacesFromGoogle =
-      searchBuildings('Places near me');
+      searchBuildings('Clubs near me');
 
   Future<List<BusinessPlace>> getAllPlaces() async {
     try {

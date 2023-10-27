@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
@@ -16,9 +18,14 @@ class _InterestsState extends State<Interests> {
   @override
   void initState() {
     super.initState();
+    
     if (!isLoggedIn()) {
       Navigator.popAndPushNamed(context, 'home');
     }
+    WidgetsFlutterBinding.ensureInitialized();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      selectedCategories = ModalRoute.of(context)!.settings.arguments as List<Category>;
+    });
   }
 
   List<Category> selectedCategories = [];
@@ -100,8 +107,8 @@ class _InterestsState extends State<Interests> {
                         } else {
                           Patrone()
                               .saveUserInterests(interests: selectedCategories)
-                              .then((value) => Navigator.pushNamed(
-                                  context, 'patrone_dashboard'));
+                              .then((value) => Navigator.popAndPushNamed(
+                                  context, 'dashboard'));
                         }
                       },
                       child: Text(AppLocalizations.of(context)!.proceed)))
@@ -136,36 +143,36 @@ final List<Category> interestCategories = [
     Category(
       display: 'Afro',
       imageLink:
-          'https://i.pinimg.com/564x/79/45/69/794569fd9485b2094c2e99e524b65d55.jpg',
+          'https://corsproxy.io/?https://i.pinimg.com/564x/79/45/69/794569fd9485b2094c2e99e524b65d55.jpg',
     ),
     Category(
       display: 'Classy',
       imageLink:
-          'https://i.pinimg.com/564x/c5/78/02/c578020e1952e4529ea2e9c0ddc4f6fd.jpg',
+          'https://corsproxy.io/?https://i.pinimg.com/564x/c5/78/02/c578020e1952e4529ea2e9c0ddc4f6fd.jpg',
     ),
     Category(
       display: 'Free Spirit',
       imageLink:
-          'https://i.pinimg.com/564x/c4/8f/79/c48f79162a0139393482af86ca088dfe.jpg',
+          'https://corsproxy.io/?https://i.pinimg.com/564x/c4/8f/79/c48f79162a0139393482af86ca088dfe.jpg',
     ),
     Category(
       display: 'Hood',
       imageLink:
-          'https://i.pinimg.com/564x/c4/2b/2d/c42b2dd945e5a30904bde4d0202474a0.jpg',
+          'https://corsproxy.io/?https://i.pinimg.com/564x/c4/2b/2d/c42b2dd945e5a30904bde4d0202474a0.jpg',
     ),
     Category(
       display: 'Latin',
       imageLink:
-          'https://i.pinimg.com/564x/f2/ba/9e/f2ba9e2dcd225dd0af284b661319f214.jpg',
+          'https://corsproxy.io/?https://i.pinimg.com/564x/f2/ba/9e/f2ba9e2dcd225dd0af284b661319f214.jpg',
     ),
     Category(
       display: 'Pride',
       imageLink:
-          'https://i.pinimg.com/564x/66/e1/04/66e104f2b45f52ded214307d6ed0dcba.jpg',
+          'https://corsproxy.io/?https://i.pinimg.com/564x/66/e1/04/66e104f2b45f52ded214307d6ed0dcba.jpg',
     ),
     Category(
       display: 'Ratchet',
       imageLink:
-          'https://i.pinimg.com/564x/28/f9/91/28f9914e508ecbbf7113dd427c4ff8c3.jpg',
+          'https://corsproxy.io/?https://i.pinimg.com/564x/28/f9/91/28f9914e508ecbbf7113dd427c4ff8c3.jpg',
     ),
   ];
