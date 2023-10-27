@@ -27,6 +27,8 @@ class _ProfileScreenState extends State<ProfileScreen>
         builder: (context, snapshot) {
           var currentUser = widget.userProfile;
           String? coverPhoto = currentUser.coverPicture;
+
+          Map<String, dynamic>? socials = currentUser.socials;
           String? profilePhoto = currentUser.profilePicture;
           String? firstName = currentUser.firstName;
           String? lastName = currentUser.lastName;
@@ -45,6 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: Column(
                 children: [
                   ProfileTab(
+                    socials: socials,
                     coverPhoto: coverPhoto,
                     profilePhoto: profilePhoto,
                     firstName: firstName,
@@ -81,6 +84,7 @@ class ProfileTab extends StatefulWidget {
   const ProfileTab({
     super.key,
     required this.userProfile,
+    required this.socials,
     required this.coverPhoto,
     required this.profilePhoto,
     required this.firstName,
@@ -96,6 +100,7 @@ class ProfileTab extends StatefulWidget {
   });
 
   final DocumentReference userProfile;
+  final Map<String, dynamic>? socials;
   final String? coverPhoto;
   final String? profilePhoto;
   final String? firstName;
@@ -138,7 +143,7 @@ class _ProfileTabState extends State<ProfileTab> {
           Container(
             height: 80,
             width: width(context),
-            constraints: BoxConstraints(maxWidth: 750),
+            constraints: const BoxConstraints(maxWidth: 750),
             child: Center(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -167,8 +172,8 @@ class _ProfileTabState extends State<ProfileTab> {
                           Column(
                             children: [
                               FutureBuilder<List<dynamic>>(
-                                  future:
-                                      Patrone().getUserPosts(widget.userProfile),
+                                  future: Patrone()
+                                      .getUserPosts(widget.userProfile),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData) {
                                       return Text(
@@ -182,14 +187,16 @@ class _ProfileTabState extends State<ProfileTab> {
                                             fontWeight: FontWeight.bold,
                                             fontSize: 18));
                                   }),
-                              const Text('Posts', style: TextStyle(fontSize: 14)),
+                              const Text('Posts',
+                                  style: TextStyle(fontSize: 14)),
                             ],
                           ),
                           Column(
                             children: [
                               Text(widget.followers.length.toString(),
                                   style: const TextStyle(
-                                      fontWeight: FontWeight.bold, fontSize: 18)),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18)),
                               const Text('Followers',
                                   style: TextStyle(fontSize: 14)),
                             ],
@@ -198,7 +205,8 @@ class _ProfileTabState extends State<ProfileTab> {
                             children: [
                               Text(widget.following.length.toString(),
                                   style: const TextStyle(
-                                      fontWeight: FontWeight.bold, fontSize: 18)),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18)),
                               const Text('Following',
                                   style: TextStyle(fontSize: 14)),
                             ],
@@ -318,8 +326,10 @@ class _ProfileTabState extends State<ProfileTab> {
                                   .isFollowingUser(widget.userProfile)
                                   .then((isFollowing) {
                                   isFollowing
-                                      ? Patrone().unfollowUser(widget.userProfile)
-                                      : Patrone().followUser(widget.userProfile);
+                                      ? Patrone()
+                                          .unfollowUser(widget.userProfile)
+                                      : Patrone()
+                                          .followUser(widget.userProfile);
                                 }),
                           child: widget.userProfile ==
                                   Patrone().currentUserPatroneProfile
@@ -331,7 +341,9 @@ class _ProfileTabState extends State<ProfileTab> {
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData) {
                                       return Text(
-                                          snapshot.data! ? 'Unfollow' : 'Follow',
+                                          snapshot.data!
+                                              ? 'Unfollow'
+                                              : 'Follow',
                                           style: const TextStyle(fontSize: 12));
                                     }
                                     return const CircularProgressIndicator();
@@ -401,7 +413,69 @@ class _ProfileTabState extends State<ProfileTab> {
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.all(5)),
-                          onPressed: () {},
+                          onPressed: () {
+                            showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return Container(
+                                    constraints: BoxConstraints(
+                                      maxWidth: width(context),
+                                      maxHeight: height(context) * 0.5,
+                                    ),
+                                    child: Wrap(
+                                      direction: Axis.vertical,
+                                      children: (widget.socials?.length ?? 0) >
+                                              0
+                                          ? [
+                                              ...((widget.socials ?? {})
+                                                  .entries
+                                                  .map((entry) {
+                                                return SizedBox(
+                                                  width: width(context),
+                                                  child: ListTile(
+                                                    title: Text(entry.value),
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                    updateSocials(context);
+                                                    },
+                                                    leading: entry.key ==
+                                                            'instagram'
+                                                        ? const Icon(
+                                                            FontAwesomeIcons
+                                                                .instagram)
+                                                        : entry.key == "x"
+                                                            ? const Icon(
+                                                                FontAwesomeIcons
+                                                                    .twitter)
+                                                            : const SizedBox
+                                                                .shrink(),
+                                                  ),
+                                                );
+                                              }).toList()), ]
+                                          : [
+                                              SizedBox(
+                                                width: width(context),
+                                                child: ListTile(
+                                                  title: const Text(
+                                                      'No social links available'),
+                                                  subtitle: widget
+                                                              .userProfile ==
+                                                          Patrone()
+                                                              .currentUserPatroneProfile
+                                                      ? const Text(
+                                                          'Tap to add social media link')
+                                                      : null,
+                                                  onTap: () {
+                                                    Navigator.pop(context);
+                                                    updateSocials(context);
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                    ),
+                                  );
+                                });
+                          },
                           child: const Text('Social Links',
                               style: TextStyle(fontSize: 12)),
                         ),
@@ -416,7 +490,77 @@ class _ProfileTabState extends State<ProfileTab> {
       ),
     );
   }
+
+  void updateSocials(BuildContext context) {
+    if (widget.userProfile ==
+        Patrone()
+            .currentUserPatroneProfile) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text(
+                  'Add social links'),
+              actions: [
+                TextButton(
+                    child: const Text(
+                        'Save'),
+                    onPressed:
+                        () {
+                      Patrone().saveSocials(
+                          instagram: instagramController
+                              .text,
+                          x: xController
+                              .text);
+                      Navigator.pop(
+                          context);
+                    }),
+              ],
+              content: Column(
+                  mainAxisSize:
+                      MainAxisSize
+                          .min,
+                  children: [
+                    const Text(
+                        'Add your Instagram and X usernames'),
+                    const SizedBox(
+                        height:
+                            20),
+                    TextField(
+                      controller:
+                          instagramController,
+                      decoration:
+                          const InputDecoration(
+                        prefixIcon:
+                            Icon(FontAwesomeIcons.instagram),
+                        labelText:
+                            'Instagram Username',
+                      ),
+                    ),
+                    const SizedBox(
+                        height:
+                            10),
+                    TextField(
+                      controller:
+                          xController,
+                      decoration:
+                          const InputDecoration(
+                        prefixIcon:
+                            Icon(FontAwesomeIcons.twitter),
+                        labelText:
+                            'X Username',
+                      ),
+                    ),
+                  ]),
+            );
+          });
+    }
+  }
+  late final TextEditingController instagramController = TextEditingController(text: widget.socials?['instagram']),
+    xController = TextEditingController(text: widget.socials?['x']);
 }
+
+
 
 class ActivityTab extends StatelessWidget {
   ActivityTab({

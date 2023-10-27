@@ -25,6 +25,7 @@ class Patrone extends ChangeNotifier {
     this.followersSet,
     this.followingSet,
     this.isLit,
+    this.socials,
   });
 
   //Lit Status
@@ -89,6 +90,7 @@ class Patrone extends ChangeNotifier {
   // User following
   List<dynamic>? get following => followingSet;
   List<dynamic>? followingSet = [];
+  Map<String, dynamic>? socials;
 
   // User patrone reference
   db.DocumentReference currentUserPatroneProfile = firestore
@@ -113,6 +115,7 @@ class Patrone extends ChangeNotifier {
             dobSet: (content?['dob'] as db.Timestamp?)?.toDate(),
             usernameSet: content?['username'],
             bioSet: content?['bio'],
+            socials: content?['socials'],
             profilePictureSet: content?['profile_picture'],
             coverPictureSet: content?['cover_photo'],
             genderSet: content?['gender'],
@@ -239,6 +242,16 @@ class Patrone extends ChangeNotifier {
           }
           notifyListeners();
         });
+      }
+    });
+  }
+
+  // Save User Socials
+  Future<void> saveSocials({String? instagram, String? x}) async {
+    await currentUserPatroneProfile.update({
+      'socials': {
+        'instagram': instagram,
+        'x': x,
       }
     });
   }
