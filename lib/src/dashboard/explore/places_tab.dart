@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/src/location/location.dart';
 import 'package:wazzlitt/src/place/place.dart';
 import 'package:wazzlitt/src/registration/interests.dart';
 import 'package:wazzlitt/user_data/business_owner_data.dart';
+import 'package:wazzlitt/user_data/patrone_data.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 
 class PlacesTab extends StatefulWidget {
@@ -33,7 +38,62 @@ class _PlacesTabState extends State<PlacesTab> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Place(place: placeData),
+        builder: (context) => StreamBuilder<List<DocumentSnapshot<Object?>>>(
+            stream: getNearbyPeople(
+                placeData.location!.latitude, placeData.location!.longitude),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                Set<Marker> newMarkers = {};
+                if (snapshot.hasData) {
+                  for (var patrone in snapshot.data!) {
+                    Map<String, dynamic> data =
+                        patrone.data() as Map<String, dynamic>;
+                    log(data.toString());
+                    GeoPoint location = data['current_location']['geopoint'];
+
+                    newMarkers.add(
+                      Marker(
+                          icon: BitmapDescriptor.defaultMarkerWithHue(
+                              BitmapDescriptor.hueAzure),
+                          infoWindow: InfoWindow(title: data['username']),
+                          position:
+                              LatLng(location.latitude, location.longitude),
+                          markerId:
+                              MarkerId(patrone.reference.parent.parent!.id),
+                          onTap: () {
+                            Patrone()
+                                .getPatroneInformation(patrone.reference)
+                                .then((value) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Scaffold(
+                                    appBar: AppBar(
+                                        title: Text(value.usernameSet ?? '')),
+                                    body: ProfileScreen(
+                                      userProfile: value,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            });
+                          }),
+                    );
+                  }
+                }
+                return Place(
+                  place: placeData,
+                  patroneMarkers: newMarkers,
+                  patronesAround: snapshot.data!.length,
+                );
+              } else {
+                return Place(
+                  place: placeData,
+                  patroneMarkers: const {},
+                  patronesAround: snapshot.data?.length ?? 0,
+                );
+              }
+            }),
       ),
     );
   }
@@ -134,7 +194,6 @@ class _PlacesTabState extends State<PlacesTab> {
                   itemCount: allPlaces.length,
                   itemBuilder: (BuildContext context, int index) {
                     final place = allPlaces[index];
-
                     return GestureDetector(
                       onTap: () => _navigateToPlace(context, place),
                       child: Container(

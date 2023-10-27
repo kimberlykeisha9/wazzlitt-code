@@ -111,7 +111,7 @@ class _FeedImageState extends State<FeedImage> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(maxHeight: height(context)),
+      constraints: BoxConstraints(maxHeight: height(context) * 0.9),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -208,7 +208,7 @@ class _FeedImageState extends State<FeedImage> {
                                                           FontWeight.bold)),
                                               const SizedBox(height: 5),
                                               Container(
-                                                width: width(context) *0.75,
+                                                width: width(context) * 0.75,
                                                 constraints:
                                                     const BoxConstraints(
                                                         maxWidth: 300),
@@ -372,9 +372,10 @@ class _FeedImageState extends State<FeedImage> {
                                 }
                               }),
                           Container(
+                              width: width(context),
                               constraints: BoxConstraints(
                                   maxHeight: height(context) * 0.6,
-                                  minWidth: width(context)),
+                                  maxWidth: 500),
                               child: Image.network(imageData['image'],
                                   fit: BoxFit.fitWidth)),
                           const SizedBox(height: 10),
@@ -386,15 +387,16 @@ class _FeedImageState extends State<FeedImage> {
                                 // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  ((imageData['caption'] == null) || (imageData['caption'] == ""))
-                                      ? const SizedBox.shrink() : Flexible(
+                                  ((imageData['caption'] == null) ||
+                                          (imageData['caption'] == ""))
+                                      ? const SizedBox.shrink()
+                                      : Flexible(
                                           child: Text(
                                               (imageData['caption']
-                                                      as String?)!,
+                                                  as String?)!,
                                               style: const TextStyle(
                                                   color: Colors.white)),
-                                        )
-                                      ,
+                                        ),
                                   Row(children: [
                                     IconButton(
                                       padding: const EdgeInsets.all(0),

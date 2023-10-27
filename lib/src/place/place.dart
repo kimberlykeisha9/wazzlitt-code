@@ -14,9 +14,12 @@ import '../app.dart';
 import 'dart:developer';
 
 class Place extends StatefulWidget {
-  const Place({Key? key, required this.place}) : super(key: key);
+  const Place({Key? key, required this.place, required this.patroneMarkers, required this.patronesAround}) : super(key: key);
 
   final BusinessPlace place;
+  final Set<Marker> patroneMarkers;
+  final int patronesAround;
+
 
   @override
   State<Place> createState() => _PlaceState();
@@ -27,15 +30,11 @@ class _PlaceState extends State<Place> {
 
   static LatLng _initialPosition = const LatLng(37.7749, -122.4194);
 
-  late final Stream<List<DocumentSnapshot>> getPeople;
-
   @override
   void initState() {
     super.initState();
     GeoPoint location = widget.place.location ?? const GeoPoint(0, 0);
     _initialPosition = LatLng(location.latitude, location.longitude);
-    getPeople =
-        getNearbyPeople(_initialPosition.latitude, _initialPosition.longitude);
   }
 
   void _shareOnFacebook() {
@@ -45,8 +44,6 @@ class _PlaceState extends State<Place> {
   void _shareOnTwitter() {
     Share.share('Shared on Twitter');
   }
-
-  Set<Marker> patroneMarkers = {};
 
   Widget _buildHeader() {
     return SizedBox(
@@ -114,17 +111,9 @@ class _PlaceState extends State<Place> {
             'Open - ${DateFormat('hh:mm a').format(widget.place.openingTime ?? DateTime(0, 0, 0, 0, 0))} to ${DateFormat('hh:mm a').format(widget.place.closingTime ?? DateTime(0, 0, 0, 0, 0))}',
           ),
           const SizedBox(height: 5),
-          StreamBuilder<List<DocumentSnapshot>>(
-            stream: getPeople,
-            builder: (context, snapshot) {
-              final patroneCount = snapshot.data?.length ?? 0;
-
-              return Text(
-                '$patroneCount Patrones around here',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              );
-            },
-          ),
+          Text(
+                '${widget.patronesAround} Patrons around here',
+                style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 30),
           Row(
             children: [
@@ -278,67 +267,20 @@ class _PlaceState extends State<Place> {
   }
 
   Widget _buildMap() {
-    return Container(
-      width: width(context),
-      height: 250,
-      color: Colors.grey,
-      child: StreamBuilder(
-          stream: getPeople,
-          builder: (context, snapshot) {
-            Set<Marker> newMarkers = {};
-            if (snapshot.hasData) {
-              for (var patrone in snapshot.data!) {
-                Map<String, dynamic> data =
-                    patrone.data() as Map<String, dynamic>;
-                log(data.toString());
-                GeoPoint location = data['current_location']['geopoint'];
-                newMarkers.add(
-                  Marker(
-                      icon: BitmapDescriptor.defaultMarkerWithHue(
-                          BitmapDescriptor.hueBlue),
-                      infoWindow: InfoWindow(title: data['username']),
-                      position: LatLng(location.latitude, location.longitude),
-                      markerId: MarkerId(patrone.reference.parent.parent!.id),
-                      onTap: () {
-                        Patrone()
-                            .getPatroneInformation(patrone.reference)
-                            .then((value) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Scaffold(
-                                appBar: AppBar(
-                                    title: Text(value.usernameSet ?? '')),
-                                body: ProfileScreen(
-                                  userProfile: value,
-                                ),
-                              ),
-                            ),
-                          );
-                        });
-                      }),
-                );
-              }
-            }
-            return GoogleMap(
-              onTap: (val) {
-                newMarkers.toSet();
-              },
-              markers: newMarkers,
-              initialCameraPosition:
-                  CameraPosition(target: _initialPosition, zoom: 12),
-              onMapCreated: (controller) {
-                mapController = controller;
-                newMarkers.add(
-                  Marker(
-                      markerId: const MarkerId('place'),
-                      position: _initialPosition),
-                );
-              },
-            );
-          }),
-    );
-  }
+  return Container(
+    width: width(context),
+    height: 250,
+    color: Colors.grey,
+    child: GoogleMap(
+      markers: {Marker(markerId: const MarkerId('place'), position: _initialPosition), ...widget.patroneMarkers},
+      initialCameraPosition: CameraPosition(target: _initialPosition, zoom: 12),
+      onMapCreated: (controller) {
+        mapController = controller;
+      },
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {

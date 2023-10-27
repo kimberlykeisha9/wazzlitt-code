@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/src/event/event.dart';
@@ -42,7 +43,61 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Place(place: placeData),
+        builder: (context) => StreamBuilder<List<DocumentSnapshot<Object?>>>(
+            stream: getNearbyPeople(
+                placeData.location!.latitude, placeData.location!.longitude),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                Set<Marker> newMarkers = {};
+                if (snapshot.hasData) {
+                  for (var patrone in snapshot.data!) {
+                    Map<String, dynamic> data =
+                        patrone.data() as Map<String, dynamic>;
+                    log(data.toString());
+                    GeoPoint location = data['current_location']['geopoint'];
+                    
+                      newMarkers.add(
+                        Marker(
+                            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+                            infoWindow: InfoWindow(title: data['username']),
+                            position:
+                                LatLng(location.latitude, location.longitude),
+                            markerId:
+                                MarkerId(patrone.reference.parent.parent!.id),
+                            onTap: () {
+                              Patrone()
+                                  .getPatroneInformation(patrone.reference)
+                                  .then((value) {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Scaffold(
+                                      appBar: AppBar(
+                                          title: Text(value.usernameSet ?? '')),
+                                      body: ProfileScreen(
+                                        userProfile: value,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              });
+                            }),
+                      );
+                  }
+                }
+                return Place(
+                  place: placeData,
+                  patroneMarkers: newMarkers,
+                  patronesAround: snapshot.data!.length,
+                );
+              } else {
+                return Place(
+                  place: placeData,
+                  patroneMarkers: const {},
+                  patronesAround: snapshot.data?.length ?? 0,
+                );
+              }
+            }),
       ),
     );
   }
@@ -192,8 +247,9 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
             setState(() {
               _searchResults.addAll(people);
             });
-            List <BusinessPlace> anyResult = await searchBuildings(searchQuery);
-            await searchBuildings(searchQuery).timeout(const Duration(seconds: 5), onTimeout: () {
+            List<BusinessPlace> anyResult = await searchBuildings(searchQuery);
+            await searchBuildings(searchQuery)
+                .timeout(const Duration(seconds: 5), onTimeout: () {
               return anyResult;
             }).then((googleSearch) {
               setState(() {
@@ -250,20 +306,16 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   }
 
   Widget _buildSearchBar(BuildContext context, Function(String) searchQuery) {
-    final isPortrait =
-        MediaQuery.of(context).orientation == Orientation.portrait;
-
     return FloatingSearchBar(
-      initiallyHidden: true,
       hint: 'Search...',
       automaticallyImplyDrawerHamburger: false,
       scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
       transitionDuration: const Duration(milliseconds: 800),
       transitionCurve: Curves.easeInOut,
       physics: const BouncingScrollPhysics(),
-      axisAlignment: isPortrait ? 0.0 : -1.0,
+      axisAlignment: 0.0,
       openAxisAlignment: 0.0,
-      width: isPortrait ? 600 : 500,
+      width: width(context) * 0.9,
       debounceDelay: const Duration(milliseconds: 500),
       onQueryChanged: searchQuery,
       transition: CircularFloatingSearchBarTransition(),

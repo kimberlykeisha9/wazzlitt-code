@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_geocoding_api/google_geocoding_api.dart';
 
@@ -47,6 +48,18 @@ class DataSendingNotifier with ChangeNotifier {
     notifyListeners();
   }
 }
+
+void downloadImage(String imageUrl, Function(Uint8List) onSuccess, Function(dynamic) onError) {
+    http.get(Uri.parse(imageUrl)).then((response) {
+      if (response.statusCode == 200) {
+        onSuccess(Uint8List.fromList(response.bodyBytes));
+      } else {
+        onError('Failed to download image');
+      }
+    }).catchError((error) {
+      onError(error);
+    });
+  }
 
 Future<String?> uploadImageToFirebase(dynamic imageFile, String path) async {
   if (imageFile != null) {
