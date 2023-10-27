@@ -38,6 +38,8 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
   // Selected Category
   String? _selectedChip;
 
+  String selectedCategory = eventOrganizerCategories[0];
+
   List<Category> categories = Category().categories;
 
   @override
@@ -152,6 +154,21 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                   ),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
+                                  DropdownButtonFormField<String>(
+                                    value: selectedCategory,
+                                    items: eventOrganizerCategories
+                                        .map((String category) {
+                                      return DropdownMenuItem<String>(
+                                        value: category,
+                                        child: Text(category),
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newCategory) {
+                                      setState(() {
+                                        selectedCategory = newCategory ?? '';
+                                      });
+                                    },
+                                  ),
                                   const Padding(
                                       padding: EdgeInsets.only(top: 15)),
                                   Text(
@@ -281,6 +298,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                     EventOrganizer()
                                         .saveEventOrganizerProfile(
                                           organizerName: _nameController.text,
+                                          organizerCategory: selectedCategory,
                                           website: _websiteController.text,
                                           category: _selectedChip,
                                           description:

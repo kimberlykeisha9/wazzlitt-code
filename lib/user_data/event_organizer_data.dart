@@ -7,6 +7,14 @@ import 'package:wazzlitt/user_data/payments.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import 'order_data.dart' as wz;
 
+List<String> eventOrganizerCategories = [
+  'Event Organizer',
+  'Dancer',
+  'Rapper',
+  'Singer',
+  'Entertainer',
+];
+
 class EventOrganizer extends ChangeNotifier {
   List<EventData>? get events => _events;
   List<EventData> _events = [];
@@ -134,10 +142,11 @@ class EventOrganizer extends ChangeNotifier {
 
   // Saves Event Organizer Profile
   Future<void> saveEventOrganizerProfile({
-    String? organizerName,
+    required String? organizerCategory,
+    required String? organizerName,
     String? website,
-    String? category,
-    String? description,
+    required String? category,
+    required String? description,
     String? emailAddress,
     String? phoneNumber,
     String? profilePhoto,
@@ -146,6 +155,7 @@ class EventOrganizer extends ChangeNotifier {
     try {
       Map<String, dynamic> organizerData = {
         'organizer_name': organizerName?.trim(),
+        'organizer_category': organizerCategory,
         'website': website,
         'igniter_type': 'event_organizer',
         'category': category,

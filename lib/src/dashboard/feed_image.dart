@@ -287,7 +287,6 @@ class _FeedImageState extends State<FeedImage> {
                                                                       const InputDecoration(
                                                                     labelText:
                                                                         'Reason for Report',
-                                                                    // border: OutlineInputBorder(),
                                                                   ),
                                                                   items: const [
                                                                     DropdownMenuItem(
