@@ -149,8 +149,16 @@ class _PatroneDashboardState extends State<PatroneDashboard>
         tabController: _exploreController!,
       ),
       const ChatsView(chatType: ChatRoomType.individual),
-      ProfileScreen(
-        userProfile: Provider.of<Patrone>(context),
+      FutureBuilder<Patrone>(
+        future: Patrone().getPatroneInformation(Patrone().currentUserPatroneProfile),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ProfileScreen(
+            userProfile: snapshot.data!,
+          );
+          }
+          return const Center(child: CircularProgressIndicator());
+        }
       ),
     ];
   }

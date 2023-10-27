@@ -40,7 +40,7 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
 
   String selectedCategory = eventOrganizerCategories[0];
 
-  List<Category> categories = Category().categories;
+  List<Category> categories = interestCategories;
 
   @override
   void initState() {

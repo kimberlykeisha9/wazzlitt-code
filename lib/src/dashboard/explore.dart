@@ -25,7 +25,6 @@ class Explore extends StatefulWidget {
 class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   TabController? _exploreController;
 
-  List<Category> categories = Category().categories;
 
   @override
   void initState() {
@@ -357,7 +356,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
                   controller: _exploreController,
                   children: [
                     const LitTab(),
-                    PlacesTab(categories: categories),
+                    PlacesTab(categories: interestCategories),
                   ],
                 ),
               ),

@@ -33,7 +33,7 @@ class _UploadImageState extends State<UploadImage> {
   final TextEditingController _searchController = TextEditingController(),
       _captionController = TextEditingController();
 
-  List<Category> categories = Category().categories;
+  List<Category> categories = interestCategories;
   @override
   void initState() {
     super.initState();

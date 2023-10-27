@@ -12,7 +12,7 @@ class Interests extends StatefulWidget {
 }
 
 class _InterestsState extends State<Interests> {
-  List<Category> categories = [];
+  List<Category> categories = interestCategories;
   @override
   void initState() {
     super.initState();
@@ -130,8 +130,9 @@ class Category {
   final String? imageLink;
 
   Category({this.display, this.imageLink});
+}
 
-  List<Category> categories = [
+final List<Category> interestCategories = [
     Category(
       display: 'Afro',
       imageLink:
@@ -168,4 +169,3 @@ class Category {
           'https://i.pinimg.com/564x/28/f9/91/28f9914e508ecbbf7113dd427c4ff8c3.jpg',
     ),
   ];
-}

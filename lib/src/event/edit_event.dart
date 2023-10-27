@@ -46,7 +46,7 @@ class _EditEventState extends State<EditEvent> {
   // Selected Category
   String? _selectedChip;
 
-  List<Category> categories = Category().categories;
+  List<Category> categories = interestCategories;
 
   @override
   void initState() {
