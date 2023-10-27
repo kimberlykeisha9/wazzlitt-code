@@ -118,19 +118,14 @@ class _PlacesTabState extends State<PlacesTab> {
         ),
         Expanded(
           child: FutureBuilder<List<BusinessPlace>>(
-            future: getPlacesFromGoogle,
+            future: getPlacesFromGoogle.timeout(const Duration(seconds: 5)),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
                   child: CircularProgressIndicator(),
                 );
               }
-              if (!(snapshot.hasData) ||
-                  snapshot.data == null ||
-                  snapshot.data!.isEmpty) {
-                return const Center(
-                    child: Text('No places are currently available'));
-              } else {
+              if (snapshot.hasData) {
                 allPlaces = snapshot.data!;
                 return GridView.builder(
                   shrinkWrap: true,
@@ -192,6 +187,9 @@ class _PlacesTabState extends State<PlacesTab> {
                     );
                   },
                 );
+              } else {
+                return const Center(
+                    child: Text('No places are currently available'));
               }
             },
           ),

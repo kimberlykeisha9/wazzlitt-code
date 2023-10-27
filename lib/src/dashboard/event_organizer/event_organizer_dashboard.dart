@@ -285,8 +285,6 @@ class _EventOrganizerDashboardState extends State<EventOrganizerDashboard>
                                     child: ElevatedButton(
                                       child: const Text('Add a new ticket'),
                                       onPressed: () async {
-                                        var pref = await SharedPreferences
-                                            .getInstance();
                                         await checkIfAccountExistsOnStripe()
                                             .then((value) {
                                           if (value == false) {

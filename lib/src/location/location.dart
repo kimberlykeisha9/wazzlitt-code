@@ -11,105 +11,116 @@ import 'package:wazzlitt/user_data/user_data.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+const apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
+
 Future<BusinessPlace> getPlaceDetailsFromGoogle(String placeID) async {
-  const apiUrl =
-      'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json';
-  const apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
+  try {
+    const apiUrl =
+        'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/details/json';
 
-  BusinessPlace googlePlace = BusinessPlace();
-  final response = await http.get(Uri.parse(
-      '$apiUrl?place_id=$placeID&key=$apiKey&fields=name,formatted_address,geometry,website,international_phone_number,photos'));
+    BusinessPlace googlePlace = BusinessPlace();
+    final response = await http.get(Uri.parse(
+        '$apiUrl?place_id=$placeID&key=$apiKey&fields=name,formatted_address,geometry,website,international_phone_number,photos'));
 
-  log(response.statusCode.toString());
+    log(response.statusCode.toString());
 
-  log('Place response is: ${json.decode(response.body)}');
+    log('Place response is: ${jsonDecode(response.body.toString())}');
 
-  if (response.statusCode == 200) {
-    final data = json.decode(response.body);
-    log(data);
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body.toString()) as Map<String, dynamic>;
 
+      if (data['status'] == 'OK' && data.containsKey('result')) {
+        var result = data['result'] as Map<String, dynamic>;
+        final location = result['geometry']['location'] as Map<String, dynamic>;
+        final streetName = result['name'];
+        final latitude = location['lat'];
+        final longitude = location['lng'];
+        final firstPhoto = result['photos']?[0]?['photo_reference'];
 
-    if (data['status'] == 'OK' && data['result'].isNotEmpty) {
-      var result = data['result'];
-      final location = result['geometry']['location'];
-      final streetName = result['name'];
-      final latitude = location['lat'];
-      final longitude = location['lng'];
-      final firstPhoto = result['photos']?[0]?['photo_reference'];
-      // final secondPhoto = result['photos']?[1]?['photo_reference'];
+        log(location.toString());
+        log(streetName);
 
-      log(location);
-      log(streetName);
-      googlePlace = BusinessPlace(
+        final openingTime =
+            result['opening_hours']?['periods']?[0]?['open']?['time'];
+        final closingTime =
+            result['opening_hours']?['periods']?[0]?['close']?['time'];
+
+        googlePlace = BusinessPlace(
           googleId: placeID,
           phoneNumber: result['international_phone_number'],
           formattedAddress: result['formatted_address'],
           website: result['website'],
           openingTime: DateTime(
-              1,
-              1,
-              1,
-              (int.tryParse((result['current_opening_hours']?['periods']?[0]['open']?['time']).toString().substring(0, 2)) ??
-                  0),
-              int.tryParse((result['current_opening_hours']?['periods']?[0]['open']?['time']).toString().substring(2)) ??
-                  0),
+            1,
+            1,
+            1,
+            int.tryParse(openingTime?.substring(0, 2) ?? '0') ?? 0,
+            int.tryParse(openingTime?.substring(2) ?? '0') ?? 0,
+          ),
           closingTime: DateTime(
-              1,
-              1,
-              1,
-              (int.tryParse((result['current_opening_hours']?['periods']?[0]['close']?['time'])
-                      .toString()
-                      .substring(0, 2)) ??
-                  0),
-              int.tryParse((result['current_opening_hours']?['periods']?[0]['close']?['time']).toString().substring(2)) ??
-                  0),
+            1,
+            1,
+            1,
+            int.tryParse(closingTime?.substring(0, 2) ?? '0') ?? 0,
+            int.tryParse(closingTime?.substring(2) ?? '0') ?? 0,
+          ),
           image: firstPhoto != null
-              ? 'https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
+              ? 'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
               : null,
           coverImage: firstPhoto != null
-              ? 'https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
+              ? 'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/photo?key=$apiKey&photoreference=$firstPhoto&maxwidth=400'
               : null,
           location: GeoPoint(latitude, longitude),
-          placeName: streetName);
-      return googlePlace;
+          placeName: streetName,
+        );
+        return googlePlace;
+      } else {
+        // No results found
+        log('No result found');
+        return googlePlace;
+      }
     } else {
-      // No results found
-      log('No result found');
+      // Handle HTTP error
+      log('No result found cause of HTTP error');
       return googlePlace;
     }
-  } else {
-    // Handle HTTP error
-    log('No result found cause of HTTP error');
-    return googlePlace;
+  } on Exception catch (e) {
+    log('Error from Places API Search: ${e.toString()}');
+    throw Exception(e);
   }
 }
 
 Future<List<BusinessPlace>> searchBuildings(String query) async {
-  const apiKey = "AIzaSyCMFVbr2T_uJwhoGGxu9QZnGX7O5rj7ulQ";
   const apiUrl =
       'https://corsproxy.io/?https://maps.googleapis.com/maps/api/place/textsearch/json';
 
   List<BusinessPlace> results = [];
-  final response = await http.get(Uri.parse(
-      '$apiUrl?query=$query&key=$apiKey&maxResults=10&&fields=place_id'));
+  final response = await http.get(
+    Uri.parse('$apiUrl?query=$query&key=$apiKey&maxResults=10&fields=place_id'),
+  );
 
   log(response.statusCode.toString());
 
-  log('Search response is: ${json.decode(response.body)}');
+  log('Search response is: ${jsonDecode(response.body.toString())}');
 
   if (response.statusCode == 200) {
-    final data = json.decode(response.body);
+    final data = jsonDecode(response.body.toString()) as Map<String, dynamic>;
 
     if (data['status'] == 'OK' && data['results'].isNotEmpty) {
-      for (var result in (data['results'] as List<dynamic>)) {
-        log(result['place_id']);
+      final placeIds = (data['results'] as List<dynamic>)
+          .map((result) => result['place_id'] as String)
+          .toList();
 
-        await getPlaceDetailsFromGoogle(result['place_id'])
-            .then((place) => results.add(place));
-      }
-      if (results.length == 5) {
-        return results;
-      }
+      // Use Future.wait to perform multiple asynchronous operations and handle timeouts.
+      final placeFutures = placeIds.map((placeId) {
+        return getPlaceDetailsFromGoogle(placeId)
+            .timeout(const Duration(seconds: 1));
+      });
+
+      final placeResults = await Future.wait(placeFutures);
+
+      results.addAll(placeResults);
+
       return results;
     } else {
       // No results found
@@ -133,7 +144,8 @@ Stream<List<DocumentSnapshot>> getNearbyPeople(
   log(geo
       .collection(collectionRef: usersLocations)
       .within(center: place, radius: 5, field: 'current_location')
-      .length.toString());
+      .length
+      .toString());
   return geo.collection(collectionRef: usersLocations).within(
       center: place, radius: 5, field: 'current_location', strictMode: true);
 }

@@ -1,7 +1,7 @@
-import 'package:animate_do/animate_do.dart';
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
 import 'package:wazzlitt/src/dashboard/profile_screen.dart';
 import 'package:wazzlitt/src/event/event.dart';
@@ -27,7 +27,6 @@ class Explore extends StatefulWidget {
 class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   TabController? _exploreController;
 
-
   @override
   void initState() {
     super.initState();
@@ -38,7 +37,6 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   }
 
   late final Future<Patrone> Function(Future<Patrone>) getPatrone;
-
 
   void _navigateToPlace(BuildContext context, BusinessPlace placeData) {
     Navigator.push(
@@ -101,26 +99,31 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   }
 
   Future<List<Patrone>> _performPeopleSearch(String searchQuery) async {
-    List<Patrone> pResults = [];
-    final usernamesSnapshot =
-        await _getSnapshotForGroup('account_type', 'username', searchQuery);
-    final firstNamesSnapshot =
-        await _getSnapshotForGroup('account_type', 'first_name', searchQuery);
-    final lastNamesSnapshot =
-        await _getSnapshotForGroup('account_type', 'last_name', searchQuery);
+    try {
+      List<Patrone> pResults = [];
+      final usernamesSnapshot =
+          await _getSnapshotForGroup('account_type', 'username', searchQuery);
+      final firstNamesSnapshot =
+          await _getSnapshotForGroup('account_type', 'first_name', searchQuery);
+      final lastNamesSnapshot =
+          await _getSnapshotForGroup('account_type', 'last_name', searchQuery);
 
-    var results = usernamesSnapshot.docs +
-        firstNamesSnapshot.docs +
-        lastNamesSnapshot.docs;
+      var results = usernamesSnapshot.docs +
+          firstNamesSnapshot.docs +
+          lastNamesSnapshot.docs;
 
-    for (var result in results) {
-      await Patrone().getPatroneInformation(result.reference).then((value) {
-        Patrone foundPatrone = value;
+      for (var result in results) {
+        await Patrone().getPatroneInformation(result.reference).then((value) {
+          Patrone foundPatrone = value;
 
-        pResults.add(foundPatrone);
-      });
+          pResults.add(foundPatrone);
+        });
+      }
+      return pResults;
+    } on Exception catch (e) {
+      log(e.toString());
+      throw Exception(e);
     }
-    return pResults;
   }
 
   Future<List<BusinessPlace>> _performPlacesSearch(String searchQuery) async {
@@ -136,6 +139,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         for (Map<String, dynamic> service
             in (placeData['services'] as List<dynamic>)) {
           servicesList.add(Service(
+            map: service,
             available: service['available'],
             title: service['service_name'],
             price: service['price'],
@@ -175,32 +179,74 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
 
   Future<void> _performSearch(String searchQuery) async {
     _searchResults.clear();
-    var places = await _performPlacesSearch(searchQuery);
-    var events = await _performEventsSearch(searchQuery);
-    var people = await _performPeopleSearch(searchQuery);
-    var googleSearch = await searchBuildings(searchQuery);
-    _searchResults.addAll(people);
-    _searchResults.addAll(events);
-    _searchResults.addAll(places);
-    _searchResults.addAll(googleSearch);
+    if (searchQuery.length > 3) {
+      await _performPeopleSearch(searchQuery).then((places) async {
+        setState(() {
+          _searchResults.addAll(places);
+        });
+        await _performEventsSearch(searchQuery).then((events) async {
+          setState(() {
+            _searchResults.addAll(events);
+          });
+          await _performPeopleSearch(searchQuery).then((people) async {
+            setState(() {
+              _searchResults.addAll(people);
+            });
+            List <BusinessPlace> anyResult = await searchBuildings(searchQuery);
+            await searchBuildings(searchQuery).timeout(const Duration(seconds: 5), onTimeout: () {
+              return anyResult;
+            }).then((googleSearch) {
+              setState(() {
+                _searchResults.addAll(googleSearch);
+              });
+            }, onError: (e) {
+              log(e.toString());
+              return;
+            });
+          }, onError: (e) {
+            log(e.toString());
+            return;
+          });
+        }, onError: (e) {
+          log(e.toString());
+          return;
+        });
+      }, onError: (e) {
+        log(e.toString());
+        return;
+      });
+    } else {
+      log('Query is less than 3');
+      return;
+    }
   }
 
   Future<QuerySnapshot> _getSnapshotForGroup(
       String collection, String field, String searchQuery) async {
-    var request = await firestore
-        .collectionGroup(collection)
-        .where(field, isEqualTo: searchQuery)
-        .get();
-    return request;
+    try {
+      var request = await firestore
+          .collectionGroup(collection)
+          .where(field, isEqualTo: searchQuery)
+          .get();
+      return request;
+    } catch (e) {
+      log(e.toString());
+      throw Exception(e);
+    }
   }
 
   Future<QuerySnapshot> _getSnapshot(
       String collection, String field, String searchQuery) async {
-    var request = await firestore
-        .collection(collection)
-        .where(field, isEqualTo: searchQuery)
-        .get();
-    return request;
+    try {
+      var request = await firestore
+          .collection(collection)
+          .where(field, isEqualTo: searchQuery)
+          .get();
+      return request;
+    } on Exception catch (e) {
+      log(e.toString());
+      throw Exception(e);
+    }
   }
 
   Widget _buildSearchBar(BuildContext context, Function(String) searchQuery) {
@@ -208,6 +254,7 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
         MediaQuery.of(context).orientation == Orientation.portrait;
 
     return FloatingSearchBar(
+      initiallyHidden: true,
       hint: 'Search...',
       automaticallyImplyDrawerHamburger: false,
       scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
