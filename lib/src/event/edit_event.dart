@@ -46,7 +46,7 @@ class _EditEventState extends State<EditEvent> {
   // Selected Category
   String? _selectedChip;
 
-  List<Category> categories = [];
+  List<Category> categories = Category().categories;
 
   @override
   void initState() {
@@ -67,18 +67,6 @@ class _EditEventState extends State<EditEvent> {
         _selectedChip = eventData?['category'];
         networkEventImage = eventData?['image'];
       }
-    });
-    firestore.collection('app_data').doc('categories').get().then((value) {
-      var data = value.data() as Map<String, dynamic>;
-      data.forEach((key, value) {
-        var itemData = value as Map<String, dynamic>;
-        String display = itemData['display'];
-        String image = itemData['image'];
-        setState(() {
-          Category category = Category(display, image);
-          categories.add(category);
-        });
-      });
     });
   }
 
@@ -236,7 +224,7 @@ class _EditEventState extends State<EditEvent> {
                                                   const EdgeInsets.symmetric(
                                                       horizontal: 5),
                                               child: ChoiceChip(
-                                                label: Text(chip.display),
+                                                label: Text(chip.display!),
                                                 selected: _selectedChip ==
                                                     chip.display,
                                                 onSelected: (selected) {

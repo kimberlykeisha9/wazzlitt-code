@@ -68,7 +68,7 @@ class _EditPlaceState extends State<EditPlace> {
   // Selected Category
   String? _selectedChip;
 
-  List<Category> categories = [];
+  List<Category> categories = Category().categories;
 
   @override
   void initState() {
@@ -107,18 +107,6 @@ class _EditPlaceState extends State<EditPlace> {
     getPlace = (val) {
       return val!;
     };
-    ud.firestore.collection('app_data').doc('categories').get().then((value) {
-      var data = value.data() as Map<String, dynamic>;
-      data.forEach((key, value) {
-        var itemData = value as Map<String, dynamic>;
-        String display = itemData['display'];
-        String image = itemData['image'];
-        setState(() {
-          Category category = Category(display, image);
-          categories.add(category);
-        });
-      });
-    });
   }
 
   late final Future<DocumentSnapshot> Function(
@@ -304,7 +292,7 @@ class _EditPlaceState extends State<EditPlace> {
                                                   const EdgeInsets.symmetric(
                                                       horizontal: 5),
                                               child: ChoiceChip(
-                                                label: Text(chip.display),
+                                                label: Text(chip.display!),
                                                 selected: _selectedChip ==
                                                     chip.display,
                                                 onSelected: (selected) {

@@ -8,14 +8,13 @@ import 'package:provider/provider.dart';
 import '../../user_data/user_data.dart';
 import '../app.dart';
 import '../registration/interests.dart';
-import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../user_data/patrone_data.dart';
 
 class UploadImage extends StatefulWidget {
-  UploadImage({super.key, required this.uploadedImage});
+  const UploadImage({super.key, required this.uploadedImage});
 
- var uploadedImage;
+ final dynamic uploadedImage;
 
   @override
   State<UploadImage> createState() => _UploadImageState();
@@ -34,22 +33,10 @@ class _UploadImageState extends State<UploadImage> {
   final TextEditingController _searchController = TextEditingController(),
       _captionController = TextEditingController();
 
-  List<Category> categories = [];
+  List<Category> categories = Category().categories;
   @override
   void initState() {
     super.initState();
-    firestore.collection('app_data').doc('categories').get().then((value) {
-      var data = value.data() as Map<String, dynamic>;
-      data.forEach((key, value) {
-        var itemData = value as Map<String, dynamic>;
-        String display = itemData['display'];
-        String image = itemData['image'];
-        setState(() {
-          Category category = Category(display, image);
-          categories.add(category);
-        });
-      });
-    });
   }
 
   @override
@@ -59,7 +46,7 @@ class _UploadImageState extends State<UploadImage> {
         appBar: AppBar(title: const Text('New Post'), actions: [
           IconButton(
             onPressed: () {
-              if (_selectedChip != null && generatedPrediction != null) {
+              if (widget.uploadedImage != null && _selectedChip != null && generatedPrediction != null) {
                 try {
                   dataSendingNotifier.startLoading();
                   if (dataSendingNotifier.isLoading) {
@@ -80,7 +67,8 @@ class _UploadImageState extends State<UploadImage> {
                         double.parse(generatedPrediction!.lng!),
                       )
                       .then(
-                        (value) => Navigator.of(context).pop(),
+                        (value) => {Navigator.of(context).pop(),
+                        Navigator.of(context).pop(),}
                       );
 
                   dataSendingNotifier.stopLoading();
@@ -209,7 +197,7 @@ class _UploadImageState extends State<UploadImage> {
                                   padding:
                                       const EdgeInsets.symmetric(horizontal: 5),
                                   child: ChoiceChip(
-                                    label: Text(chip.display),
+                                    label: Text(chip.display!),
                                     selected: _selectedChip == chip.display,
                                     onSelected: (selected) {
                                       setState(() {

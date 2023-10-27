@@ -39,6 +39,5 @@ void main() async {
     ChangeNotifierProvider(create: (_) => BusinessOwner()),
     ChangeNotifierProvider(create: (_) => EventOrganizer()),
     ChangeNotifierProvider(create: (_) => DataSendingNotifier()),
-    ChangeNotifierProvider(create: (_) => CategoryProvider()),
   ], child: MyApp(settingsController: settingsController)));
 }

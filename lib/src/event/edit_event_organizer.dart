@@ -33,12 +33,12 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
   // Images from Network
   String? networkProfile;
   // Local Images
-  var _profilePicture;
+  dynamic _profilePicture;
 
   // Selected Category
   String? _selectedChip;
 
-  List<Category> categories = [];
+  List<Category> categories = Category().categories;
 
   @override
   void initState() {
@@ -58,18 +58,6 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
         networkProfile = organizerData?['image'];
         _selectedChip = organizerData?['category'];
       }
-    });
-    firestore.collection('app_data').doc('categories').get().then((value) {
-      var data = value.data() as Map<String, dynamic>;
-      data.forEach((key, value) {
-        var itemData = value as Map<String, dynamic>;
-        String display = itemData['display'];
-        String image = itemData['image'];
-        setState(() {
-          Category category = Category(display, image);
-          categories.add(category);
-        });
-      });
     });
   }
 
@@ -182,12 +170,9 @@ class _EditEventOrganizerState extends State<EditEventOrganizer> {
                                                   const EdgeInsets.symmetric(
                                                       horizontal: 5),
                                               child: ChoiceChip(
-                                                label: Text(chip.display),
+                                                label: Text(chip.display!),
                                                 selected: _selectedChip ==
-                                                    chip.display /*  ||
-                                                    organizerData?['category'] ==
-                                                        chip.display */
-                                                ,
+                                                    chip.display,
                                                 onSelected: (selected) {
                                                   setState(() {
                                                     _selectedChip = selected

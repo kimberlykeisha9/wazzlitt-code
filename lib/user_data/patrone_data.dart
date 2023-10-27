@@ -1,5 +1,4 @@
 import 'dart:developer';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart' as db;
 import 'package:flutter/material.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
@@ -245,22 +244,30 @@ class Patrone extends ChangeNotifier {
   }
 
   // Upload a post
-  Future<void> uploadPost(File toBeUploaded, String? caption, String category,
+  Future<void> uploadPost(dynamic toBeUploaded, String? caption, String category,
       double latitude, double longitude) async {
     try {
-      await uploadImageToFirebase(toBeUploaded,
+      await uploadImageToFirebase(toBeUploaded!,
               'feed/${auth.currentUser!.uid}/${generateUniqueId()}')
-          .then((postImage) => firestore.collection('feed').add({
+          .then((postImage) async {
+            if (postImage != null) {
+              await firestore.collection('feed').add({
                 'caption': caption,
                 'creator_uid': currentUserPatroneProfile,
-                'image': postImage,
+                'image': postImage!,
                 'likes': [],
                 'date_created': DateTime.now(),
                 'category': category,
                 'location': db.GeoPoint(latitude, longitude),
-              }).then((doc) => currentUserPatroneProfile.update({
+              }).then((doc) async {
+                await currentUserPatroneProfile.update({
                     'created_posts': db.FieldValue.arrayUnion([doc])
-                  }).then((value) => log('Uploaded post: ${doc.id}'))));
+                  }).then((value) => log('Uploaded post: ${doc.id}'));
+              });
+            } else {
+              log('The image post is null so image cannot be posted');
+            }
+          });
       log('Uploaded');
     } catch (e) {
       log(e.toString());

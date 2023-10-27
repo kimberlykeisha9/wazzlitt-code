@@ -25,13 +25,12 @@ class Explore extends StatefulWidget {
 class _ExploreState extends State<Explore> with TickerProviderStateMixin {
   TabController? _exploreController;
 
-  List<Category> categories = [];
+  List<Category> categories = Category().categories;
 
   @override
   void initState() {
     super.initState();
     _exploreController = widget.tabController;
-    _loadCategories();
     getPatrone = (val) {
       return val;
     };
@@ -39,16 +38,6 @@ class _ExploreState extends State<Explore> with TickerProviderStateMixin {
 
   late final Future<Patrone> Function(Future<Patrone>) getPatrone;
 
-  Future<void> _loadCategories() async {
-    final value =
-        await firestore.collection('app_data').doc('categories').get();
-    final data = value.data() as Map<String, dynamic>;
-
-    categories = data.entries.map((entry) {
-      final itemData = entry.value as Map<String, dynamic>;
-      return Category(entry.key, itemData['image']);
-    }).toList();
-  }
 
   void _navigateToPlace(BuildContext context, BusinessPlace placeData) {
     Navigator.push(
