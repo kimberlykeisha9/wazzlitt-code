@@ -49,7 +49,7 @@ class _OrdersState extends State<Orders> {
                 return SafeArea(
                   child: SingleChildScrollView(
                     child: Column(children: [
-                      const Padding(
+                      /*const Padding(
                         padding: EdgeInsets.all(20),
                         child: TextField(
                           decoration: InputDecoration(
@@ -58,7 +58,7 @@ class _OrdersState extends State<Orders> {
                             border: UnderlineInputBorder(),
                           ),
                         ),
-                      ),
+                      ),*/
                       GridView.builder(
                         shrinkWrap: true,
                         itemCount: orders.length,
@@ -68,6 +68,9 @@ class _OrdersState extends State<Orders> {
                         ),
                         itemBuilder: (context, index) {
                           Order order = orders[index];
+                          if (orders.length == 0) {
+                            return Center(child: Text('You have no orders'));
+                          }
                           return FutureBuilder(
                               future: null,
                               builder: (context, snapshot) {

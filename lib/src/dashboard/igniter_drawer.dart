@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
+import 'package:wazzlitt/user_data/payments.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
 import '../app.dart';
 
@@ -78,6 +80,22 @@ class _IgniterDrawerState extends State<IgniterDrawer> {
                   Text('Orders'),
                 ],
               ),
+            ),
+            ElevatedButton(
+              child: Text('Manage Your Seller Account'),
+              onPressed: () async {
+                await checkIfAccountExistsOnStripe().then((value) async {
+                  if (value == false) {
+                    createSellerAccount();
+                  } else {
+                    try {
+                      await launchUrl(Uri.parse((await getExistingAccountLink()) ?? ''));
+                    } catch (e) {
+                      throw Exception(e);
+                    }
+                  }
+                });
+              },
             ),
             const Spacer(),
             FutureBuilder<bool?>(

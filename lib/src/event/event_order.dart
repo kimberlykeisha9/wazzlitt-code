@@ -137,7 +137,16 @@ class _EventOrderState extends State<EventOrder> {
                                             await launchUrl(
                                                 Uri.parse(
                                                     '${_selectedTicket!.paymentURL!}?client_reference_id=${auth.currentUser!.uid}-order-${widget.event.eventReference!.id}'),
-                                                webOnlyWindowName: '_blank');
+                                                webOnlyWindowName: '_blank').then((value) {
+                                                  Future.delayed(Duration(minutes: 2), () {
+                                                    checkIfOrderIsSuccess(widget.event.eventReference!.id).then((value) {
+                                                      if (value != null) {
+                                                        log(value.toString());
+                                                        Order().uploadEventOrder(_selectedTicket!, _selectedIndex!, widget.event, 'stripe', value);
+                                                      }
+                                                    });
+                                                  });
+                                                });
                                           },
                                           child: const Column(
                                               mainAxisSize: MainAxisSize.min,
@@ -215,9 +224,9 @@ class _EventOrderState extends State<EventOrder> {
                                                                             'No payment info found');
                                                                         if (paymentStatus ==
                                                                             'paid') {
-                                                                          Order().uploadEventOrder(_selectedTicket!, _selectedIndex!, widget.event, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(
-                                                                              context,
-                                                                              'confirmed'));
+                                                                          // Order().uploadEventOrder(_selectedTicket!, _selectedIndex!, widget.event, 'wazzlitt_balance').then((value) => Navigator.popAndPushNamed(
+                                                                          //     context,
+                                                                          //     'confirmed'));
                                                                         } else {
                                                                           Navigator.pop(
                                                                               context);

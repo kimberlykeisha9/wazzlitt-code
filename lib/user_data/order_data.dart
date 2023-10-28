@@ -65,9 +65,10 @@ class Order {
   // Uploads order for an event
 
   Future<void> uploadEventOrder(
-      Ticket ticket, int index, EventData event, String paymentType) async {
+      Ticket ticket, int index, EventData event, String paymentType, Map<String, dynamic> stripe) async {
     // Add order to Orders Collection
     await firestore.collection('orders').add({
+      'stripeReference': stripe,
       'date_placed': DateTime.now(),
       'order_type': 'ticket',
       'ticket': ticket.map,

@@ -12,6 +12,44 @@ import 'package:url_launcher/url_launcher.dart';
 const apiKey = 'sk_test_51N6MV7Aw4gbUiKSOVcDYHBiDM5ibgvUiGZQQ2erLCvrDXerqrJXDY'
     'jhdc33LMfSKXgzf5doGBAtV75AIXK3u3eUw00stk6GUfw';
 
+Future<String?> getExistingAccountLink() async {
+  String? linkUrl;
+  try {
+    await currentUserProfile.get().then((value) async {
+      String account = (value.data() as Map<String, dynamic>)['stripeAccountID'];
+      print(account);
+  
+    final request = await http.post(
+        Uri.parse(
+            'https://corsproxy.io/?https://api.stripe.com/v1/account_links'),
+        headers: {
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'account': account,
+          'type': 'account_update',
+          'refresh_url': 'https://wazzlitt.com/',
+          'return_url': 'https://wazzlitt.com/',
+        });
+    log(request.body);
+
+    if (request.statusCode == 200) {
+      var body = jsonDecode(request.body);
+      linkUrl = body['url'];
+      log(linkUrl ?? 'No url found');
+    } else {
+      log('The account link did not return any response');
+    }
+    return linkUrl;
+    });
+    return linkUrl;
+  } on Exception catch (e) {
+    log(e.toString());
+    throw Exception(e);
+  }
+}
+
 Future<Map<String, dynamic>?> getProductPaymentLink(
     String accountId, String priceId, int quantity) async {
   Map<String, dynamic>? response;
@@ -23,6 +61,7 @@ Future<Map<String, dynamic>?> getProductPaymentLink(
     }, body: {
       'line_items[0][price]': priceId,
       'line_items[0][quantity]': quantity.toString(),
+      'customer_creation': 'always',
     });
     log(request.body);
     var responseData = jsonDecode(request.body);
@@ -185,10 +224,13 @@ createSellerAccount() async {
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: {
-            'type': 'express'
+            'type': 'custom',
+            'capabilities[card_payments][requested]': 'true',
+            'capabilities[transfers][requested]': 'true',
           });
 
       var responseBody = jsonDecode(request.body);
+      log(request.body);
       if (request.statusCode == 200) {
         accountID = responseBody['id'];
         if (accountID != null) {
@@ -218,8 +260,8 @@ createSellerAccount() async {
           body: {
             'account': account,
             'type': 'account_onboarding',
-            'refresh_url': 'https://wazzlitt-d7c47.web.app/',
-            'return_url': 'https://wazzlitt-d7c47.web.app/',
+            'refresh_url': 'https://wazzlitt.com/',
+            'return_url': 'https://wazzlitt.com/',
           });
       log(request.body);
 
@@ -234,7 +276,11 @@ createSellerAccount() async {
     } on Exception catch (e) {
       log(e.toString());
       throw Exception(e);
-    }
+    
+    } catch (e) {
+      log(e.toString());
+      throw Exception(e);
+    } 
   }
 
   await getAccountID().then((account) async {
@@ -254,6 +300,40 @@ createSellerAccount() async {
       log('Account ID was not returned');
     }
   });
+}
+
+Future<Map<String, dynamic>?> checkIfOrderIsSuccess(
+    String orderReferenceId) async {
+  Map<String, dynamic>? session;
+  final request = await http.get(
+    Uri.parse(
+        'https://corsproxy.io/?https://api.stripe.com/v1/checkout/sessions'),
+    headers: {
+      'Authorization': 'Bearer $apiKey',
+    },
+  );
+
+  if (request.statusCode == 200) {
+    final data = jsonDecode(request.body);
+    List listedData = data['data'];
+    var orderSessions = listedData
+        .where((session) =>
+            session['client_reference_id'] ==
+            '${auth.currentUser!.uid}-$orderReferenceId')
+        .toList()
+        .where((orderSession) => orderSession['payment_status'] == 'paid')
+        .toList();
+    log('Order Sessions: $orderSessions');
+    if (orderSessions.isNotEmpty) {
+      log('Found paid order for order $orderReferenceId');
+      session = orderSessions[0] as Map<String, dynamic>;
+    } else {
+      log('No paid order for order $orderReferenceId');
+    }
+  } else {
+    log('There was an issue: ${request.statusCode} ${request.body}');
+  }
+  return session;
 }
 
 Future<Map<String, dynamic>?> checkIfIgniterUserIsSubscribed() async {
