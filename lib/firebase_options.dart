@@ -62,22 +62,24 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'MAPS_API_KEY
+    apiKey: 'MAPS_API_KEY',
     appId: '1:1016492729672:ios:aab3b965fbc4da45e93f7d',
     messagingSenderId: '1016492729672',
     projectId: 'wazzlitt-d7c47',
     storageBucket: 'wazzlitt-d7c47.appspot.com',
-    iosClientId: '1016492729672-o3lv3p935f2qqpjmuc1cn35v7kc8bhbd.apps.googleusercontent.com',
+    iosClientId:
+        '1016492729672-o3lv3p935f2qqpjmuc1cn35v7kc8bhbd.apps.googleusercontent.com',
     iosBundleId: 'com.example.wazzlitt',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'MAPS_API_KEY
+    apiKey: 'MAPS_API_KEY',
     appId: '1:1016492729672:ios:6b76ce4928d056d2e93f7d',
     messagingSenderId: '1016492729672',
     projectId: 'wazzlitt-d7c47',
     storageBucket: 'wazzlitt-d7c47.appspot.com',
-    iosClientId: '1016492729672-8esb0cdt3rva9i5ej9d44p5cd2v3tdd5.apps.googleusercontent.com',
+    iosClientId:
+        '1016492729672-8esb0cdt3rva9i5ej9d44p5cd2v3tdd5.apps.googleusercontent.com',
     iosBundleId: 'com.example.wazzlitt.RunnerTests',
   );
 }

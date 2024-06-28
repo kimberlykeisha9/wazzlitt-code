@@ -10,40 +10,40 @@ environment:
   sdk: '>=3.0.2 <4.0.0'
 
 dependencies:
-  country_code_picker: ^3.0.0
-  firebase_core: ^2.13.1
+  country_code_picker: any
+  firebase_core: any
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  font_awesome_flutter: ^10.4.0
-  google_maps_flutter: ^2.2.8
-  provider: ^6.0.5
-  url_launcher: ^6.1.11
-  image_picker: ^1.0.4
-  share_plus: ^7.1.0
-  intl: ^0.18.0
-  location: ^5.0.0-dev.8
-  shared_preferences: ^2.1.2
-  intl_phone_field: ^3.1.0
-  geolocator: ^10.0.0
-  animate_do: ^3.0.2
-  firebase_auth: ^4.6.3
-  firebase_storage: ^11.2.3
-  cloud_firestore: ^4.8.1
-  pin_code_fields: ^8.0.1
-  geocoding: ^2.1.0
-  http: ^1.1.0
-  cached_network_image: ^3.2.3
-  uuid: ^3.0.7
-  flutter_stripe: ^9.3.0
-  cloud_functions: ^4.3.4
-  flutter_dotenv: ^5.1.0
-  geo_firestore_flutter: ^0.1.6
-  geoflutterfire_updated: ^3.1.0
-  google_places_autocomplete_text_field: ^0.1.2
-  multi_trigger_autocomplete: ^1.0.0
-  material_floating_search_bar_2: ^0.5.0
+  font_awesome_flutter: any
+  google_maps_flutter: any
+  provider: any
+  url_launcher: any
+  image_picker: any
+  share_plus: any
+  intl: any
+  location: any
+  shared_preferences: any
+  intl_phone_field: any
+  geolocator: any
+  animate_do: any
+  firebase_auth: any
+  firebase_storage: any
+  cloud_firestore: ^4.17.5
+  pin_code_fields: any
+  geocoding: any
+  http: any
+  cached_network_image: any
+  uuid: any
+  flutter_stripe: any
+  cloud_functions: any
+  flutter_dotenv: any
+  geo_firestore_flutter: any
+  geoflutterfire_updated: any
+  google_places_autocomplete_text_field: any
+  multi_trigger_autocomplete: any
+  material_floating_search_bar_2: any
 
 dev_dependencies:
   flutter_test:
