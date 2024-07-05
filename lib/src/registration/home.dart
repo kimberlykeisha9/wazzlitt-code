@@ -41,9 +41,9 @@ class Home extends StatelessWidget {
               child: SizedBox(
                 width: width(context),
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, 'signup', arguments: ('patrone')),
+                  onPressed: () => Navigator.pushNamed(context, 'signup'),
                   child: Text(
-                    AppLocalizations.of(context)!.patrone,
+                    'Sign in with mobile',
                   ),
                 ),
               ),
@@ -54,7 +54,8 @@ class Home extends StatelessWidget {
               child: SizedBox(
                 width: width(context),
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, 'signup', arguments: ('igniter')),
+                  onPressed: () => Navigator.pushNamed(context, 'signup',
+                      arguments: ('igniter')),
                   child: Text(
                     AppLocalizations.of(context)!.igniter,
                   ),

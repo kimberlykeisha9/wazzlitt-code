@@ -66,7 +66,7 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
             child: IntlPhoneField(
               controller: widget.phoneController,
               decoration: InputDecoration(
-                labelText: AppLocalizations.of(context)!.phone,
+                hintText: AppLocalizations.of(context)!.phone,
                 border: InputBorder.none,
               ),
               keyboardType: TextInputType.number,

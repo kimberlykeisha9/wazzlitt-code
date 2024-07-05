@@ -33,9 +33,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(providers: [
-      ChangeNotifierProvider<Data>(create: (_) => Data()),
-    ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<Data>(create: (_) => Data()),
+      ],
       child: AnimatedBuilder(
         animation: settingsController,
         builder: (BuildContext context, Widget? child) {
@@ -53,23 +54,23 @@ class MyApp extends StatelessWidget {
             onGenerateTitle: (BuildContext context) =>
                 AppLocalizations.of(context)!.appTitle,
             darkTheme: ThemeData(
-                colorScheme: ColorScheme.dark(
+              colorScheme: ColorScheme.dark(
                   onPrimary: Colors.white,
-                    primary: Colors.orangeAccent[700]!,
-                    secondary: Colors.indigo),
+                  primary: Colors.orangeAccent[700]!,
+                  secondary: Colors.indigo),
               chipTheme: ChipThemeData(
                   backgroundColor: Colors.indigo,
                   selectedColor: Colors.indigo[800]),
               inputDecorationTheme: InputDecorationTheme(
                 border:
-                OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
               ),
               appBarTheme: AppBarTheme(
                 color: Colors.transparent,
                 elevation: 0,
                 centerTitle: true,
                 titleTextStyle:
-                const TextStyle(color: Colors.white, fontSize: 16),
+                    const TextStyle(color: Colors.white, fontSize: 16),
                 toolbarHeight: height(context) * 0.075,
                 iconTheme: const IconThemeData(color: Colors.white),
               ),
@@ -79,10 +80,9 @@ class MyApp extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)))),
               textButtonTheme: TextButtonThemeData(
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.indigo,
-                )
-              ),
+                  style: TextButton.styleFrom(
+                foregroundColor: Colors.indigo,
+              )),
               textTheme: const TextTheme(
                 labelLarge: TextStyle(fontSize: 16),
                 bodyMedium: TextStyle(fontSize: 16),
@@ -105,8 +105,8 @@ class MyApp extends StatelessWidget {
                     backgroundColor: Colors.indigo,
                     selectedColor: Colors.indigo[800]),
                 inputDecorationTheme: InputDecorationTheme(
-                  border:
-                      OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15)),
                 ),
                 textTheme: const TextTheme(
                   labelLarge: TextStyle(fontSize: 16),
@@ -121,7 +121,8 @@ class MyApp extends StatelessWidget {
                     primary: Colors.orangeAccent[700]!,
                     secondary: Colors.indigo)),
             themeMode: settingsController.themeMode,
-            initialRoute: isLoggedIn ? 'dashboard' : 'home',
+            // initialRoute: 'home',
+            home: const Home(),
             routes: {
               'home': (context) => const Home(),
               'signup': (context) => SignUp(),
@@ -155,7 +156,6 @@ Future<String?> getData(String key) async {
   return val;
 }
 
-
 enum ChatRoomType { individual, business }
 
 class Chat {
@@ -183,6 +183,7 @@ class Message {
     required this.time,
   });
 }
+
 void showSnackbar(BuildContext context, String message) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
