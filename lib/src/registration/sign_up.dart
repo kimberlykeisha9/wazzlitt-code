@@ -1,3 +1,4 @@
+import 'package:animate_do/animate_do.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -6,9 +7,8 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/authorization/authorization.dart';
-import 'package:animate_do/animate_do.dart';
+
 import '../../user_data/user_data.dart';
-import '../../user_data/patrone_data.dart';
 import '../app.dart';
 
 class PhoneNumberPrompt extends StatefulWidget {
@@ -16,11 +16,12 @@ class PhoneNumberPrompt extends StatefulWidget {
   final TextEditingController phoneController;
   final PageController pageController;
 
-  PhoneNumberPrompt({
+  const PhoneNumberPrompt({
     required this.formKey,
     required this.phoneController,
     required this.pageController,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<PhoneNumberPrompt> createState() => _PhoneNumberPromptState();
@@ -30,17 +31,18 @@ class PhoneVerification extends StatefulWidget {
   final String direction;
   final PageController pageController;
 
-  PhoneVerification({
+  const PhoneVerification({
     required this.direction,
     required this.pageController,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<PhoneVerification> createState() => _PhoneVerificationState();
 }
 
 class SignUp extends StatefulWidget {
-  SignUp();
+  const SignUp({Key? key}) : super(key: key);
 
   @override
   State<SignUp> createState() => _SignUpState();
@@ -91,14 +93,18 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
               onPressed: () {
                 FocusScope.of(context).unfocus();
                 if (widget.formKey.currentState!.validate()) {
-                  getData('phone').then((number) => signInWithPhoneNumber(
-                        number ?? '',
+                  getData('phone').then((number) {
+                    if (number != null) {
+                      signInWithPhoneNumber(
+                        number,
                         context,
                         widget.pageController.nextPage(
                           duration: const Duration(milliseconds: 200),
                           curve: Curves.easeInOut,
                         ),
-                      ));
+                      );
+                    }
+                  });
                 }
               },
               child: Text(
@@ -135,22 +141,28 @@ class _PhoneNumberPromptState extends State<PhoneNumberPrompt> {
 }
 
 class _PhoneVerificationState extends State<PhoneVerification> {
-  final _verificationController = TextEditingController();
+  final TextEditingController _verificationController = TextEditingController();
   String? _phoneNumber;
 
   @override
   void dispose() {
-    super.dispose();
     _verificationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePhoneNumber();
+  }
+
+  Future<void> _initializePhoneNumber() async {
+    _phoneNumber = await getData('phone');
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    getData('phone').then((value) {
-      setState(() {
-        _phoneNumber = value;
-      });
-    });
     final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Column(
       children: [
@@ -209,56 +221,31 @@ class _PhoneVerificationState extends State<PhoneVerification> {
           child: SizedBox(
             width: width(context),
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 FocusScope.of(context).unfocus();
+                dataSendingNotifier.startLoading();
                 try {
-                  dataSendingNotifier.startLoading();
                   if (dataSendingNotifier.isLoading) {
                     showDialog(
-                        barrierDismissible: false,
-                        context: context,
-                        builder: (_) =>
-                            const Center(child: CircularProgressIndicator()));
+                      barrierDismissible: false,
+                      context: context,
+                      builder: (_) =>
+                          const Center(child: CircularProgressIndicator()),
+                    );
                   }
 
-                  getData('verificationID')
-                      .then((value) =>
-                          verifyCode(_verificationController.text, value!))
-                      .then((value) {
-                    if (widget.direction == 'patrone') {
-                      Patrone().checkIfPatroneUser().then((isPatrone) {
-                        if (isPatrone == true) {
-                          Navigator.popAndPushNamed(
-                              context, 'patrone_dashboard');
-                        } else if (isPatrone == false) {
-                          Navigator.popAndPushNamed(
-                              context, 'patrone_registration');
-                        } else {
-                          dataSendingNotifier.stopLoading();
-                          showSnackbar(context,
-                              'Something went wrong. Please try again later');
-                        }
-                      });
-                    } else if (widget.direction == 'igniter') {
-                      checkIfIgniterUser().then((isIgniter) {
-                        if (isIgniter == true) {
-                          Navigator.popAndPushNamed(
-                              context, 'igniter_dashboard');
-                        } else if (isIgniter == false) {
-                          Navigator.popAndPushNamed(
-                              context, 'igniter_registration');
-                        } else {
-                          dataSendingNotifier.stopLoading();
-                          showSnackbar(context,
-                              'Something went wrong. Please try again later');
-                        }
-                      });
-                    } else {
-                      showSnackbar(context, 'Something went wrong.');
-                    }
-                  });
-                  dataSendingNotifier.stopLoading();
-                } on Exception catch (e) {
+                  String? verificationID = await getData('verificationID');
+                  if (verificationID != null) {
+                    verifyCode(_verificationController.text, verificationID)
+                        .then((value) => Navigator.popAndPushNamed(
+                            context, 'patrone_dashboard'));
+                  } else {
+                    showSnackbar(context,
+                        'Verification ID not found. Please try again.');
+                  }
+                } catch (e) {
+                  showSnackbar(context, 'An error occurred. Please try again.');
+                } finally {
                   dataSendingNotifier.stopLoading();
                 }
               },
@@ -270,12 +257,6 @@ class _PhoneVerificationState extends State<PhoneVerification> {
       ],
     );
   }
-
-  @override
-  void initState() {
-    super.initState();
-    getData('phone').then((value) => _phoneNumber = value);
-  }
 }
 
 class _SignUpState extends State<SignUp> {
@@ -286,15 +267,26 @@ class _SignUpState extends State<SignUp> {
 
   @override
   void dispose() {
-    super.dispose();
     _phoneController.dispose();
     _pageController.dispose();
-    _formKey.currentState?.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((_) {
+      setState(() {
+        if (kDebugMode) {
+          print(_direction);
+        }
+        _direction = ModalRoute.of(context)!.settings.arguments as String;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final dataSendingNotifier = Provider.of<DataSendingNotifier>(context);
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -318,18 +310,5 @@ class _SignUpState extends State<SignUp> {
         ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsFlutterBinding.ensureInitialized().addPostFrameCallback((timeStamp) {
-      setState(() {
-        if (kDebugMode) {
-          print(_direction);
-        }
-        _direction = ModalRoute.of(context)!.settings.arguments as String;
-      });
-    });
   }
 }
