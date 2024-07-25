@@ -1,7 +1,8 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter/material.dart';
-import '../app.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import '../app.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -44,20 +45,6 @@ class Home extends StatelessWidget {
                   onPressed: () => Navigator.pushNamed(context, 'signup'),
                   child: Text(
                     'Sign in with mobile',
-                  ),
-                ),
-              ),
-            ),
-            const Spacer(),
-            ZoomIn(
-              duration: const Duration(milliseconds: 500),
-              child: SizedBox(
-                width: width(context),
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, 'signup',
-                      arguments: ('igniter')),
-                  child: Text(
-                    AppLocalizations.of(context)!.igniter,
                   ),
                 ),
               ),

@@ -32,7 +32,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
   void initState() {
     super.initState();
     uploadCurrentLocation();
-    _exploreController = TabController(length: 2, vsync: this);
+    _exploreController = TabController(length: 1, vsync: this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initialize();
     });
@@ -153,13 +153,7 @@ class _PatroneDashboardState extends State<PatroneDashboard>
       case 0:
         return const Text('WazzLitt! around me');
       case 1:
-        return TabBar(
-          unselectedLabelStyle:
-              TextStyle(color: Theme.of(context).colorScheme.primary),
-          indicatorColor: Theme.of(context).colorScheme.primary,
-          controller: _exploreController,
-          tabs: const [Tab(text: 'Lit'), Tab(text: 'Places')],
-        );
+        return Text('Events around me');
       case 2:
         return const Text('Messages');
       case 3:

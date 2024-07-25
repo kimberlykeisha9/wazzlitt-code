@@ -1,15 +1,14 @@
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:wazzlitt/user_data/user_data.dart';
-import 'package:image_picker/image_picker.dart';
+
 import '../../authorization/authorization.dart';
 import '../../user_data/patrone_data.dart';
-import '../../user_data/payments.dart';
 import '../app.dart';
 
 class PatroneRegistration extends StatefulWidget {
@@ -246,12 +245,6 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                                 if (value == null || value.isEmpty) {
                                   return 'Username is required';
                                 }
-                                // Define the username pattern (example: only allow lowercase letters and digits, 4-10 characters)
-                                // const usernamePattern = r'^[a-z0-9]$';
-                                // final regex = RegExp(usernamePattern);
-                                // if (!regex.hasMatch(value)) {
-                                //   return 'Invalid username. Do not use capital letters or symbols';
-                                // }
                                 return null;
                               },
                               decoration: InputDecoration(
@@ -373,28 +366,32 @@ class _PatroneRegistrationState extends State<PatroneRegistration> {
                               builder: (_) => const Center(
                                   child: CircularProgressIndicator()));
                         }
-                        uploadImageToFirebase(_profilePicture, 'users/${auth.currentUser!.uid}/patrone/profile_picture').then((profilePic) {
-                          uploadImageToFirebase(_coverPhoto, 'users/${auth.currentUser!.uid}/patrone/cover_image').then((coverImage) {
+                        uploadImageToFirebase(_profilePicture,
+                                'users/${auth.currentUser!.uid}/patrone/profile_picture')
+                            .then((profilePic) {
+                          uploadImageToFirebase(_coverPhoto,
+                                  'users/${auth.currentUser!.uid}/patrone/cover_image')
+                              .then((coverImage) {
                             Patrone()
-                            .saveUserPatroneInformation(
-                              firstName: firstNameController.text,
-                              lastName: lastNameController.text,
-                              username: usernameController.text,
-                              dob: selectedDOB,
-                              email: emailController.text,
-                              profilePic: profilePic,
-                              coverPic: coverImage,
-                              gender: _selectedGender,
-                            )
-                            .then(
-                                (value) => Navigator.popAndPushNamed(
-                                    context, 'interests'),
-                                onError: (e) => showSnackbar(
-                                    context,
-                                    'An error has occured. '
-                                    'Please try again later.'));
-                          }); 
-                        });                        
+                                .saveUserPatroneInformation(
+                                  firstName: firstNameController.text,
+                                  lastName: lastNameController.text,
+                                  username: usernameController.text,
+                                  dob: selectedDOB,
+                                  email: emailController.text,
+                                  profilePic: profilePic,
+                                  coverPic: coverImage,
+                                  gender: _selectedGender,
+                                )
+                                .then(
+                                    (value) => Navigator.popAndPushNamed(
+                                        context, 'interests'),
+                                    onError: (e) => showSnackbar(
+                                        context,
+                                        'An error has occured. '
+                                        'Please try again later.'));
+                          });
+                        });
                         dataSendingNotifier.stopLoading();
                       } on Exception catch (e) {
                         dataSendingNotifier.stopLoading();
